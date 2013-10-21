@@ -21,21 +21,25 @@ mkdir -p logs
 
 debug_mode () {
 if [ $DEBUG_MODE = "full" ]; then
-     XML_LOG=.cache/XML_CHECK_FULL.log
+     XML_LOG=.cache/XML_CHECK_FULL.html
 else
-     XML_LOG=.cache/XML_$LANG_TARGET.log
+     XML_LOG=.cache/XML_$LANG_TARGET.html
 fi
-echo -e "\n########################\n$LANG_TARGET\n########################" >> $XML_LOG
+DATE=`date`
+cat >> $XML_LOG << EOF
+<font color="#ff0000">
+<font color="#000000"><b><br>Checked $LANG_TARGET REPO on $DATE</b><br></font>
+EOF
 exec 2>> $XML_LOG
 }
 
 check_log () {
 if [ $DEBUG_MODE = "full" ]; then
-     cp $XML_LOG logs/XML_CHECK_FULL.log
-     echo -e "${txtgrn}$LANG_TARGET checked, log at logs/XML_CHECK_FULL.log${txtrst}"
+     cp $XML_LOG logs/XML_CHECK_FULL.html
+     echo -e "${txtgrn}$LANG_TARGET checked, log at logs/XML_CHECK_FULL.html${txtrst}"
 else
-     cp $XML_LOG logs/XML_$LANG_TARGET.log
-     echo -e "${txtgrn}$LANG_TARGET checked, log at logs/XML_$LANG_TARGET.log${txtrst}"
+     cp $XML_LOG logs/XML_$LANG_TARGET.html
+     echo -e "${txtgrn}$LANG_TARGET checked, log at logs/XML_$LANG_TARGET.html${txtrst}"
 fi
 }
 
@@ -74,10 +78,16 @@ XML=$1
 XML_TARGET=$(echo $XML)
 
 if [ -e $XML_TARGET ]; then
-     #echo -e "\n##$XML_TARGET\n##########" >> $XML_LOG
+     echo -e "<font color="#000000"><br>$XML_TARGET</font>" >> $XML_LOG
      xmllint --noout $XML_TARGET >> $XML_LOG
-     echo $(uniq -d $XML_TARGET) $XML_TARGET  >> $XML_LOG 
+     uniq -d $XML_TARGET >> $XML_LOG 
      grep -ne "+ * <" $XML_TARGET >> $XML_LOG 
+     LINE_NR=$(wc -l $XML_LOG | cut -d' ' -f1)
+     if [ "$(sed -n "$LINE_NR"p $XML_LOG)" = "<font color="#000000"><br>$XML_TARGET</font>" ]; then  
+          echo "<font color="#00ff00">Clean!</font>" >> $XML_LOG
+     elif [ "$(sed -n "$LINE_NR"p $XML_LOG)" = "" ]; then  
+          echo "<font color="#00ff00">Clean!</font>" >> $XML_LOG
+     fi
 fi
 }
 
