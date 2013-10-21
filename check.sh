@@ -13,24 +13,24 @@ esac
 
 LANG_TARGETS=.cache/language.targets
 XML_TARGETS=.cache/xml.targets
+source options.cfg
 
 rm -rf .cache
 mkdir -p .cache
 mkdir -p logs
 
 debug_mode () {
-if [ $(cat options.cfg | grep "debug=*" | cut -d"=" -f2) = "full" ]; then
+if [ $DEBUG_MODE = "full" ]; then
      XML_LOG=.cache/XML_CHECK_FULL.log
-     exec 2>> $XML_LOG
-     echo -e "\n########################\n$LANG_TARGET\n########################" >> $XML_LOG
 else
      XML_LOG=.cache/XML_$LANG_TARGET.log
-     exec 2>> $XML_LOG
 fi
+echo -e "\n########################\n$LANG_TARGET\n########################" >> $XML_LOG
+exec 2>> $XML_LOG
 }
 
 check_log () {
-if [ $(cat options.cfg | grep "debug=*" | cut -d"=" -f2) = "full" ]; then
+if [ $DEBUG_MODE = "full" ]; then
      cp $XML_LOG logs/XML_CHECK_FULL.log
      echo -e "${txtgrn}$LANG_TARGET checked, log at logs/XML_CHECK_FULL.log${txtrst}"
 else
@@ -76,7 +76,7 @@ XML_TARGET=$(echo $XML)
 if [ -e $XML_TARGET ]; then
      echo -e "\n##$XML_TARGET\n##########" >> $XML_LOG
      xmllint --noout $XML_TARGET >> $XML_LOG
-     uniq -cd $XML_TARGET >> $XML_LOG
+     uniq -d $XML_TARGET | grep -ne $XML_TARGET  >> $XML_LOG
      grep -ne "+ * <" $XML_TARGET >> $XML_LOG
 fi
 }
@@ -160,7 +160,7 @@ if [ $# -gt 0 ]; then
              languages/sync_lang.sh "Turkish" "tr" "git@github.com:ingbrzy/MA-XML-5.0-TURKISH.git"
              languages/sync_lang.sh "Ukrainian" "uk" "git@github.com:KDGDev/miui-v5-ukrainian-translation-for-miuiandroid.git"
              languages/sync_lang.sh "Vietnamese" "vi" "git@github.com:HoangTuBot/MA-xml-v5-vietnam.git"
-     elif [ $1 == "--sync_lang" ]; then
+     elif [ $1 == "--sync" ]; then
             case "$2" in
                     arabic) languages/sync_lang.sh "Arabic" "ar" "git@github.com:MIUI-Palestine/MIUIPalestine_V5_Arabic_XML.git";;
       brazilian-portuguese) languages/sync_lang.sh "Brazilian-Portuguese" "pt-rBR" "git@bitbucket.org:miuibrasil/ma-xml-5.0-portuguese-brazilian.git";;
@@ -190,11 +190,11 @@ if [ $# -gt 0 ]; then
                          *) echo "Language not supported"; exit;;
            esac
      elif [ $1 == "--debug_full" ]; then
-            sed -i "/debug=*/ d" options.cfg
-            echo "debug=full" >> options.cfg
+            sed -i "/DEBUG_MODE=*/ d" options.cfg
+            echo "DEBUG_MODE=full" >> options.cfg
      elif [ $1 == "--debug_lang" ]; then
-            sed -i "/debug=*/ d" options.cfg
-            echo "debug=lang" >> options.cfg
+            sed -i "/DEBUG_MODE=*/ d" options.cfg
+            echo "DEBUG_MODE=lang" >> options.cfg
      else
             show_argument_help
      fi
