@@ -23,19 +23,19 @@ debug_mode () {
 if [ $DEBUG_MODE = "full" ]; then
      XML_LOG=.cache/XML_CHECK_FULL.log
 else
-     XML_LOG=.cache/XML_$LANG_NAME.log
+     XML_LOG=.cache/XML_$LANG_TARGET.log
 fi
-echo -e "\n########################\n$LANG_NAME\n########################" >> $XML_LOG
+echo -e "\n########################\n$LANG_TARGET\n########################" >> $XML_LOG
 exec 2>> $XML_LOG
 }
 
 check_log () {
 if [ $DEBUG_MODE = "full" ]; then
      cp $XML_LOG logs/XML_CHECK_FULL.log
-     echo -e "${txtgrn}$LANG_NAME checked, log at logs/XML_CHECK_FULL.log${txtrst}"
+     echo -e "${txtgrn}$LANG_TARGET checked, log at logs/XML_CHECK_FULL.log${txtrst}"
 else
-     cp $XML_LOG logs/XML_$LANG_NAME.log
-     echo -e "${txtgrn}$LANG_NAME checked, log at logs/XML_$LANG_NAME.log${txtrst}"
+     cp $XML_LOG logs/XML_$LANG_TARGET.log
+     echo -e "${txtgrn}$LANG_TARGET checked, log at logs/XML_$LANG_TARGET.log${txtrst}"
 fi
 }
 
@@ -51,7 +51,7 @@ LANG=$1
 LANG_TARGET=$(echo $LANG)
 
 if [ -d languages/$LANG_TARGET ]; then
-   echo -e "${txtblu}\nChecking $LANG_NAME${txtrst}"
+   echo -e "${txtblu}\nChecking $LANG_TARGET${txtrst}"
    rm -f $XML_TARGETS
    find languages/$LANG_TARGET -iname "arrays.xml" >> $XML_TARGETS
    find languages/$LANG_TARGET -iname "strings.xml" >> $XML_TARGETS
@@ -74,10 +74,10 @@ XML=$1
 XML_TARGET=$(echo $XML)
 
 if [ -e $XML_TARGET ]; then
-     echo -e "\n##$XML_TARGET\n##########" >> $XML_LOG
+     #echo -e "\n##$XML_TARGET\n##########" >> $XML_LOG
      xmllint --noout $XML_TARGET >> $XML_LOG
-     uniq -d $XML_TARGET  >> $XML_LOG
-     grep -ne "+ * <" $XML_TARGET >> $XML_LOG
+     echo $(uniq -d $XML_TARGET) $XML_TARGET  >> $XML_LOG 
+     grep -ne "+ * <" $XML_TARGET >> $XML_LOG 
 fi
 }
 
@@ -106,7 +106,6 @@ if [ $# -gt 0 ]; then
      elif [ $1 == "--check_all" ]; then
             check_xml_full
      elif [ $1 == "--check" ]; then
-            LANG_NAME=$2
             case "$2" in
                     arabic) init_xml_check "ar";; 
       brazilian-portuguese) init_xml_check "pt-rBR";;
@@ -162,7 +161,6 @@ if [ $# -gt 0 ]; then
              languages/sync_lang.sh "Ukrainian" "uk" "git@github.com:KDGDev/miui-v5-ukrainian-translation-for-miuiandroid.git"
              languages/sync_lang.sh "Vietnamese" "vi" "git@github.com:HoangTuBot/MA-xml-v5-vietnam.git"
      elif [ $1 == "--sync" ]; then
-            LANG_NAME=$2
             case "$2" in
                     arabic) languages/sync_lang.sh "Arabic" "ar" "git@github.com:MIUI-Palestine/MIUIPalestine_V5_Arabic_XML.git";;
       brazilian-portuguese) languages/sync_lang.sh "Brazilian-Portuguese" "pt-rBR" "git@bitbucket.org:miuibrasil/ma-xml-5.0-portuguese-brazilian.git";;
