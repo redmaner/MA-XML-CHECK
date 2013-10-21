@@ -1,3 +1,4 @@
+#!/bin/bash
 case `uname -s` in
     Darwin) 
            txtrst='\033[0m' # Color off
@@ -12,7 +13,9 @@ case `uname -s` in
 esac
 
 LANG_TARGETS=.cache/language.targets
-XML_TARGETS=.cache/xml.targets
+XML_TARGETS_ARRAYs=.cache/xml.targets.arrays
+XML_TARGETS_STRINGS=.cache/xml.targets.strings
+XML_TARGETS_PLURALS=.cache/xml.targets.plurals
 source $PWD/options.cfg
 
 rm -rf .cache
@@ -28,7 +31,7 @@ fi
 DATE=`date`
 cat >> $XML_LOG << EOF
 <font color="#ff0000">
-<font color="#000000"><b><br>Checked $LANG_TARGET REPO on $DATE</b><br></font>
+<font color="#000000"><b><br><br>Checked $LANG_TARGET REPO on $DATE</b><br></font>
 EOF
 exec 2>> $XML_LOG
 }
@@ -57,18 +60,26 @@ LANG_TARGET=$(echo $LANG)
 if [ -d languages/$LANG_TARGET ]; then
    echo -e "${txtblu}\nChecking $LANG_TARGET${txtrst}"
    rm -f $XML_TARGETS
-   find languages/$LANG_TARGET -iname "arrays.xml" >> $XML_TARGETS
-   find languages/$LANG_TARGET -iname "strings.xml" >> $XML_TARGETS
-   find languages/$LANG_TARGET -iname "plurals.xml" >> $XML_TARGETS 
-   sort $XML_TARGETS > $XML_TARGETS.new; mv $XML_TARGETS.new $XML_TARGETS
+   find languages/$LANG_TARGET -iname "arrays.xml" >> $XML_TARGETS_ARRAYS
+   find languages/$LANG_TARGET -iname "strings.xml" >> $XML_TARGETS_STRINGS
+   find languages/$LANG_TARGET -iname "plurals.xml" >> $XML_TARGETS_PLURALS
+   sort $XML_TARGETS_ARRAYS > $XML_TARGETS_ARRAYS.new; mv $XML_TARGETS_ARRAYS.new $XML_TARGETS_ARRAYS
+   sort $XML_TARGETS_STRINGS > $XML_TARGETS_STRINGS.new; mv $XML_TARGETS_STRINGS.new $XML_TARGETS_STRINGS
+   sort $XML_TARGETS_PLURALS > $XML_TARGETS_PLURALS.new; mv $XML_TARGETS_PLURALS.new $XML_TARGETS_PLURALS
    debug_mode
    start_xml_check
 fi
 }
 
 start_xml_check () {
-cat $XML_TARGETS | while read all_line; do
-    xml_check "$all_line" 
+cat $XML_TARGETS_ARRAYS | while read all_line; do
+    xml_check "$all_line" arrays
+done
+cat $XML_TARGETS_STRINGS | while read all_line; do
+    xml_check "$all_line" others
+done
+cat $XML_TARGETS_PLURALS | while read all_line; do
+    xml_check "$all_line" others
 done
 check_log
 }
@@ -76,11 +87,14 @@ check_log
 xml_check () {
 XML=$1
 XML_TARGET=$(echo $XML)
+XML_TYPE=$2
 
 if [ -e $XML_TARGET ]; then
      echo -e "<font color="#000000"><br>$XML_TARGET</font>" >> $XML_LOG
      xmllint --noout $XML_TARGET >> $XML_LOG
-     uniq -d $XML_TARGET >> $XML_LOG 
+     if [ "$XML_TYPE" = "others" ]; then
+          uniq -cd $XML_TARGET >> $XML_LOG 
+     fi
      grep -ne "+ * <" $XML_TARGET >> $XML_LOG 
      LINE_NR=$(wc -l $XML_LOG | cut -d' ' -f1)
      if [ "$(sed -n "$LINE_NR"p $XML_LOG)" = "<font color="#000000"><br>$XML_TARGET</font>" ]; then  

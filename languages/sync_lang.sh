@@ -1,3 +1,4 @@
+#!/bin/bash
 case `uname -s` in
     Darwin) 
            txtrst='\033[0m' # Color off
