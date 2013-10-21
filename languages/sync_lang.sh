@@ -18,5 +18,5 @@ echo -e "${txtblu}\nSyncing $LANG${txtrst}"
 if [ -e languages/$ISO ]; then
      cd languages/$ISO; git pull; cd ../..
 else
-     git clone $REPO languages/$ISO
+     git clone $REPO -b master languages/$ISO
 fi
