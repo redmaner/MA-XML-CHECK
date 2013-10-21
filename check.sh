@@ -25,7 +25,7 @@ if [ $DEBUG_MODE = "full" ]; then
 else
      XML_LOG=.cache/XML_$LANG_TARGET.log
 fi
-echo -e "\n########################\n$($LANG_TARGET)\n########################" >> $XML_LOG
+echo -e "\n########################\n$LANG_TARGET\n########################" >> $XML_LOG
 exec 2>> $XML_LOG
 }
 
