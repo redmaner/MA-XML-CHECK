@@ -13,7 +13,7 @@ case `uname -s` in
 esac
 
 LANG_TARGETS=.cache/language.targets
-XML_TARGETS_ARRAYs=.cache/xml.targets.arrays
+XML_TARGETS_ARRAYS=.cache/xml.targets.arrays
 XML_TARGETS_STRINGS=.cache/xml.targets.strings
 XML_TARGETS_PLURALS=.cache/xml.targets.plurals
 source $PWD/options.cfg
