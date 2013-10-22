@@ -16,7 +16,6 @@ LANG_TARGETS=.cache/language.targets
 XML_TARGETS_ARRAYS=.cache/xml.targets.arrays
 XML_TARGETS_STRINGS=.cache/xml.targets.strings
 XML_TARGETS_PLURALS=.cache/xml.targets.plurals
-source $PWD/options.cfg
 
 rm -rf .cache
 mkdir -p .cache
@@ -28,7 +27,7 @@ if [ $DEBUG_MODE = "full" ]; then
 else
      XML_LOG=.cache/XML_$LANG_TARGET.html
 fi
-DATE=`date`
+DATE=$(date +"%m-%d-%Y %H:%M:%S")
 cat >> $XML_LOG << EOF
 <font color="#ff0000">
 <font color="#000000"><b><br><br>Checked $LANG_TARGET REPO on $DATE</b><br></font>
@@ -108,18 +107,19 @@ fi
 # Specific arguments
 show_argument_help () { 
 echo 
-echo "MIUIAndroid.com XML language check"
+echo "MIUIAndroid.com language repo XML check"
 echo 
 echo "Usage: check.sh [option]"
 echo 
 echo " Options:"
 echo " 		--help				This help"
-echo "		--check_all			Check all languages (default)"
+echo "		--check_all [full] 		Check all languages"
+echo "						full = log everything in one file (optional)"
+echo "						Else it logs in seperate files (default)"
 echo "		--check [your_language]	  	Check specified language"
-echo "		--debug_full			Debug all languages in one log"
-echo "		--debug_lang			Debug languages in seperate logs (default)"
 echo "		--sync_all			Sync all languages"
 echo "		--sync [your_language]		Sync specified language"
+echo "						No option checks all languages, logged in one file"
 echo 
 exit 
 }
@@ -128,8 +128,14 @@ if [ $# -gt 0 ]; then
      if [ $1 == "--help" ]; then
           show_argument_help
      elif [ $1 == "--check_all" ]; then
+            if [ "$2" = "full" ]; then
+                  DEBUG_MODE=full
+            else
+                  DEBUG_MODE=lang
+            fi
             check_xml_full
      elif [ $1 == "--check" ]; then
+            DEBUG_MODE=lang
             case "$2" in
                     arabic) init_xml_check "ar";; 
       brazilian-portuguese) init_xml_check "pt-rBR";;
@@ -213,16 +219,11 @@ if [ $# -gt 0 ]; then
                 vietnamese) languages/sync_lang.sh "Vietnamese" "vi" "git@github.com:HoangTuBot/MA-xml-v5-vietnam.git";;
                          *) echo "Language not supported"; exit;;
            esac
-     elif [ $1 == "--debug_full" ]; then
-            sed -i "/DEBUG_MODE=*/ d" options.cfg
-            echo "DEBUG_MODE=full" >> options.cfg
-     elif [ $1 == "--debug_lang" ]; then
-            sed -i "/DEBUG_MODE=*/ d" options.cfg
-            echo "DEBUG_MODE=lang" >> options.cfg
      else
             show_argument_help
      fi
 else
+     DEBUG_MODE=full
      check_xml_full
 fi
 
