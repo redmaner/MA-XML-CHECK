@@ -59,7 +59,7 @@ LANG_TARGET=$(echo $LANG)
 
 if [ -d languages/$LANG_TARGET ]; then
    echo -e "${txtblu}\nChecking $LANG_TARGET${txtrst}"
-   rm -f $XML_TARGETS
+   rm -f $XML_TARGETS_ARRAYS $XML_TARGETS_STRINGS $XML_TARGETS_PLURALS
    find languages/$LANG_TARGET -iname "arrays.xml" >> $XML_TARGETS_ARRAYS
    find languages/$LANG_TARGET -iname "strings.xml" >> $XML_TARGETS_STRINGS
    find languages/$LANG_TARGET -iname "plurals.xml" >> $XML_TARGETS_PLURALS
