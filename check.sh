@@ -96,7 +96,7 @@ if [ -e $XML_TARGET ]; then
      fi
      grep -ne "+ * <" $XML_TARGET >> $XML_LOG 
      LINE_NR=$(wc -l $XML_LOG | cut -d' ' -f1)
-     if [ "$(sed -n "$LINE_NR"p $XML_LOG)" = "<font color="#000000"><br>$XML_TARGET</font>" ]; then 
+     if [ "$(sed -n "$LINE_NR"p $XML_LOG)" = "<font color="#000000"><br>$XML_TARGET</font>" ] || [ "$(sed -n "$LINE_NR"p $XML_LOG)" = "" ]; then 
           if [ "$DEBUG_MODE" = "full" ]; then
                sed -i '$ d' $XML_LOG
           else
