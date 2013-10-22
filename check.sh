@@ -92,7 +92,7 @@ if [ -e $XML_TARGET ]; then
      echo -e "<font color="#000000"><br>$XML_TARGET</font>" >> $XML_LOG
      xmllint --noout $XML_TARGET >> $XML_LOG
      if [ "$XML_TYPE" = "others" ]; then
-          uniq -cd $XML_TARGET >> $XML_LOG 
+          uniq -d $XML_TARGET >> $XML_LOG 
      fi
      grep -ne "+ * <" $XML_TARGET >> $XML_LOG 
      LINE_NR=$(wc -l $XML_LOG | cut -d' ' -f1)
