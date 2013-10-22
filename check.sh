@@ -96,10 +96,12 @@ if [ -e $XML_TARGET ]; then
      fi
      grep -ne "+ * <" $XML_TARGET >> $XML_LOG 
      LINE_NR=$(wc -l $XML_LOG | cut -d' ' -f1)
-     if [ "$(sed -n "$LINE_NR"p $XML_LOG)" = "<font color="#000000"><br>$XML_TARGET</font>" ]; then  
-          echo "<font color="#00ff00">Clean!</font>" >> $XML_LOG
-     elif [ "$(sed -n "$LINE_NR"p $XML_LOG)" = "" ]; then  
-          echo "<font color="#00ff00">Clean!</font>" >> $XML_LOG
+     if [ "$(sed -n "$LINE_NR"p $XML_LOG)" = "<font color="#000000"><br>$XML_TARGET</font>" ]; then 
+          if [ "$DEBUG_MODE" = "full" ]; then
+               sed -i '$ d' $XML_LOG
+          else
+               echo "<font color="#00ff00">Clean!</font>" >> $XML_LOG
+          fi
      fi
 fi
 }
