@@ -17,25 +17,51 @@ XML_TARGETS_ARRAYS=.cache/xml.targets.arrays
 XML_TARGETS_STRINGS=.cache/xml.targets.strings
 XML_TARGETS_PLURALS=.cache/xml.targets.plurals
 
+clear_cache () {
 rm -rf .cache
 mkdir -p .cache
 mkdir -p logs
+}
 
 debug_mode () {
-if [ $DEBUG_MODE = "full" ]; then
-     XML_LOG=.cache/XML_CHECK_FULL.html
+if [ "$DEBUG_MODE" = "full" ]; then
+     XML_LOG=.cache/XML_CHECK_FULL
 else
-     XML_LOG=.cache/XML_$LANG_TARGET.html
+     XML_LOG=.cache/XML_$LANG_TARGET
 fi
 DATE=$(date +"%m-%d-%Y %H:%M:%S")
-cat >> $XML_LOG << EOF
-<font color="#ff0000">
+if [ -e $XML_LOG ]; then
+     LINE_NR=$(wc -l $XML_LOG | cut -d' ' -f1)
+     if [ "$(sed -n "$LINE_NR"p $XML_LOG)" = "<!-- Start of log --><script>" ]; then 
+           echo "</script><font color="#006633">No errors found in this repository!</font>" >> $XML_LOG
+           echo "</script><font color="#000000"><b><br><br>Checked $LANG_TARGET REPO on $DATE</b><br></font><script>" >> $XML_LOG
+     else
+           echo "</script><font color="#000000"><b><br><br>Checked $LANG_TARGET REPO on $DATE</b><br></font><script>" >> $XML_LOG
+     fi
+else
+     cat >> $XML_LOG << EOF
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+script {
+  display: block;
+  padding: auto;
+}
+</style></head>
+<body text="#ff0000">
 <font color="#000000"><b><br><br>Checked $LANG_TARGET REPO on $DATE</b><br></font>
+<!-- Start of log --><script>
 EOF
-exec 2>> $XML_LOG
+fi
+
 }
 
 check_log () {
+LINE_NR=$(wc -l $XML_LOG | cut -d' ' -f1)
+if [ "$(sed -n "$LINE_NR"p $XML_LOG)" = "<!-- Start of log --><script>" ]; then 
+     echo "</script><font color="#006633">No errors found in this repository!</font>" >> $XML_LOG
+fi
 if [ $DEBUG_MODE = "full" ]; then
      cp $XML_LOG logs/XML_CHECK_FULL.html
      echo -e "${txtgrn}$LANG_TARGET checked, log at logs/XML_CHECK_FULL.html${txtrst}"
@@ -89,19 +115,15 @@ XML_TARGET=$(echo $XML)
 XML_TYPE=$2
 
 if [ -e $XML_TARGET ]; then
-     echo -e "<font color="#000000"><br>$XML_TARGET</font>" >> $XML_LOG
-     xmllint --noout $XML_TARGET >> $XML_LOG
+     echo -e "</script><font color="#000000"><br>$XML_TARGET</font><script type="text/plain">" >> $XML_LOG
+     xmllint --noout $XML_TARGET 2>> $XML_LOG
      if [ "$XML_TYPE" = "others" ]; then
           uniq -d $XML_TARGET >> $XML_LOG 
      fi
      grep -ne "+ * <s" $XML_TARGET >> $XML_LOG 
      LINE_NR=$(wc -l $XML_LOG | cut -d' ' -f1)
-     if [ "$(sed -n "$LINE_NR"p $XML_LOG)" = "<font color="#000000"><br>$XML_TARGET</font>" ] || [ "$(sed -n "$LINE_NR"p $XML_LOG)" = "" ]; then 
-          if [ "$DEBUG_MODE" = "full" ]; then
-               sed -i '$ d' $XML_LOG
-          else
-               echo "<font color="#006633">Clean!</font>" >> $XML_LOG
-          fi
+     if [ "$(sed -n "$LINE_NR"p $XML_LOG)" = "</script><font color="#000000"><br>$XML_TARGET</font><script type="text/plain">" ] || [ "$(sed -n "$LINE_NR"p $XML_LOG)" = "" ]; then 
+          sed -i '$ d' $XML_LOG
      fi
 fi
 }
@@ -130,6 +152,7 @@ if [ $# -gt 0 ]; then
      if [ $1 == "--help" ]; then
           show_argument_help
      elif [ $1 == "--check_all" ]; then
+            clear_cache
             if [ "$2" = "full" ]; then
                   DEBUG_MODE=full
             else
@@ -137,6 +160,7 @@ if [ $# -gt 0 ]; then
             fi
             check_xml_full
      elif [ $1 == "--check" ]; then
+            clear_cache
             DEBUG_MODE=lang
             case "$2" in
                     arabic) init_xml_check "ar";; 
@@ -225,6 +249,7 @@ if [ $# -gt 0 ]; then
             show_argument_help
      fi
 else
+     clear_cache
      DEBUG_MODE=full
      check_xml_full
 fi
