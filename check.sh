@@ -100,7 +100,7 @@ if [ -e $XML_TARGET ]; then
           if [ "$DEBUG_MODE" = "full" ]; then
                sed -i '$ d' $XML_LOG
           else
-               echo "<font color="#00ff00">Clean!</font>" >> $XML_LOG
+               echo "<font color="#006633">Clean!</font>" >> $XML_LOG
           fi
      fi
 fi
