@@ -34,9 +34,11 @@ if [ -e $XML_LOG ]; then
      LINE_NR=$(wc -l $XML_LOG | cut -d' ' -f1)
      if [ "$(sed -n "$LINE_NR"p $XML_LOG)" = "<!-- Start of log --><script>" ]; then 
            echo "</script><font color="#006633">No errors found in this repository!</font>" >> $XML_LOG
-           echo "</script><font color="#000000"><b><br><br>Checked $LANG_TARGET REPO on $DATE</b><br></font><script>" >> $XML_LOG
+           echo "</script><font color="#000000"><b><br><br>Checked $LANG_TARGET REPO on $DATE</b><br></font>" >> $XML_LOG
+           echo "<!-- Start of log --><script>" >> $XML_LOG
      else
-           echo "</script><font color="#000000"><b><br><br>Checked $LANG_TARGET REPO on $DATE</b><br></font><script>" >> $XML_LOG
+           echo "</script><font color="#000000"><b><br><br>Checked $LANG_TARGET REPO on $DATE</b><br></font>" >> $XML_LOG
+           echo "<!-- Start of log --><script>" >> $XML_LOG
      fi
 else
      cat >> $XML_LOG << EOF
