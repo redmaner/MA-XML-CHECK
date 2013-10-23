@@ -116,7 +116,7 @@ XML=$1
 XML_TARGET=$(echo $XML)
 XML_TYPE=$2
 
-if [ -e $XML_TARGET ]; then
+if [ -e "$XML_TARGET" ]; then
      echo -e "</script><font color="#000000"><br>$XML_TARGET</font><script type="text/plain">" >> $XML_LOG
      xmllint --noout $XML_TARGET 2>> $XML_LOG
      if [ "$XML_TYPE" = "others" ]; then
