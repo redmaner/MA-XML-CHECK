@@ -16,6 +16,7 @@ LANG_TARGETS=.cache/language.targets
 XML_TARGETS_ARRAYS=.cache/xml.targets.arrays
 XML_TARGETS_STRINGS=.cache/xml.targets.strings
 XML_TARGETS_PLURALS=.cache/xml.targets.plurals
+XML_TARGET_STRIPPED=.cache/xml.target.stripped
 
 clear_cache () {
 rm -rf .cache
@@ -103,10 +104,10 @@ cat $XML_TARGETS_ARRAYS | while read all_line; do
     xml_check "$all_line" arrays
 done
 cat $XML_TARGETS_STRINGS | while read all_line; do
-    xml_check "$all_line" others
+    xml_check "$all_line" strings
 done
 cat $XML_TARGETS_PLURALS | while read all_line; do
-    xml_check "$all_line" others
+    xml_check "$all_line" plurals
 done
 check_log
 }
@@ -119,8 +120,9 @@ XML_TYPE=$2
 if [ -e "$XML_TARGET" ]; then
      echo -e "</script><font color="#000000"><br>$XML_TARGET</font><script type="text/plain">" >> $XML_LOG
      xmllint --noout $XML_TARGET 2>> $XML_LOG
-     if [ "$XML_TYPE" = "others" ]; then
-          uniq -d $XML_TARGET >> $XML_LOG 
+     if [ "$XML_TYPE" = "strings" ]; then
+          cat $XML_TARGET | while read all_line; do grep "<string" | cut -d'>' -f1; done > $XML_TARGET_STRIPPED
+          sort $XML_TARGET_STRIPPED | uniq --repeated >> $XML_LOG 
      fi
      grep -ne "+ * <s" $XML_TARGET >> $XML_LOG 
      LINE_NR=$(wc -l $XML_LOG | cut -d' ' -f1)
