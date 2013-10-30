@@ -12,24 +12,24 @@ case `uname -s` in
            ;;
 esac
 
-LANG_TARGETS=.cache/language.targets
-XML_TARGETS_ARRAYS=.cache/xml.targets.arrays
-XML_TARGETS_STRINGS=.cache/xml.targets.strings
-XML_TARGETS_PLURALS=.cache/xml.targets.plurals
-XML_TARGET_STRIPPED=.cache/xml.target.stripped
-DOUBLE_RESULT=.cache/xml.double.result
+LANG_TARGETS=/home/translators.xiaomi.eu/scripts/.cache/language.targets
+XML_TARGETS_ARRAYS=/home/translators.xiaomi.eu/scripts/.cache/xml.targets.arrays
+XML_TARGETS_STRINGS=/home/translators.xiaomi.eu/scripts/.cache/xml.targets.strings
+XML_TARGETS_PLURALS=/home/translators.xiaomi.eu/scripts/.cache/xml.targets.plurals
+XML_TARGET_STRIPPED=/home/translators.xiaomi.eu/scripts/.cache/xml.target.stripped
+DOUBLE_RESULT=/home/translators.xiaomi.eu/scripts/.cache/xml.double.result
 
 clear_cache () {
-rm -rf .cache
-mkdir -p .cache
-mkdir -p logs
+rm -rf /home/translators.xiaomi.eu/scripts/.cache
+mkdir -p /home/translators.xiaomi.eu/scripts/.cache
+mkdir -p /home/translators.xiaomi.eu/public_html/logs
 }
 
 debug_mode () {
 if [ "$DEBUG_MODE" = "full" ]; then
-     XML_LOG=.cache/XML_CHECK_FULL
+     XML_LOG=/home/translators.xiaomi.eu/scripts/.cache/XML_CHECK_FULL
 else
-     XML_LOG=.cache/XML_$LANG_TARGET
+     XML_LOG=/home/translators.xiaomi.eu/scripts/.cache/XML_$LANG_TARGET
 fi
 DATE=$(date +"%m-%d-%Y %H:%M:%S")
 if [ -e $XML_LOG ]; then
@@ -76,7 +76,7 @@ fi
 }
 
 check_xml_full () {
-ls languages > $LANG_TARGETS
+ls /home/translators.xiaomi.eu/scripts/languages > $LANG_TARGETS
 cat $LANG_TARGETS | while read all_line; do
     init_xml_check "$all_line" 
 done
@@ -86,7 +86,7 @@ init_xml_check () {
 LANG=$1
 LANG_TARGET=$(echo $LANG)
 
-if [ -d languages/$LANG_TARGET ]; then
+if [ -d /home/translators.xiaomi.eu/scripts/languages/$LANG_TARGET ]; then
    echo -e "${txtblu}\nChecking $LANG_TARGET${txtrst}"
    rm -f $XML_TARGETS_ARRAYS $XML_TARGETS_STRINGS $XML_TARGETS_PLURALS
    find languages/$LANG_TARGET -iname "arrays.xml" >> $XML_TARGETS_ARRAYS
