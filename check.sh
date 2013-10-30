@@ -122,6 +122,7 @@ if [ -e "$XML_TARGET" ]; then
      echo -e "</script><font color="#000000"><br>$XML_TARGET</font><script type="text/plain">" >> $XML_LOG
      xmllint --noout $XML_TARGET 2>> $XML_LOG
      if [ "$XML_TYPE" = "strings" ]; then
+          rm -f $DOUBLE_RESULT
           cat $XML_TARGET | while read all_line; do grep "<string" | cut -d'>' -f1; done > $XML_TARGET_STRIPPED
           sort $XML_TARGET_STRIPPED | uniq --repeated >> $DOUBLE_RESULT
           cat $DOUBLE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_LOG
