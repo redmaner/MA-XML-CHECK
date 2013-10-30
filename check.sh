@@ -66,10 +66,10 @@ if [ "$(sed -n "$LINE_NR"p $XML_LOG)" = "<!-- Start of log --><script>" ]; then
      echo "</script><font color="#006633">No errors found in this repository!</font>" >> $XML_LOG
 fi
 if [ $DEBUG_MODE = "full" ]; then
-     cp $XML_LOG logs/XML_CHECK_FULL.html
+     cp $XML_LOG /home/translators.xiaomi.eu/public_html/XML_CHECK_FULL.html
      echo -e "${txtgrn}$LANG_TARGET checked, log at logs/XML_CHECK_FULL.html${txtrst}"
 else
-     cp $XML_LOG logs/XML_$LANG_TARGET.html
+     cp $XML_LOG /home/translators.xiaomi.eu/public_html/XML_$LANG_TARGET.html
      echo -e "${txtgrn}$LANG_TARGET checked, log at logs/XML_$LANG_TARGET.html${txtrst}"
 fi
 }
