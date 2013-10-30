@@ -17,6 +17,7 @@ XML_TARGETS_ARRAYS=.cache/xml.targets.arrays
 XML_TARGETS_STRINGS=.cache/xml.targets.strings
 XML_TARGETS_PLURALS=.cache/xml.targets.plurals
 XML_TARGET_STRIPPED=.cache/xml.target.stripped
+DOUBLE_RESULT=.cache/xml.double.result
 
 clear_cache () {
 rm -rf .cache
@@ -122,7 +123,8 @@ if [ -e "$XML_TARGET" ]; then
      xmllint --noout $XML_TARGET 2>> $XML_LOG
      if [ "$XML_TYPE" = "strings" ]; then
           cat $XML_TARGET | while read all_line; do grep "<string" | cut -d'>' -f1; done > $XML_TARGET_STRIPPED
-          sort $XML_TARGET_STRIPPED | uniq --repeated >> $XML_LOG 
+          sort $XML_TARGET_STRIPPED | uniq --repeated >> $DOUBLE_RESULT
+          cat $DOUBLE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_LOG
      fi
      grep -ne "+ * <s" $XML_TARGET >> $XML_LOG 
      LINE_NR=$(wc -l $XML_LOG | cut -d' ' -f1)
