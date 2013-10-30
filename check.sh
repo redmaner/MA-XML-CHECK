@@ -89,9 +89,9 @@ LANG_TARGET=$(echo $LANG)
 if [ -d /home/translators.xiaomi.eu/scripts/languages/$LANG_TARGET ]; then
    echo -e "${txtblu}\nChecking $LANG_TARGET${txtrst}"
    rm -f $XML_TARGETS_ARRAYS $XML_TARGETS_STRINGS $XML_TARGETS_PLURALS
-   find languages/$LANG_TARGET -iname "arrays.xml" >> $XML_TARGETS_ARRAYS
-   find languages/$LANG_TARGET -iname "strings.xml" >> $XML_TARGETS_STRINGS
-   find languages/$LANG_TARGET -iname "plurals.xml" >> $XML_TARGETS_PLURALS
+   find /home/translators.xiaomi.eu/scripts/languages/$LANG_TARGET -iname "arrays.xml" >> $XML_TARGETS_ARRAYS
+   find /home/translators.xiaomi.eu/scripts/languages/$LANG_TARGET -iname "strings.xml" >> $XML_TARGETS_STRINGS
+   find /home/translators.xiaomi.eu/scripts/languages/$LANG_TARGET -iname "plurals.xml" >> $XML_TARGETS_PLURALS
    sort $XML_TARGETS_ARRAYS > $XML_TARGETS_ARRAYS.new; mv $XML_TARGETS_ARRAYS.new $XML_TARGETS_ARRAYS
    sort $XML_TARGETS_STRINGS > $XML_TARGETS_STRINGS.new; mv $XML_TARGETS_STRINGS.new $XML_TARGETS_STRINGS
    sort $XML_TARGETS_PLURALS > $XML_TARGETS_PLURALS.new; mv $XML_TARGETS_PLURALS.new $XML_TARGETS_PLURALS
