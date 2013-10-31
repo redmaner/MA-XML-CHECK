@@ -16,8 +16,9 @@ LANG=$1
 ISO=$2
 REPO=$3
 echo -e "${txtblu}\nSyncing $LANG${txtrst}"
-if [ -e languages/$ISO ]; then
-     cd languages/$ISO; git pull; cd ../..
+if [ -e /home/translators.xiaomi.eu/scripts/languages/$ISO ]; then
+     cd /home/translators.xiaomi.eu/scripts/languages/$ISO; git pull; cd ../..
 else
-     git clone $REPO -b master languages/$ISO
+#    git clone $REPO -b master languages/$ISO
+     git clone $REPO /home/translators.xiaomi.eu/scripts/languages/$ISO
 fi
