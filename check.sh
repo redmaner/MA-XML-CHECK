@@ -134,11 +134,14 @@ if [ -e "$XML_TARGET" ]; then
           rm -f $KOMMA_RESULT $XML_TARGET_STRIPPED 
           grep "<string" $XML_TARGET >> $XML_TARGET_STRIPPED
           grep -v '>"' $XML_TARGET_STRIPPED >> $KOMMA_RESULT
-          rm -f $KOMMA_RESULT $XML_TARGET_STRIPPED 
-          grep "'" $KOMMA_RESULT >> $XML_TARGET_STRIPPED
-          grep -v "'\''" $XML_TARGET_STRIPPED >> $KOMMA_RESULT
           if [ -e $KOMMA_RESULT ]; then
-               cat $KOMMA_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET done >> $XML_LOG
+               rm -f $XML_TARGET_STRIPPED 
+               grep "'" $KOMMA_RESULT >> $XML_TARGET_STRIPPED
+               rm -f $KOMMA_RESULT
+               grep -v "'\''" $XML_TARGET_STRIPPED >> $KOMMA_RESULT
+               if [ -e $KOMMA_RESULT ]; then
+                    cat $KOMMA_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_LOG
+               fi
           fi
      fi
      grep -ne "+ * <s" $XML_TARGET >> $XML_LOG 
