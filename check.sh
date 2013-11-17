@@ -19,6 +19,7 @@ XML_TARGETS_PLURALS=/home/translators.xiaomi.eu/scripts/.cache/xml.targets.plura
 XML_TARGET_STRIPPED=/home/translators.xiaomi.eu/scripts/.cache/xml.target.stripped
 XML_TARGET_STRIPPED2=/home/translators.xiaomi.eu/scripts/.cache/xml.target.stripped2
 DOUBLE_RESULT=/home/translators.xiaomi.eu/scripts/.cache/xml.double.result
+KOMMA_RESULT=.cache/xml.komma.result
 
 clear_cache () {
 rm -rf /home/translators.xiaomi.eu/scripts/.cache
@@ -26,7 +27,7 @@ mkdir -p /home/translators.xiaomi.eu/scripts/.cache
 mkdir -p /home/translators.xiaomi.eu/public_html/logs
 }
 
-debug_mode () {
+create_log () {
 if [ "$DEBUG_MODE" = "full" ]; then
      XML_LOG=/home/translators.xiaomi.eu/scripts/.cache/XML_CHECK_FULL
 else
@@ -98,7 +99,7 @@ if [ -d /home/translators.xiaomi.eu/scripts/languages/$LANG_TARGET ]; then
    sort $XML_TARGETS_ARRAYS > $XML_TARGETS_ARRAYS.new; mv $XML_TARGETS_ARRAYS.new $XML_TARGETS_ARRAYS
    sort $XML_TARGETS_STRINGS > $XML_TARGETS_STRINGS.new; mv $XML_TARGETS_STRINGS.new $XML_TARGETS_STRINGS
    sort $XML_TARGETS_PLURALS > $XML_TARGETS_PLURALS.new; mv $XML_TARGETS_PLURALS.new $XML_TARGETS_PLURALS
-   debug_mode
+   create_log
    start_xml_check
 fi
 }
