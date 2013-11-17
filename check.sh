@@ -18,7 +18,7 @@ XML_TARGETS_STRINGS=/home/translators.xiaomi.eu/scripts/.cache/xml.targets.strin
 XML_TARGETS_PLURALS=/home/translators.xiaomi.eu/scripts/.cache/xml.targets.plurals
 XML_TARGET_STRIPPED=/home/translators.xiaomi.eu/scripts/.cache/xml.target.stripped
 DOUBLE_RESULT=/home/translators.xiaomi.eu/scripts/.cache/xml.double.result
-KOMMA_RESULT=.cache/xml.komma.result
+APOSTROPHE_RESULT=/home/translators.xiaomi.eu/scripts/.cache/xml.apostrophe.result
 
 clear_cache () {
 rm -rf /home/translators.xiaomi.eu/scripts/.cache
@@ -132,12 +132,12 @@ if [ -e "$XML_TARGET" ]; then
      fi
      if [ "$XML_TYPE" = "strings" ]; then
           grep "<string" $XML_TARGET > $XML_TARGET_STRIPPED
-          grep -v '>"' $XML_TARGET_STRIPPED > $KOMMA_RESULT
-          if [ -e $KOMMA_RESULT ]; then
-               grep "'" $KOMMA_RESULT > $XML_TARGET_STRIPPED
-               grep -v "'\''" $XML_TARGET_STRIPPED > $KOMMA_RESULT
-               if [ -e $KOMMA_RESULT ]; then
-                    cat $KOMMA_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_LOG
+          grep -v '>"' $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT
+          if [ -e $APOSTROPHE_RESULT_RESULT ]; then
+               grep "'" $APOSTROPHE_RESULT > $XML_TARGET_STRIPPED
+               grep -v "'\''" $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT
+               if [ -e $APOSTROPHE_RESULT_RESULT ]; then
+                    cat $APOSTROPHE_RESULT_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_LOG
                fi
           fi
      fi
