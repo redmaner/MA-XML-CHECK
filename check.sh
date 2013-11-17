@@ -17,6 +17,7 @@ XML_TARGETS_ARRAYS=/home/translators.xiaomi.eu/scripts/.cache/xml.targets.arrays
 XML_TARGETS_STRINGS=/home/translators.xiaomi.eu/scripts/.cache/xml.targets.strings
 XML_TARGETS_PLURALS=/home/translators.xiaomi.eu/scripts/.cache/xml.targets.plurals
 XML_TARGET_STRIPPED=/home/translators.xiaomi.eu/scripts/.cache/xml.target.stripped
+XML_TARGET_STRIPPED2=/home/translators.xiaomi.eu/scripts/.cache/xml.target.stripped2
 DOUBLE_RESULT=/home/translators.xiaomi.eu/scripts/.cache/xml.double.result
 
 clear_cache () {
@@ -128,6 +129,19 @@ if [ -e "$XML_TARGET" ]; then
           cat $XML_TARGET | while read all_line; do grep "<string" | cut -d'>' -f1; done > $XML_TARGET_STRIPPED
           sort $XML_TARGET_STRIPPED | uniq --repeated >> $DOUBLE_RESULT
           cat $DOUBLE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_LOG
+     fi
+     if [ "$XML_TYPE" = "strings" ]; then
+          rm -f $KOMMA_RESULT $XML_TARGET_STRIPPED
+          grep "<string" $XML_TARGET >> $XML_TARGET_STRIPPED
+          grep -v '>"' $XML_TARGET_STRIPPED >> $XML_TARGET_STRIPPED2
+          grep "'" $XML_TARGET_STRIPPED2 >> $KOMMA_RESULT
+          if [ -e $KOMMA_RESULT ]; then
+               cat $KOMMA_RESULT | while read all_line; do 
+                   if [ $(echo "$all_line" | grep "'\''" | wc -l) = "0" ]; then
+                        grep -ne "$all_line" $XML_TARGET >> $XML_LOG
+                   fi
+               done
+          fi
      fi
      grep -ne "+ * <s" $XML_TARGET >> $XML_LOG 
      LINE_NR=$(wc -l $XML_LOG | cut -d' ' -f1)
