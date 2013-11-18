@@ -26,7 +26,7 @@ mkdir -p /home/translators.xiaomi.eu/scripts/.cache
 mkdir -p /home/translators.xiaomi.eu/public_html/logs
 }
 
-create_log () {
+debug_mode () {
 if [ "$DEBUG_MODE" = "full" ]; then
      XML_LOG=/home/translators.xiaomi.eu/scripts/.cache/XML_CHECK_FULL
 else
@@ -98,7 +98,7 @@ if [ -d /home/translators.xiaomi.eu/scripts/languages/$LANG_TARGET ]; then
    sort $XML_TARGETS_ARRAYS > $XML_TARGETS_ARRAYS.new; mv $XML_TARGETS_ARRAYS.new $XML_TARGETS_ARRAYS
    sort $XML_TARGETS_STRINGS > $XML_TARGETS_STRINGS.new; mv $XML_TARGETS_STRINGS.new $XML_TARGETS_STRINGS
    sort $XML_TARGETS_PLURALS > $XML_TARGETS_PLURALS.new; mv $XML_TARGETS_PLURALS.new $XML_TARGETS_PLURALS
-   create_log
+   debug_mode
    start_xml_check
 fi
 }
@@ -133,11 +133,11 @@ if [ -e "$XML_TARGET" ]; then
      if [ "$XML_TYPE" = "strings" ]; then
           grep "<string" $XML_TARGET > $XML_TARGET_STRIPPED
           grep -v '>"' $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT
-          if [ -e $APOSTROPHE_RESULT_RESULT ]; then
+          if [ -e $APOSTROPHE_RESULT ]; then
                grep "'" $APOSTROPHE_RESULT > $XML_TARGET_STRIPPED
                grep -v "'\''" $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT
-               if [ -e $APOSTROPHE_RESULT_RESULT ]; then
-                    cat $APOSTROPHE_RESULT_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_LOG
+               if [ -e $APOSTROPHE_RESULT ]; then
+                    cat $APOSTROPHE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_LOG
                fi
           fi
      fi
