@@ -176,6 +176,7 @@ xml_check () {
 XML=$1
 XML_TARGET=$(echo $XML)
 XML_TYPE=$2
+LANG_NAME=$(cat $LANG_NAMES | grep ''$LANG'=' | cut -d'=' -f2)
 
 if [ -e "$XML_TARGET" ]; then
      echo -e '</script><font id="black"><br>'$XML_TARGET'</font><script type="text/plain">' >> $XML_LOG
