@@ -198,12 +198,12 @@ if [ -e "$XML_TARGET" ]; then
      if [ "$XML_TYPE" = "strings" ]; then
           echo '</script></font><font id="brown"><script type="text/plain">' >> $XML_LOG
           grep "<string" $XML_TARGET > $XML_TARGET_STRIPPED
-          grep -v '>"' $XML_TARGET_STRIPPED > $APOSTOPHE_RESULT
-          if [ -e $APOSTOPHE_RESULT ]; then
-               grep "'" $APOSTOPHE_RESULT > $XML_TARGET_STRIPPED
-               grep -v "'\''" $XML_TARGET_STRIPPED > $APOSTOPHE_RESULT
-               if [ -e $APOSTOPHE_RESULT ]; then
-                    cat $APOSTOPHE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_LOG
+          grep -v '>"' $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT
+          if [ -e $APOSTROPHE_RESULT ]; then
+               grep "'" $APOSTROPHE_RESULT > $XML_TARGET_STRIPPED
+               grep -v "'\''" $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT
+               if [ -e $APOSTROPHE_RESULT ]; then
+                    cat $APOSTROPHE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_LOG
                fi
           fi
           if [ "$(sed -n "$(wc -l $XML_LOG | cut -d' ' -f1)"p $XML_LOG)" = '</script></font><font id="brown"><script type="text/plain">' ]; then
