@@ -47,6 +47,7 @@ if [ -e $XML_LOG ]; then
 else
      cat >> $XML_LOG << EOF
 <!DOCTYPE html>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
 <html>
 <head>
 <style>
@@ -123,10 +124,10 @@ fi
 if [ $DEBUG_MODE = "full" ]; then
      if [ "$LANG_TARGET" = "$LAST_TARGET" ]; then
           cp $XML_LOG logs/XML_CHECK_FULL.html
-          cp $XML_LOG /home/translators.xiaomi.eu/public_html/XML_CHECK_FULL.html
           echo -e "${txtgrn}All languages checked, log at logs/XML_CHECK_FULL.html${txtrst}"
      fi
 else
+     rm -f /home/translators.xiaomi.eu/public_html/XML_$LANG_TARGET.html
      cp $XML_LOG /home/translators.xiaomi.eu/public_html/XML_$LANG_TARGET.html
      echo -e "${txtgrn}$LANG_NAME ($LANG_TARGET) checked, log at logs/XML_$LANG_TARGET.html${txtrst}"
 fi
