@@ -122,6 +122,7 @@ if [ "$(sed -n "$LINE_NR"p $XML_LOG)" = '<!-- Start of log --><script type="text
 fi
 if [ $DEBUG_MODE = "full" ]; then
      if [ "$LANG_TARGET" = "$LAST_TARGET" ]; then
+          cp $XML_LOG logs/XML_CHECK_FULL.html
           cp $XML_LOG /home/translators.xiaomi.eu/public_html/XML_CHECK_FULL.html
           echo -e "${txtgrn}All languages checked, log at logs/XML_CHECK_FULL.html${txtrst}"
      fi
