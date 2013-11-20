@@ -13,6 +13,7 @@ case `uname -s` in
 esac
 
 LANG_TARGETS=/home/translators.xiaomi.eu/scripts/.cache/language.targets
+LANG_NAMES=/home/translators.xiaomi.eu/scripts/languages/language.names
 XML_TARGETS_ARRAYS=/home/translators.xiaomi.eu/scripts/.cache/xml.targets.arrays
 XML_TARGETS_STRINGS=/home/translators.xiaomi.eu/scripts/.cache/xml.targets.strings
 XML_TARGETS_PLURALS=/home/translators.xiaomi.eu/scripts/.cache/xml.targets.plurals
@@ -35,13 +36,13 @@ fi
 DATE=$(date +"%m-%d-%Y %H:%M:%S")
 if [ -e $XML_LOG ]; then
      LINE_NR=$(wc -l $XML_LOG | cut -d' ' -f1)
-     if [ "$(sed -n "$LINE_NR"p $XML_LOG)" = "<!-- Start of log --><script>" ]; then 
-           echo "</script><font color="#006633">No errors found in this repository!</font>" >> $XML_LOG
-           echo "</script><font color="#000000"><b><br><br>Checked $LANG_TARGET REPO on $DATE</b><br></font>" >> $XML_LOG
-           echo "<!-- Start of log --><script>" >> $XML_LOG
+     if [ "$(sed -n "$LINE_NR"p $XML_LOG)" = '<!-- Start of log --><script type="text/plain">' ]; then 
+           echo '</script></font><font id="green">No errors found in this repository!</font>' >> $XML_LOG
+           echo '</script><font id="header"><br><br>Checked '$LANG_NAME' ('$LANG_TARGET') repository on '$DATE'</font>' >> $XML_LOG
+           echo '<!-- Start of log --><script type="text/plain">' >> $XML_LOG
      else
-           echo "</script><font color="#000000"><b><br><br>Checked $LANG_TARGET REPO on $DATE</b><br></font>" >> $XML_LOG
-           echo "<!-- Start of log --><script>" >> $XML_LOG
+           echo '</script></font><font id="header"><br><br>Checked '$LANG_NAME' ('$LANG_TARGET') repository on '$DATE'</font>' >> $XML_LOG
+           echo '<!-- Start of log --><script type="text/plain">' >> $XML_LOG
      fi
 else
      cat >> $XML_LOG << EOF
@@ -53,10 +54,62 @@ script {
   display: block;
   padding: auto;
 }
+#header {
+  font-weight: bold;
+  color: #000000;
+}
+#black {
+  color: #000000;
+}
+#green {
+  color: #006633;
+}
+#red {
+  color: #ff0000;
+}
+#blue {
+  color: #0000ff;
+}
+#orange {
+  color: #CC6633;
+}
+#brown {
+  color: #660000;
+}
+table {
+        background-color: #ffffff;
+        border-collapse: collapse;
+        border-top: 0px solid #000000;
+        border-bottom: 1px solid #000000;
+        border-left: 0px solid #000000;
+        border-right: 0px solid #000000;
+        text-align: left;
+        }
 </style></head>
-<body text="#ff0000">
-<font color="#000000"><b><br><br>Checked $LANG_TARGET REPO on $DATE</b><br></font>
-<!-- Start of log --><script>
+<body id="red">
+<br><br>
+<table border="0" cellpadding="0" cellspacing="0">
+<td height="auto" width="120px"><font id="green">Green text</font></td>
+<td height="auto" width="220px"><font id="black">No errors found</font><td>
+</table>
+<table border="0" cellpadding="0" cellspacing="0">
+<td height="auto" width="120px"><font id="red">Red text</font></td>
+<td height="auto" width="220px"><font id="black">Parser error</font><td>
+</table>
+<table border="0" cellpadding="0" cellspacing="0">
+<td height="auto" width="120px"><font id="orange">Orange text</font></td>
+<td height="auto" width="220px"><font id="black">Double strings</font><td>
+</table>
+<table  border="0" cellpadding="0" cellspacing="0">
+<td height="auto" width="120px"><font id="brown">Brown text</font></td>
+<td height="auto" width="220px"><font id="black">Apostrophe syntax error</font><td>
+</table>
+<table border="0" cellpadding="0" cellspacing="0">
+<td height="auto" width="120px"><font id="blue">Blue text</font></td>
+<td height="auto" width="220px"><font id="black">'+' outside of tags</font><td>
+</table>
+<font id="header"><br><br>Checked $LANG_NAME ($LANG_TARGET) repository on $DATE<br></font>
+<!-- Start of log --><script type="text/plain">
 EOF
 fi
 
@@ -64,22 +117,25 @@ fi
 
 check_log () {
 LINE_NR=$(wc -l $XML_LOG | cut -d' ' -f1)
-if [ "$(sed -n "$LINE_NR"p $XML_LOG)" = "<!-- Start of log --><script>" ]; then 
-     echo "</script><font color="#006633">No errors found in this repository!</font>" >> $XML_LOG
+if [ "$(sed -n "$LINE_NR"p $XML_LOG)" = '<!-- Start of log --><script type="text/plain">' ]; then 
+     echo '</script><font id="green">No errors found in this repository!</font>' >> $XML_LOG
 fi
 if [ $DEBUG_MODE = "full" ]; then
-     rm -f /home/translators.xiaomi.eu/public_html/XML_CHECK_FULL.html
-     cp $XML_LOG /home/translators.xiaomi.eu/public_html/XML_CHECK_FULL.html
-     echo -e "${txtgrn}$LANG_TARGET checked, log at logs/XML_CHECK_FULL.html${txtrst}"
+     if [ "$LANG_TARGET" = "$LAST_TARGET" ]; then
+          rm -f /home/translators.xiaomi.eu/public_html/XML_CHECK_FULL.html
+          cp $XML_LOG /home/translators.xiaomi.eu/public_html/XML_CHECK_FULL.html
+          echo -e "${txtgrn}All languages checked, log at logs/XML_CHECK_FULL.html${txtrst}"
+     fi
 else
      rm -f /home/translators.xiaomi.eu/public_html/XML_$LANG_TARGET.html
      cp $XML_LOG /home/translators.xiaomi.eu/public_html/XML_$LANG_TARGET.html
-     echo -e "${txtgrn}$LANG_TARGET checked, log at logs/XML_$LANG_TARGET.html${txtrst}"
+     echo -e "${txtgrn}$LANG_NAME ($LANG_TARGET) checked, log at logs/XML_$LANG_TARGET.html${txtrst}"
 fi
 }
 
 check_xml_full () {
 ls /home/translators.xiaomi.eu/scripts/languages > $LANG_TARGETS
+LAST_TARGET=$(sed -n "$(wc -l $LANG_TARGETS | cut -d' ' -f1)"p $LANG_TARGETS)
 cat $LANG_TARGETS | while read all_line; do
     init_xml_check "$all_line" 
 done
@@ -90,7 +146,7 @@ LANG=$1
 LANG_TARGET=$(echo $LANG)
 
 if [ -d /home/translators.xiaomi.eu/scripts/languages/$LANG_TARGET ]; then
-   echo -e "${txtblu}\nChecking $LANG_TARGET${txtrst}"
+   echo -e "${txtblu}\nChecking $LANG_NAME ($LANG_TARGET)${txtrst}"
    rm -f $XML_TARGETS_ARRAYS $XML_TARGETS_STRINGS $XML_TARGETS_PLURALS
    find /home/translators.xiaomi.eu/scripts/languages/$LANG_TARGET -iname "arrays.xml" >> $XML_TARGETS_ARRAYS
    find /home/translators.xiaomi.eu/scripts/languages/$LANG_TARGET -iname "strings.xml" >> $XML_TARGETS_STRINGS
@@ -122,15 +178,26 @@ XML_TARGET=$(echo $XML)
 XML_TYPE=$2
 
 if [ -e "$XML_TARGET" ]; then
-     echo -e "</script><font color="#000000"><br>$XML_TARGET</font><script type="text/plain">" >> $XML_LOG
+     echo -e '</script><font id="black"><br>'$XML_TARGET'</font><script type="text/plain">' >> $XML_LOG
+
+     # Check for XML Parser errors
      xmllint --noout $XML_TARGET 2>> $XML_LOG
+
+     # Check for doubles in strings.xml
      if [ "$XML_TYPE" = "strings" ]; then
+          echo '</script><font id="orange"><script type="text/plain">' >> $XML_LOG
           rm -f $DOUBLE_RESULT
           cat $XML_TARGET | while read all_line; do grep "<string" | cut -d'>' -f1; done > $XML_TARGET_STRIPPED
           sort $XML_TARGET_STRIPPED | uniq --repeated >> $DOUBLE_RESULT
           cat $DOUBLE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_LOG
+          if [ "$(sed -n "$(wc -l $XML_LOG | cut -d' ' -f1)"p $XML_LOG)" = '</script><font id="orange"><script type="text/plain">' ]; then
+               sed -i '$ d' $XML_LOG
+          fi
      fi
+
+     # Check for apostrophe errors in strings.xml
      if [ "$XML_TYPE" = "strings" ]; then
+          echo '</script></font><font id="brown"><script type="text/plain">' >> $XML_LOG
           grep "<string" $XML_TARGET > $XML_TARGET_STRIPPED
           grep -v '>"' $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT
           if [ -e $APOSTROPHE_RESULT ]; then
@@ -139,11 +206,20 @@ if [ -e "$XML_TARGET" ]; then
                if [ -e $APOSTROPHE_RESULT ]; then
                     cat $APOSTROPHE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_LOG
                fi
+          if [ "$(sed -n "$(wc -l $XML_LOG | cut -d' ' -f1)"p $XML_LOG)" = '</script></font><font id="brown"><script type="text/plain">' ]; then
+               sed -i '$ d' $XML_LOG
           fi
      fi
+
+     # Check for '+' at the beginning of a line, outside <string>
+     echo '</script></font><font id="blue"><script type="text/plain">' >> $XML_LOG
      grep -ne "+ * <s" $XML_TARGET >> $XML_LOG 
-     LINE_NR=$(wc -l $XML_LOG | cut -d' ' -f1)
-     if [ "$(sed -n "$LINE_NR"p $XML_LOG)" = "</script><font color="#000000"><br>$XML_TARGET</font><script type="text/plain">" ] || [ "$(sed -n "$LINE_NR"p $XML_LOG)" = "" ]; then 
+     if [ "$(sed -n "$(wc -l $XML_LOG | cut -d' ' -f1)"p $XML_LOG)" = '</script></font><font id="blue"><script type="text/plain">' ]; then
+          sed -i '$ d' $XML_LOG
+     fi; 
+
+     # Clean up log if there are no errors
+     if [ "$(sed -n "$(wc -l $XML_LOG | cut -d' ' -f1)"p $XML_LOG)" = '</script><font id="black"><br>'$XML_TARGET'</font><script type="text/plain">' ]; then 
           sed -i '$ d' $XML_LOG
      fi
 fi
