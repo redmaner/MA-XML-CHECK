@@ -206,6 +206,7 @@ if [ -e "$XML_TARGET" ]; then
                if [ -e $APOSTROPHE_RESULT ]; then
                     cat $APOSTROPHE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_LOG
                fi
+          fi
           if [ "$(sed -n "$(wc -l $XML_LOG | cut -d' ' -f1)"p $XML_LOG)" = '</script></font><font id="brown"><script type="text/plain">' ]; then
                sed -i '$ d' $XML_LOG
           fi
