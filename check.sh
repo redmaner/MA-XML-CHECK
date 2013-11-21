@@ -20,6 +20,7 @@ XML_TARGETS_PLURALS=/home/translators.xiaomi.eu/scripts/.cache/xml.targets.plura
 XML_TARGET_STRIPPED=/home/translators.xiaomi.eu/scripts/.cache/xml.target.stripped
 DOUBLE_RESULT=/home/translators.xiaomi.eu/scripts/.cache/xml.double.result
 APOSTROPHE_RESULT=/home/translators.xiaomi.eu/scripts/.cache/xml.apostrophe.result
+XML_CACHE_LOG=/home/translators.xiaomi.eu/scripts/.cache/XML_CACHE_LOG
 
 clear_cache () {
 rm -rf /home/translators.xiaomi.eu/scripts/.cache
@@ -27,26 +28,42 @@ mkdir -p /home/translators.xiaomi.eu/scripts/.cache
 mkdir -p /home/translators.xiaomi.eu/public_html/logs
 }
 
+clean_cache () {
+rm -f $XML_TARGETS_STRIPPED
+rm -f $DOUBLE_RESULT
+rm -f $OPOSTROPHE_RESULT
+rm -f $XML_CACHE_LOG
+}
+
 debug_mode () {
 if [ "$DEBUG_MODE" = "full" ]; then
      XML_LOG=/home/translators.xiaomi.eu/scripts/.cache/XML_CHECK_FULL
+elif [ "$DEBUG_MODE" = "double" ]; then
+       XML_LOG_FULL=/home/translators.xiaomi.eu/scripts/.cache/XML_CHECK_FULL
+       LOG_TARGET=$XML_LOG_FULL; update_log
+       XML_LOG=/home/translators.xiaomi.eu/scripts/.cache/XML_$LANG_TARGET
 else
      XML_LOG=/home/translators.xiaomi.eu/scripts/.cache/XML_$LANG_TARGET
 fi
+LOG_TARGET=$XML_LOG; update_log
+}
+
+update_log () {
 DATE=$(date +"%m-%d-%Y %H:%M:%S")
-if [ -e $XML_LOG ]; then
-     LINE_NR=$(wc -l $XML_LOG | cut -d' ' -f1)
-     if [ "$(sed -n "$LINE_NR"p $XML_LOG)" = '<!-- Start of log --><script type="text/plain">' ]; then 
-           echo '</script></font><font id="green">No errors found in this repository!</font>' >> $XML_LOG
-           echo '</script><font id="header"><br><br>Checked '$LANG_NAME' ('$LANG_TARGET') repository on '$DATE'</font>' >> $XML_LOG
-           echo '<!-- Start of log --><script type="text/plain">' >> $XML_LOG
+if [ -e $LOG_TARGET ]; then
+     LINE_NR=$(wc -l $LOG_TARGET | cut -d' ' -f1)
+     if [ "$(sed -n "$LINE_NR"p $LOG_TARGET)" = '<!-- Start of log --><script type="text/plain">' ]; then 
+           echo '</script></font><font id="green">No errors found in this repository!</font>' >> $LOG_TARGET
+           echo '</script><font id="header"><br><br>Checked '$LANG_NAME' ('$LANG_TARGET') repository on '$DATE'</font>' >> $LOG_TARGET
+           echo '<!-- Start of log --><script type="text/plain">' >> $LOG_TARGET
      else
-           echo '</script></font><font id="header"><br><br>Checked '$LANG_NAME' ('$LANG_TARGET') repository on '$DATE'</font>' >> $XML_LOG
-           echo '<!-- Start of log --><script type="text/plain">' >> $XML_LOG
+           echo '</script></font><font id="header"><br><br>Checked '$LANG_NAME' ('$LANG_TARGET') repository on '$DATE'</font>' >> $LOG_TARGET
+           echo '<!-- Start of log --><script type="text/plain">' >> $LOG_TARGET
      fi
 else
-     cat >> $XML_LOG << EOF
+     cat >> $LOG_TARGET << EOF
 <!DOCTYPE html>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
 <html>
 <head>
 <style>
@@ -112,7 +129,6 @@ table {
 <!-- Start of log --><script type="text/plain">
 EOF
 fi
-
 }
 
 check_log () {
@@ -124,6 +140,17 @@ if [ $DEBUG_MODE = "full" ]; then
      if [ "$LANG_TARGET" = "$LAST_TARGET" ]; then
           rm -f /home/translators.xiaomi.eu/public_html/XML_CHECK_FULL.html
           cp $XML_LOG /home/translators.xiaomi.eu/public_html/XML_CHECK_FULL.html
+          echo -e "${txtgrn}All languages checked, log at logs/XML_CHECK_FULL.html${txtrst}"
+     fi
+elif [ $DEBUG_MODE = "double" ]; then
+     cp $XML_LOG /home/translators.xiaomi.eu/public_html/XML_$LANG_TARGET.html
+     echo -e "${txtgrn}$LANG_NAME ($LANG_TARGET) checked, log at logs/XML_$LANG_TARGET.html${txtrst}"
+     if [ "$LANG_TARGET" = "$LAST_TARGET" ]; then
+          LINE_NR=$(wc -l $XML_LOG_FULL | cut -d' ' -f1)
+          if [ "$(sed -n "$LINE_NR"p $XML_LOG_FULL)" = '<!-- Start of log --><script type="text/plain">' ]; then
+               echo '</script><font id="green">No errors found in this repository!</font>' >> $XML_LOG_FULL
+          fi
+          cp $XML_LOG_FULL /home/translators.xiaomi.eu/public_html/XML_CHECK_FULL.html
           echo -e "${txtgrn}All languages checked, log at logs/XML_CHECK_FULL.html${txtrst}"
      fi
 else
@@ -162,14 +189,14 @@ fi
 
 start_xml_check () {
 cat $XML_TARGETS_ARRAYS | while read all_line; do
-    xml_check "$all_line" arrays
-done
+    $CHECK_MODE "$all_line" arrays
+done; clean_cache
 cat $XML_TARGETS_STRINGS | while read all_line; do
-    xml_check "$all_line" strings
-done
+    $CHECK_MODE "$all_line" strings
+done; clean_cache
 cat $XML_TARGETS_PLURALS | while read all_line; do
-    xml_check "$all_line" plurals
-done
+    $CHECK_MODE "$all_line" plurals
+done; clean_cache
 check_log
 }
 
@@ -187,9 +214,8 @@ if [ -e "$XML_TARGET" ]; then
      # Check for doubles in strings.xml
      if [ "$XML_TYPE" = "strings" ]; then
           echo '</script><font id="orange"><script type="text/plain">' >> $XML_LOG
-          rm -f $DOUBLE_RESULT
           cat $XML_TARGET | while read all_line; do grep "<string" | cut -d'>' -f1; done > $XML_TARGET_STRIPPED
-          sort $XML_TARGET_STRIPPED | uniq --repeated >> $DOUBLE_RESULT
+          sort $XML_TARGET_STRIPPED | uniq --repeated > $DOUBLE_RESULT
           cat $DOUBLE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_LOG
           if [ "$(sed -n "$(wc -l $XML_LOG | cut -d' ' -f1)"p $XML_LOG)" = '</script><font id="orange"><script type="text/plain">' ]; then
                sed -i '$ d' $XML_LOG
@@ -227,6 +253,62 @@ if [ -e "$XML_TARGET" ]; then
 fi
 }
 
+xml_check_double () {
+XML=$1
+XML_TARGET=$(echo $XML)
+XML_TYPE=$2
+
+rm -f $XML_CACHE_LOG
+if [ -e "$XML_TARGET" ]; then
+     echo -e '</script><font id="black"><br>'$XML_TARGET'</font><script type="text/plain">' >> $XML_CACHE_LOG
+
+     # Check for XML Parser errors
+     xmllint --noout $XML_TARGET 2>> $XML_CACHE_LOG
+
+     # Check for doubles in strings.xml
+     if [ "$XML_TYPE" = "strings" ]; then
+          echo '</script><font id="orange"><script type="text/plain">' >> $XML_CACHE_LOG
+          cat $XML_TARGET | while read all_line; do grep "<string" | cut -d'>' -f1; done > $XML_TARGET_STRIPPED
+          sort $XML_TARGET_STRIPPED | uniq --repeated > $DOUBLE_RESULT
+          cat $DOUBLE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_CACHE_LOG
+          if [ "$(sed -n "$(wc -l $XML_CACHE_LOG | cut -d' ' -f1)"p $XML_CACHE_LOG)" = '</script><font id="orange"><script type="text/plain">' ]; then
+               sed -i '$ d' $XML_CACHE_LOG
+          fi
+     fi
+
+     # Check for apostrophe errors in strings.xml
+     if [ "$XML_TYPE" = "strings" ]; then
+          echo '</script></font><font id="brown"><script type="text/plain">' >> $XML_CACHE_LOG
+          grep "<string" $XML_TARGET > $XML_TARGET_STRIPPED
+          grep -v '>"' $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT
+          if [ -e $APOSTROPHE_RESULT ]; then
+               grep "'" $APOSTROPHE_RESULT > $XML_TARGET_STRIPPED
+               grep -v "'\''" $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT
+               if [ -e $APOSTROPHE_RESULT ]; then
+                    cat $APOSTROPHE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_CACHE_LOG
+               fi
+          fi
+          if [ "$(sed -n "$(wc -l $XML_CACHE_LOG | cut -d' ' -f1)"p $XML_CACHE_LOG)" = '</script></font><font id="brown"><script type="text/plain">' ]; then
+               sed -i '$ d' $XML_CACHE_LOG
+          fi
+     fi
+
+     # Check for '+' at the beginning of a line, outside <string>
+     echo '</script></font><font id="blue"><script type="text/plain">' >> $XML_CACHE_LOG
+     grep -ne "+ * <s" $XML_TARGET >> $XML_CACHE_LOG
+     if [ "$(sed -n "$(wc -l $XML_CACHE_LOG | cut -d' ' -f1)"p $XML_CACHE_LOG)" = '</script></font><font id="blue"><script type="text/plain">' ]; then
+          sed -i '$ d' $XML_CACHE_LOG
+     fi; 
+
+     # Clean up log if there are no errors
+     if [ "$(sed -n "$(wc -l $XML_CACHE_LOG | cut -d' ' -f1)"p $XML_CACHE_LOG)" = '</script><font id="black"><br>'$XML_TARGET'</font><script type="text/plain">' ]; then 
+          sed -i '$ d' $XML_CACHE_LOG
+     fi
+     cat $XML_CACHE_LOG >> $XML_LOG_FULL
+     cat $XML_CACHE_LOG >> $XML_LOG
+fi
+}
+
 # Specific arguments
 show_argument_help () { 
 echo 
@@ -234,15 +316,15 @@ echo "MIUIAndroid.com language repo XML check"
 echo 
 echo "Usage: check.sh [option]"
 echo 
-echo " Options:"
-echo " 		--help				This help"
-echo "		--check_all [full] 		Check all languages"
-echo "						full = log everything in one file (optional)"
-echo "						Else it logs in seperate files (default)"
-echo "		--check [your_language]	  	Check specified language"
-echo "		--sync_all			Sync all languages"
-echo "		--sync [your_language]		Sync specified language"
-echo "						No option checks all languages, logged in one file"
+echo " [option]:"
+echo " 		--help					This help"
+echo "		--check [your_language]	[full/double]	Check specified language"
+echo "							If [your_language] is 'all', then all languages will be checked"
+echo "							If third argument is not defined, all languages will be logged in seperate files"
+echo "							If third argument is 'full', all languages will be logged in one file"
+echo "							If third argument is 'double', all languages will be logged in one file and in seperate files"
+echo "		--pull [your_language]			Sync specified language"
+echo "							If [your_language] is 'all', then all languages will be synced/updated"
 echo 
 exit 
 }
@@ -250,18 +332,17 @@ exit
 if [ $# -gt 0 ]; then
      if [ $1 == "--help" ]; then
           show_argument_help
-     elif [ $1 == "--check_all" ]; then
-            clear_cache
-            if [ "$2" = "full" ]; then
-                  DEBUG_MODE=full
-            else
-                  DEBUG_MODE=lang
-            fi
-            check_xml_full
      elif [ $1 == "--check" ]; then
             clear_cache
             DEBUG_MODE=lang
+            CHECK_MODE=xml_check
             case "$2" in
+                       all) if [ "$3" = "full" ]; then
+                                 DEBUG_MODE=full
+                            elif [ "$3" = "double" ]; then
+                                   DEBUG_MODE=double
+                                   CHECK_MODE=xml_check_double
+                            fi; check_xml_full;;
                     arabic) init_xml_check "ar";; 
       brazilian-portuguese) init_xml_check "pt-rBR";;
                  bulgarian) init_xml_check "bg";;
@@ -287,36 +368,35 @@ if [ $# -gt 0 ]; then
                    turkish) init_xml_check "tr";; 
                  ukrainian) init_xml_check "uk";; 
                 vietnamese) init_xml_check "vi";; 
-                         *) echo "Language not supported"; exit;;
+                         *) echo "Language not supported or language not specified"; exit;;
            esac
-     elif [ $1 == "--sync_all" ]; then
-             /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Arabic" "ar" "git@github.com:MIUI-Palestine/MIUIPalestine_V5_Arabic_XML.git"
-             /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Brazilian-Portuguese" "pt-rBR" "git@bitbucket.org:miuibrasil/ma-xml-5.0-portuguese-brazilian.git"
-             /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Bulgarian" "bg" "git@github.com:ingbrzy/MA-XML-5.0-BULGARIAN.git"
-             /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Czech" "cs" "git@github.com:MIUICzech-Slovak/MA-XML-5.0-CZECH.git"
-             /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Danish" "da" "git@github.com:1982Strand/XML_MIUI-v5_Danish.git"
-             /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Dutch" "nl" "git@github.com:Redmaner/MA-XML-5.0-DUTCH.git"
-             /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "English" "en" "git@github.com:iBotPeaches/MIUIAndroid_XML_v5.git"
-             /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "French" "fr" "git@github.com:ingbrzy/ma-xml-5.0-FRENCH.git"
-             /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "German" "de" "git@github.com:Bitti09/ma-xml-5.0-german.git"
-             /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Greek" "el" "git@bitbucket.org:finner/ma-xml-5.0-greek.git"
-             /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Hungarian" "hu" "git@github.com:vagyula1/miui-v5-hungarian-translation-for-miuiandroid.git"
-             /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Indonesian" "in" "git@github.com:ingbrzy/MA-XML-5.0-INDONESIAN.git"
-             /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Italian" "it" "git@bitbucket.org:Mish/miui_v5_italy.git"
-             /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Korean" "ko" "git@github.com:nosoy1/ma-xml-5.0-korean.git"
-             /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Norwegian" "nb" "git@github.com:ingbrzy/MA-XML-5.0-NORWEGIAN.git"
-             /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Polish" "pl" "git@github.com:Acid-miuipolskapl/XML_MIUI-v5.git"
-             /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Romanian" "ro" "git@github.com:ingbrzy/MA-XML-5.0-ROMANIAN.git"
-             /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Russian" "ru" "git@github.com:KDGDev/miui-v5-russian-translation-for-miuiandroid.git"
-             /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Slovak" "sk" "git@github.com:MIUICzech-Slovak/MA-XML-5.0-SLOVAK.git"
-             /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Spanish" "es" "git@github.com:ingbrzy/MA-XML-5.0-SPANISH.git"
-             /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Swedish" "sv" "git@github.com:ingbrzy/ma-xml-5.0-SWEDISH.git"
-             /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Thai" "th" "git@github.com:rcset/MIUIAndroid_XML_v5_TH.git"
-             /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Turkish" "tr" "git@github.com:ingbrzy/MA-XML-5.0-TURKISH.git"
-             /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Ukrainian" "uk" "git@github.com:KDGDev/miui-v5-ukrainian-translation-for-miuiandroid.git"
-             /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Vietnamese" "vi" "git@github.com:HoangTuBot/MA-xml-v5-vietnam.git"
-     elif [ $1 == "--sync" ]; then
+     elif [ $1 == "--pull" ]; then
             case "$2" in
+                       all) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Arabic" "ar" "git@github.com:MIUI-Palestine/MIUIPalestine_V5_Arabic_XML.git"
+                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Brazilian-Portuguese" "pt-rBR" "git@bitbucket.org:miuibrasil/ma-xml-5.0-portuguese-brazilian.git"
+                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Bulgarian" "bg" "git@github.com:ingbrzy/MA-XML-5.0-BULGARIAN.git"
+                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Czech" "cs" "git@github.com:MIUICzech-Slovak/MA-XML-5.0-CZECH.git"
+                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Danish" "da" "git@github.com:1982Strand/XML_MIUI-v5_Danish.git"
+                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Dutch" "nl" "git@github.com:Redmaner/MA-XML-5.0-DUTCH.git"
+                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "English" "en" "git@github.com:iBotPeaches/MIUIAndroid_XML_v5.git"
+                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "French" "fr" "git@github.com:ingbrzy/ma-xml-5.0-FRENCH.git"
+                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "German" "de" "git@github.com:Bitti09/ma-xml-5.0-german.git"
+                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Greek" "el" "git@bitbucket.org:finner/ma-xml-5.0-greek.git"
+                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Hungarian" "hu" "git@github.com:vagyula1/miui-v5-hungarian-translation-for-miuiandroid.git"
+                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Indonesian" "in" "git@github.com:ingbrzy/MA-XML-5.0-INDONESIAN.git"
+                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Italian" "it" "git@bitbucket.org:Mish/miui_v5_italy.git"
+                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Korean" "ko" "git@github.com:nosoy1/ma-xml-5.0-korean.git"
+                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Norwegian" "nb" "git@github.com:ingbrzy/MA-XML-5.0-NORWEGIAN.git"
+                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Polish" "pl" "git@github.com:Acid-miuipolskapl/XML_MIUI-v5.git"
+                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Romanian" "ro" "git@github.com:ingbrzy/MA-XML-5.0-ROMANIAN.git"
+                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Russian" "ru" "git@github.com:KDGDev/miui-v5-russian-translation-for-miuiandroid.git"
+                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Slovak" "sk" "git@github.com:MIUICzech-Slovak/MA-XML-5.0-SLOVAK.git"
+                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Spanish" "es" "git@github.com:ingbrzy/MA-XML-5.0-SPANISH.git"
+                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Swedish" "sv" "git@github.com:ingbrzy/ma-xml-5.0-SWEDISH.git"
+                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Thai" "th" "git@github.com:rcset/MIUIAndroid_XML_v5_TH.git"
+                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Turkish" "tr" "git@github.com:ingbrzy/MA-XML-5.0-TURKISH.git"
+                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Ukrainian" "uk" "git@github.com:KDGDev/miui-v5-ukrainian-translation-for-miuiandroid.git"
+                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Vietnamese" "vi" "git@github.com:HoangTuBot/MA-xml-v5-vietnam.git";;
                     arabic) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Arabic" "ar" "git@github.com:MIUI-Palestine/MIUIPalestine_V5_Arabic_XML.git";;
       brazilian-portuguese) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Brazilian-Portuguese" "pt-rBR" "git@bitbucket.org:miuibrasil/ma-xml-5.0-portuguese-brazilian.git";;
                  bulgarian) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Bulgarian" "bg" "git@github.com:ingbrzy/MA-XML-5.0-BULGARIAN.git";;
@@ -342,7 +422,7 @@ if [ $# -gt 0 ]; then
                    turkish) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Turkish" "tr" "git@github.com:ingbrzy/MA-XML-5.0-TURKISH.git";;
                  ukrainian) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Ukrainian" "uk" "git@github.com:KDGDev/miui-v5-ukrainian-translation-for-miuiandroid.git";;
                 vietnamese) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Vietnamese" "vi" "git@github.com:HoangTuBot/MA-xml-v5-vietnam.git";;
-                         *) echo "Language not supported"; exit;;
+                         *) echo "Language not supported or language not specified"; exit;;
            esac
      else
             show_argument_help
@@ -350,6 +430,6 @@ if [ $# -gt 0 ]; then
 else
      clear_cache
      DEBUG_MODE=full
+     CHECK_MODE=xml_check
      check_xml_full
 fi
-
