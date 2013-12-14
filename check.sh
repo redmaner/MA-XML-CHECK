@@ -225,11 +225,9 @@ if [ -e "$XML_TARGET" ]; then
      # Check for apostrophe errors in strings.xml
      if [ "$XML_TYPE" = "strings" ]; then
           echo '</script></font><font id="brown"><script type="text/plain">' >> $XML_LOG
-          grep "<string" $XML_TARGET > $XML_TARGET_STRIPPED
-          grep -v '>"' $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT
-          if [ -e $APOSTROPHE_RESULT ]; then
-               grep "'" $APOSTROPHE_RESULT > $XML_TARGET_STRIPPED
-               grep -v "'\''" $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT
+          grep "<string" $XML_TARGET | grep -v '>"' > $XML_TARGET_STRIPPED
+          if [ -e $XML_TARGET_STRIPPED ]; then
+               grep "'" $XML_TARGET_STRIPPED | grep -v "'\''" > $APOSTROPHE_RESULT
                if [ -e $APOSTROPHE_RESULT ]; then
                     cat $APOSTROPHE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_LOG
                fi
