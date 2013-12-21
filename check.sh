@@ -12,20 +12,28 @@ case `uname -s` in
            ;;
 esac
 
-LANG_TARGETS=/home/translators.xiaomi.eu/scripts/.cache/language.targets
-LANG_NAMES=/home/translators.xiaomi.eu/scripts/languages/language.names
-XML_TARGETS_ARRAYS=/home/translators.xiaomi.eu/scripts/.cache/xml.targets.arrays
-XML_TARGETS_STRINGS=/home/translators.xiaomi.eu/scripts/.cache/xml.targets.strings
-XML_TARGETS_PLURALS=/home/translators.xiaomi.eu/scripts/.cache/xml.targets.plurals
-XML_TARGET_STRIPPED=/home/translators.xiaomi.eu/scripts/.cache/xml.target.stripped
-DOUBLE_RESULT=/home/translators.xiaomi.eu/scripts/.cache/xml.double.result
-APOSTROPHE_RESULT=/home/translators.xiaomi.eu/scripts/.cache/xml.apostrophe.result
-XML_CACHE_LOG=/home/translators.xiaomi.eu/scripts/.cache/XML_CACHE_LOG
+# Determine server or a local machine
+if [ -d /home/translators.xiaomi.eu ]; then
+     MAIN_DIR=/home/translators.xiaomi.eu/scripts
+     LOG_DIR=/home/translators.xiaomi.eu/public_html
+else
+     MAIN_DIR=$PWD
+     LOG_DIR=$PWD/logs
+fi
+
+LANG_TARGETS=$MAIN_DIR/.cache/language.targets
+LANG_NAMES=$MAIN_DIR/languages/language.names
+XML_TARGETS_ARRAYS=$MAIN_DIR/.cache/xml.targets.arrays
+XML_TARGETS_STRINGS=$MAIN_DIR/.cache/xml.targets.strings
+XML_TARGETS_PLURALS=$MAIN_DIR/.cache/xml.targets.plurals
+XML_TARGET_STRIPPED=$MAIN_DIR/.cache/xml.target.stripped
+DOUBLE_RESULT=$MAIN_DIR/.cache/xml.double.result
+APOSTROPHE_RESULT=$MAIN_DIR/.cache/xml.apostrophe.result
+XML_CACHE_LOG=$MAIN_DIR/.cache/XML_CACHE_LOG
 
 clear_cache () {
-rm -rf /home/translators.xiaomi.eu/scripts/.cache
-mkdir -p /home/translators.xiaomi.eu/scripts/.cache
-mkdir -p /home/translators.xiaomi.eu/public_html/logs
+rm -rf $MAIN_DIR/.cache
+mkdir -p $MAIN_DIR/.cache
 }
 
 clean_cache () {
@@ -37,13 +45,13 @@ rm -f $XML_CACHE_LOG
 
 debug_mode () {
 if [ "$DEBUG_MODE" = "full" ]; then
-     XML_LOG=/home/translators.xiaomi.eu/scripts/.cache/XML_CHECK_FULL
+     XML_LOG=$MAIN_DIR/.cache/XML_CHECK_FULL
 elif [ "$DEBUG_MODE" = "double" ]; then
-       XML_LOG_FULL=/home/translators.xiaomi.eu/scripts/.cache/XML_CHECK_FULL
+       XML_LOG_FULL=$MAIN_DIR/.cache/XML_CHECK_FULL
        LOG_TARGET=$XML_LOG_FULL; update_log
-       XML_LOG=/home/translators.xiaomi.eu/scripts/.cache/XML_$LANG_TARGET
+       XML_LOG=$MAIN_DIR/.cache/XML_$LANG_TARGET
 else
-     XML_LOG=/home/translators.xiaomi.eu/scripts/.cache/XML_$LANG_TARGET
+     XML_LOG=$MAIN_DIR/.cache/XML_$LANG_TARGET
 fi
 LOG_TARGET=$XML_LOG; update_log
 }
@@ -138,30 +146,30 @@ if [ "$(sed -n "$LINE_NR"p $XML_LOG)" = '<!-- Start of log --><script type="text
 fi
 if [ $DEBUG_MODE = "full" ]; then
      if [ "$LANG_TARGET" = "$LAST_TARGET" ]; then
-          rm -f /home/translators.xiaomi.eu/public_html/XML_CHECK_FULL.html
-          cp $XML_LOG /home/translators.xiaomi.eu/public_html/XML_CHECK_FULL.html
+          rm -f $LOG_DIR/XML_CHECK_FULL.html
+          cp $XML_LOG $LOG_DIR/XML_CHECK_FULL.html
           echo -e "${txtgrn}All languages checked, log at logs/XML_CHECK_FULL.html${txtrst}"
      fi
 elif [ $DEBUG_MODE = "double" ]; then
-     cp $XML_LOG /home/translators.xiaomi.eu/public_html/XML_$LANG_TARGET.html
+     cp $XML_LOG $LOG_DIR/XML_$LANG_TARGET.html
      echo -e "${txtgrn}$LANG_NAME ($LANG_TARGET) checked, log at logs/XML_$LANG_TARGET.html${txtrst}"
      if [ "$LANG_TARGET" = "$LAST_TARGET" ]; then
           LINE_NR=$(wc -l $XML_LOG_FULL | cut -d' ' -f1)
           if [ "$(sed -n "$LINE_NR"p $XML_LOG_FULL)" = '<!-- Start of log --><script type="text/plain">' ]; then
                echo '</script><font id="green">No errors found in this repository!</font>' >> $XML_LOG_FULL
           fi
-          cp $XML_LOG_FULL /home/translators.xiaomi.eu/public_html/XML_CHECK_FULL.html
+          cp $XML_LOG_FULL $LOG_DIR/XML_CHECK_FULL.html
           echo -e "${txtgrn}All languages checked, log at logs/XML_CHECK_FULL.html${txtrst}"
      fi
 else
-     rm -f /home/translators.xiaomi.eu/public_html/XML_$LANG_TARGET.html
-     cp $XML_LOG /home/translators.xiaomi.eu/public_html/XML_$LANG_TARGET.html
+     rm -f $LOG_DIRl/XML_$LANG_TARGET.html
+     cp $XML_LOG $LOG_DIR/XML_$LANG_TARGET.html
      echo -e "${txtgrn}$LANG_NAME ($LANG_TARGET) checked, log at logs/XML_$LANG_TARGET.html${txtrst}"
 fi
 }
 
 check_xml_full () {
-ls /home/translators.xiaomi.eu/scripts/languages > $LANG_TARGETS
+ls $MAIN_DIR/languages > $LANG_TARGETS
 LAST_TARGET=$(sed -n "$(wc -l $LANG_TARGETS | cut -d' ' -f1)"p $LANG_TARGETS)
 cat $LANG_TARGETS | while read all_line; do
     init_xml_check "$all_line" 
@@ -173,12 +181,12 @@ LANG=$1
 LANG_TARGET=$(echo $LANG)
 LANG_NAME=$(cat $LANG_NAMES | grep ''$LANG'=' | cut -d'=' -f2)
 
-if [ -d /home/translators.xiaomi.eu/scripts/languages/$LANG_TARGET ]; then
+if [ -d $MAIN_DIR/languages/$LANG_TARGET ]; then
    echo -e "${txtblu}\nChecking $LANG_NAME ($LANG_TARGET)${txtrst}"
    rm -f $XML_TARGETS_ARRAYS $XML_TARGETS_STRINGS $XML_TARGETS_PLURALS
-   find /home/translators.xiaomi.eu/scripts/languages/$LANG_TARGET -iname "arrays.xml" >> $XML_TARGETS_ARRAYS
-   find /home/translators.xiaomi.eu/scripts/languages/$LANG_TARGET -iname "strings.xml" >> $XML_TARGETS_STRINGS
-   find /home/translators.xiaomi.eu/scripts/languages/$LANG_TARGET -iname "plurals.xml" >> $XML_TARGETS_PLURALS
+   find $MAIN_DIR/languages/$LANG_TARGET -iname "arrays.xml" >> $XML_TARGETS_ARRAYS
+   find $MAIN_DIR/languages/$LANG_TARGET -iname "strings.xml" >> $XML_TARGETS_STRINGS
+   find $MAIN_DIR/languages/$LANG_TARGET -iname "plurals.xml" >> $XML_TARGETS_PLURALS
    sort $XML_TARGETS_ARRAYS > $XML_TARGETS_ARRAYS.new; mv $XML_TARGETS_ARRAYS.new $XML_TARGETS_ARRAYS
    sort $XML_TARGETS_STRINGS > $XML_TARGETS_STRINGS.new; mv $XML_TARGETS_STRINGS.new $XML_TARGETS_STRINGS
    sort $XML_TARGETS_PLURALS > $XML_TARGETS_PLURALS.new; mv $XML_TARGETS_PLURALS.new $XML_TARGETS_PLURALS
@@ -307,6 +315,30 @@ if [ -e "$XML_TARGET" ]; then
 fi
 }
 
+# Pull / remove langs
+pull_lang () {
+LANG=$1
+ISO=$2
+REPO=$3
+echo -e "${txtblu}\nSyncing $LANG${txtrst}"
+if [ -e $MAIN_DIR/languages/$ISO ]; then
+     cd $MAIN_DIR/languages/$ISO; git pull; cd ../../..
+else
+     git clone $REPO $MAIN_DIR/languages/$ISO
+fi
+}
+
+remove_langs () {
+ls $MAIN_DIR/languages > $LANG_TARGETS
+LAST_TARGET=$(sed -n "$(wc -l $LANG_TARGETS | cut -d' ' -f1)"p $LANG_TARGETS)
+cat $LANG_TARGETS | while read all_line; do
+    if [ -d $MAIN_DIR/languages/$all_line ]; then
+         rm -rf $MAIN_DIR/languages/$all_line
+    fi 
+done
+}
+
+
 # Specific arguments
 show_argument_help () { 
 echo 
@@ -323,6 +355,7 @@ echo "							If third argument is 'full', all languages will be logged in one fi
 echo "							If third argument is 'double', all languages will be logged in one file and in seperate files"
 echo "		--pull [your_language]			Sync specified language"
 echo "							If [your_language] is 'all', then all languages will be synced/updated"
+echo "		--cleanup				Removes all logs, languages and cache files"
 echo 
 exit 
 }
@@ -371,60 +404,64 @@ if [ $# -gt 0 ]; then
            esac
      elif [ $1 == "--pull" ]; then
             case "$2" in
-                       all) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Arabic" "ar" "git@github.com:MIUI-Palestine/MIUIPalestine_V5_Arabic_XML.git"
-                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Brazilian-Portuguese" "pt-rBR" "git@bitbucket.org:miuibrasil/ma-xml-5.0-portuguese-brazilian.git"
-                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Bulgarian" "bg" "git@github.com:ingbrzy/MA-XML-5.0-BULGARIAN.git"
-                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Czech" "cs" "git@github.com:MIUICzech-Slovak/MA-XML-5.0-CZECH.git"
-                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Danish" "da" "git@github.com:1982Strand/XML_MIUI-v5_Danish.git"
-                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Dutch" "nl" "git@github.com:Redmaner/MA-XML-5.0-DUTCH.git"
-                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "English" "en" "git@github.com:iBotPeaches/MIUIAndroid_XML_v5.git"
-                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Finnish" "fi" "git@github.com:ingbrzy/MA-XML-5.0-FINNISH.git"
-                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "French" "fr" "git@github.com:ingbrzy/ma-xml-5.0-FRENCH.git"
-                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "German" "de" "git@github.com:Bitti09/ma-xml-5.0-german.git"
-                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Greek" "el" "git@bitbucket.org:finner/ma-xml-5.0-greek.git"
-                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Hungarian" "hu" "git@github.com:vagyula1/miui-v5-hungarian-translation-for-miuiandroid.git"
-                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Indonesian" "in" "git@github.com:ingbrzy/MA-XML-5.0-INDONESIAN.git"
-                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Italian" "it" "git@bitbucket.org:Mish/miui_v5_italy.git"
-                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Korean" "ko" "git@github.com:nosoy1/ma-xml-5.0-korean.git"
-                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Norwegian" "nb" "git@github.com:ingbrzy/MA-XML-5.0-NORWEGIAN.git"
-                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Polish" "pl" "git@github.com:Acid-miuipolskapl/XML_MIUI-v5.git"
-                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Romanian" "ro" "git@github.com:ingbrzy/MA-XML-5.0-ROMANIAN.git"
-                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Russian" "ru" "git@github.com:KDGDev/miui-v5-russian-translation-for-miuiandroid.git"
-                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Slovak" "sk" "git@github.com:MIUICzech-Slovak/MA-XML-5.0-SLOVAK.git"
-                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Spanish" "es" "git@github.com:ingbrzy/MA-XML-5.0-SPANISH.git"
-                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Swedish" "sv" "git@github.com:ingbrzy/ma-xml-5.0-SWEDISH.git"
-                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Thai" "th" "git@github.com:rcset/MIUIAndroid_XML_v5_TH.git"
-                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Turkish" "tr" "git@github.com:ingbrzy/MA-XML-5.0-TURKISH.git"
-                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Ukrainian" "uk" "git@github.com:KDGDev/miui-v5-ukrainian-translation-for-miuiandroid.git"
-                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Vietnamese" "vi" "git@github.com:HoangTuBot/MA-xml-v5-vietnam.git";;
-                    arabic) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Arabic" "ar" "git@github.com:MIUI-Palestine/MIUIPalestine_V5_Arabic_XML.git";;
-      brazilian-portuguese) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Brazilian-Portuguese" "pt-rBR" "git@bitbucket.org:miuibrasil/ma-xml-5.0-portuguese-brazilian.git";;
-                 bulgarian) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Bulgarian" "bg" "git@github.com:ingbrzy/MA-XML-5.0-BULGARIAN.git";;
-                     czech) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Czech" "cs" "git@github.com:MIUICzech-Slovak/MA-XML-5.0-CZECH.git";;
-                    danish) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Danish" "da" "git@github.com:1982Strand/XML_MIUI-v5_Danish.git";;
-                     dutch) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Dutch" "nl" "git@github.com:Redmaner/MA-XML-5.0-DUTCH.git";;
-                   english) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "English" "en" "git@github.com:iBotPeaches/MIUIAndroid_XML_v5.git";;
-                   finnish) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Finnish" "fi" "git@github.com:ingbrzy/MA-XML-5.0-FINNISH.git";;
-                    french) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "French" "fr" "git@github.com:ingbrzy/ma-xml-5.0-FRENCH.git";;
-                    german) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "German" "de" "git@github.com:Bitti09/ma-xml-5.0-german.git";;
-                     greek) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Greek" "el" "git@bitbucket.org:finner/ma-xml-5.0-greek.git";;
-                 hungarian) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Hungarian" "hu" "git@github.com:vagyula1/miui-v5-hungarian-translation-for-miuiandroid.git";;
-                indonesian) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Indonesian" "in" "git@github.com:ingbrzy/MA-XML-5.0-INDONESIAN.git";;
-                   italian) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Italian" "it" "git@bitbucket.org:Mish/miui_v5_italy.git";;
-                    korean) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Korean" "ko" "git@github.com:nosoy1/ma-xml-5.0-korean.git";;
-                 norwegian) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Norwegian" "nb" "git@github.com:ingbrzy/MA-XML-5.0-NORWEGIAN.git";;
-                    polish) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Polish" "pl" "git@github.com:Acid-miuipolskapl/XML_MIUI-v5.git";;
-                  romanian) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Romanian" "ro" "git@github.com:ingbrzy/MA-XML-5.0-ROMANIAN.git";;
-                   russian) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Russian" "ru" "git@github.com:KDGDev/miui-v5-russian-translation-for-miuiandroid.git";;
-                    slovak) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Slovak" "sk" "git@github.com:MIUICzech-Slovak/MA-XML-5.0-SLOVAK.git";;
-                   spanish) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Spanish" "es" "git@github.com:ingbrzy/MA-XML-5.0-SPANISH.git";;
-                   swedish) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Swedish" "sv" "git@github.com:ingbrzy/ma-xml-5.0-SWEDISH.git";;
-                      thai) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Thai" "th" "git@github.com:rcset/MIUIAndroid_XML_v5_TH.git";;
-                   turkish) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Turkish" "tr" "git@github.com:ingbrzy/MA-XML-5.0-TURKISH.git";;
-                 ukrainian) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Ukrainian" "uk" "git@github.com:KDGDev/miui-v5-ukrainian-translation-for-miuiandroid.git";;
-                vietnamese) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Vietnamese" "vi" "git@github.com:HoangTuBot/MA-xml-v5-vietnam.git";;
+                       all) pull_lang "Arabic" "ar" "git@github.com:MIUI-Palestine/MIUIPalestine_V5_Arabic_XML.git"
+                            pull_lang "Brazilian-Portuguese" "pt-rBR" "git@bitbucket.org:miuibrasil/ma-xml-5.0-portuguese-brazilian.git"
+                            pull_lang "Bulgarian" "bg" "git@github.com:ingbrzy/MA-XML-5.0-BULGARIAN.git"
+                            pull_lang "Czech" "cs" "git@github.com:MIUICzech-Slovak/MA-XML-5.0-CZECH.git"
+                            pull_lang "Danish" "da" "git@github.com:1982Strand/XML_MIUI-v5_Danish.git"
+                            pull_lang "Dutch" "nl" "git@github.com:Redmaner/MA-XML-5.0-DUTCH.git"
+                            pull_lang "English" "en" "git@github.com:iBotPeaches/MIUIAndroid_XML_v5.git"
+                            pull_lang "Finnish" "fi" "git@github.com:ingbrzy/MA-XML-5.0-FINNISH.git"
+                            pull_lang "French" "fr" "git@github.com:ingbrzy/ma-xml-5.0-FRENCH.git"
+                            pull_lang "German" "de" "git@github.com:Bitti09/ma-xml-5.0-german.git"
+                            pull_lang "Greek" "el" "git@bitbucket.org:finner/ma-xml-5.0-greek.git"
+                            pull_lang "Hungarian" "hu" "git@github.com:vagyula1/miui-v5-hungarian-translation-for-miuiandroid.git"
+                            pull_lang "Indonesian" "in" "git@github.com:ingbrzy/MA-XML-5.0-INDONESIAN.git"
+                            pull_lang "Italian" "it" "git@bitbucket.org:Mish/miui_v5_italy.git"
+                            pull_lang "Korean" "ko" "git@github.com:nosoy1/ma-xml-5.0-korean.git"
+                            pull_lang "Norwegian" "nb" "git@github.com:ingbrzy/MA-XML-5.0-NORWEGIAN.git"
+                            pull_lang "Polish" "pl" "git@github.com:Acid-miuipolskapl/XML_MIUI-v5.git"
+                            pull_lang "Romanian" "ro" "git@github.com:ingbrzy/MA-XML-5.0-ROMANIAN.git"
+                            pull_lang "Russian" "ru" "git@github.com:KDGDev/miui-v5-russian-translation-for-miuiandroid.git"
+                            pull_lang "Slovak" "sk" "git@github.com:MIUICzech-Slovak/MA-XML-5.0-SLOVAK.git"
+                            pull_lang "Spanish" "es" "git@github.com:ingbrzy/MA-XML-5.0-SPANISH.git"
+                            pull_lang "Swedish" "sv" "git@github.com:ingbrzy/ma-xml-5.0-SWEDISH.git"
+                            pull_lang "Thai" "th" "git@github.com:rcset/MIUIAndroid_XML_v5_TH.git"
+                            pull_lang "Turkish" "tr" "git@github.com:ingbrzy/MA-XML-5.0-TURKISH.git"
+                            pull_lang "Ukrainian" "uk" "git@github.com:KDGDev/miui-v5-ukrainian-translation-for-miuiandroid.git"
+                            pull_lang "Vietnamese" "vi" "git@github.com:HoangTuBot/MA-xml-v5-vietnam.git";;
+                    arabic) pull_lang "Arabic" "ar" "git@github.com:MIUI-Palestine/MIUIPalestine_V5_Arabic_XML.git";;
+      brazilian-portuguese) pull_lang "Brazilian-Portuguese" "pt-rBR" "git@bitbucket.org:miuibrasil/ma-xml-5.0-portuguese-brazilian.git";;
+                 bulgarian) pull_lang "Bulgarian" "bg" "git@github.com:ingbrzy/MA-XML-5.0-BULGARIAN.git";;
+                     czech) pull_lang "Czech" "cs" "git@github.com:MIUICzech-Slovak/MA-XML-5.0-CZECH.git";;
+                    danish) pull_lang "Danish" "da" "git@github.com:1982Strand/XML_MIUI-v5_Danish.git";;
+                     dutch) pull_lang "Dutch" "nl" "git@github.com:Redmaner/MA-XML-5.0-DUTCH.git";;
+                   english) pull_lang "English" "en" "git@github.com:iBotPeaches/MIUIAndroid_XML_v5.git";;
+                   finnish) pull_lang "Finnish" "fi" "git@github.com:ingbrzy/MA-XML-5.0-FINNISH.git";;
+                    french) pull_lang "French" "fr" "git@github.com:ingbrzy/ma-xml-5.0-FRENCH.git";;
+                    german) pull_lang "German" "de" "git@github.com:Bitti09/ma-xml-5.0-german.git";;
+                     greek) pull_lang "Greek" "el" "git@bitbucket.org:finner/ma-xml-5.0-greek.git";;
+                 hungarian) pull_lang "Hungarian" "hu" "git@github.com:vagyula1/miui-v5-hungarian-translation-for-miuiandroid.git";;
+                indonesian) pull_lang "Indonesian" "in" "git@github.com:ingbrzy/MA-XML-5.0-INDONESIAN.git";;
+                   italian) pull_lang "Italian" "it" "git@bitbucket.org:Mish/miui_v5_italy.git";;
+                    korean) pull_lang "Korean" "ko" "git@github.com:nosoy1/ma-xml-5.0-korean.git";;
+                 norwegian) pull_lang "Norwegian" "nb" "git@github.com:ingbrzy/MA-XML-5.0-NORWEGIAN.git";;
+                    polish) pull_lang "Polish" "pl" "git@github.com:Acid-miuipolskapl/XML_MIUI-v5.git";;
+                  romanian) pull_lang "Romanian" "ro" "git@github.com:ingbrzy/MA-XML-5.0-ROMANIAN.git";;
+                   russian) pull_lang "Russian" "ru" "git@github.com:KDGDev/miui-v5-russian-translation-for-miuiandroid.git";;
+                    slovak) pull_lang "Slovak" "sk" "git@github.com:MIUICzech-Slovak/MA-XML-5.0-SLOVAK.git";;
+                   spanish) pull_lang "Spanish" "es" "git@github.com:ingbrzy/MA-XML-5.0-SPANISH.git";;
+                   swedish) pull_lang "Swedish" "sv" "git@github.com:ingbrzy/ma-xml-5.0-SWEDISH.git";;
+                      thai) pull_lang "Thai" "th" "git@github.com:rcset/MIUIAndroid_XML_v5_TH.git";;
+                   turkish) pull_lang "Turkish" "tr" "git@github.com:ingbrzy/MA-XML-5.0-TURKISH.git";;
+                 ukrainian) pull_lang "Ukrainian" "uk" "git@github.com:KDGDev/miui-v5-ukrainian-translation-for-miuiandroid.git";;
+                vietnamese) pull_lang "Vietnamese" "vi" "git@github.com:HoangTuBot/MA-xml-v5-vietnam.git";;
                          *) echo "Language not supported or language not specified"; exit;;
            esac
+     elif [ $1 == "--cleanup" ]; then
+            clear_cache
+            #remove_langs
+            rm -f $LOG_DIR/XML_*.html
      else
             show_argument_help
      fi
