@@ -348,6 +348,7 @@ if [ $# -gt 0 ]; then
                     danish) init_xml_check "da";;
                      dutch) init_xml_check "nl";; 
                    english) init_xml_check "en";; 
+                   finnish) init_xml_check "fi";;
                     french) init_xml_check "fr";;
                     german) init_xml_check "de";; 
                      greek) init_xml_check "el";; 
@@ -377,6 +378,7 @@ if [ $# -gt 0 ]; then
                             /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Danish" "da" "git@github.com:1982Strand/XML_MIUI-v5_Danish.git"
                             /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Dutch" "nl" "git@github.com:Redmaner/MA-XML-5.0-DUTCH.git"
                             /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "English" "en" "git@github.com:iBotPeaches/MIUIAndroid_XML_v5.git"
+                            /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Finnish" "fi" "git@github.com:ingbrzy/MA-XML-5.0-FINNISH.git"
                             /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "French" "fr" "git@github.com:ingbrzy/ma-xml-5.0-FRENCH.git"
                             /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "German" "de" "git@github.com:Bitti09/ma-xml-5.0-german.git"
                             /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Greek" "el" "git@bitbucket.org:finner/ma-xml-5.0-greek.git"
@@ -402,6 +404,7 @@ if [ $# -gt 0 ]; then
                     danish) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Danish" "da" "git@github.com:1982Strand/XML_MIUI-v5_Danish.git";;
                      dutch) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Dutch" "nl" "git@github.com:Redmaner/MA-XML-5.0-DUTCH.git";;
                    english) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "English" "en" "git@github.com:iBotPeaches/MIUIAndroid_XML_v5.git";;
+                   finnish) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Finnish" "fi" "git@github.com:ingbrzy/MA-XML-5.0-FINNISH.git";;
                     french) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "French" "fr" "git@github.com:ingbrzy/ma-xml-5.0-FRENCH.git";;
                     german) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "German" "de" "git@github.com:Bitti09/ma-xml-5.0-german.git";;
                      greek) /home/translators.xiaomi.eu/scripts/languages/sync_lang.sh "Greek" "el" "git@bitbucket.org:finner/ma-xml-5.0-greek.git";;
