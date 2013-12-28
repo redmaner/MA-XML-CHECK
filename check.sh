@@ -355,7 +355,7 @@ echo "							If third argument is 'full', all languages will be logged in one fi
 echo "							If third argument is 'double', all languages will be logged in one file and in seperate files"
 echo "		--pull [your_language]			Sync specified language"
 echo "							If [your_language] is 'all', then all languages will be synced/updated"
-echo "		--cleanup				Removes all logs, languages and cache files"
+echo "		--cleanup [logs|languages|all]		Removes logs and/or languages"
 echo 
 exit 
 }
@@ -389,6 +389,7 @@ if [ $# -gt 0 ]; then
                 indonesian) init_xml_check "in";; 
                    italian) init_xml_check "it";; 
                     korean) init_xml_check "ko";; 
+                 malaysian) init_xml_check "ms-rMY";;
                  norwegian) init_xml_check "nb";; 
                     polish) init_xml_check "pl";;
                   romanian) init_xml_check "ro";; 
@@ -419,6 +420,7 @@ if [ $# -gt 0 ]; then
                             pull_lang "Indonesian" "in" "git@github.com:ingbrzy/MA-XML-5.0-INDONESIAN.git"
                             pull_lang "Italian" "it" "git@bitbucket.org:Mish/miui_v5_italy.git"
                             pull_lang "Korean" "ko" "git@github.com:nosoy1/ma-xml-5.0-korean.git"
+                            pull_lang "Malaysian" "ms-rMY" "git@github.com:ingbrzy/MA-XML-5.0-MALAY.git"
                             pull_lang "Norwegian" "nb" "git@github.com:ingbrzy/MA-XML-5.0-NORWEGIAN.git"
                             pull_lang "Polish" "pl" "git@github.com:Acid-miuipolskapl/XML_MIUI-v5.git"
                             pull_lang "Romanian" "ro" "git@github.com:ingbrzy/MA-XML-5.0-ROMANIAN.git"
@@ -445,6 +447,7 @@ if [ $# -gt 0 ]; then
                 indonesian) pull_lang "Indonesian" "in" "git@github.com:ingbrzy/MA-XML-5.0-INDONESIAN.git";;
                    italian) pull_lang "Italian" "it" "git@bitbucket.org:Mish/miui_v5_italy.git";;
                     korean) pull_lang "Korean" "ko" "git@github.com:nosoy1/ma-xml-5.0-korean.git";;
+                 malaysian) pull_lang "Malaysian" "ms-rMY" "git@github.com:ingbrzy/MA-XML-5.0-MALAY.git";;
                  norwegian) pull_lang "Norwegian" "nb" "git@github.com:ingbrzy/MA-XML-5.0-NORWEGIAN.git";;
                     polish) pull_lang "Polish" "pl" "git@github.com:Acid-miuipolskapl/XML_MIUI-v5.git";;
                   romanian) pull_lang "Romanian" "ro" "git@github.com:ingbrzy/MA-XML-5.0-ROMANIAN.git";;
@@ -459,9 +462,17 @@ if [ $# -gt 0 ]; then
                          *) echo "Language not supported or language not specified"; exit;;
            esac
      elif [ $1 == "--cleanup" ]; then
-            clear_cache
-            #remove_langs
-            rm -f $LOG_DIR/XML_*.html
+            if [ "$2" != " " ]; then
+                 case "$2" in
+                      logs) rm -f $LOG_DIR/XML_*.html;;
+                 languages) remove_langs;;
+                       all) rm -f $LOG_DIR/XML_*.html
+                            remove langs;;
+                 esac 
+            else
+                 remove_langs
+                 rm -f $LOG_DIR/XML_*.html
+            fi
      else
             show_argument_help
      fi
