@@ -1,24 +1,24 @@
 #!/bin/bash
 case `uname -s` in
     Darwin) 
-           txtrst='\033[0m' # Color off
-           txtgrn='\033[0;32m' # Green
-           txtblu='\033[0;34m' # Blue
-           ;;
+     	txtrst='\033[0m' # Color off
+        txtgrn='\033[0;32m' # Green
+        txtblu='\033[0;34m' # Blue
+        ;;
     *)
-           txtrst='\e[0m' # Color off
-           txtgrn='\e[0;32m' # Green
-           txtblu='\e[0;36m' # Blue
-           ;;
+        txtrst='\e[0m' # Color off
+        txtgrn='\e[0;32m' # Green
+        txtblu='\e[0;36m' # Blue
+        ;;
 esac
 
 # Determine server or a local machine
 if [ -d /home/translators.xiaomi.eu ]; then
-     MAIN_DIR=/home/translators.xiaomi.eu/scripts
-     LOG_DIR=/home/translators.xiaomi.eu/public_html
+     	MAIN_DIR=/home/translators.xiaomi.eu/scripts
+     	LOG_DIR=/home/translators.xiaomi.eu/public_html
 else
-     MAIN_DIR=$PWD
-     LOG_DIR=$PWD/logs
+     	MAIN_DIR=$PWD
+     	LOG_DIR=$PWD/logs
 fi
 
 LANG_TARGETS=$MAIN_DIR/.cache/language.targets
@@ -45,13 +45,13 @@ rm -f $XML_CACHE_LOG
 
 debug_mode () {
 if [ "$DEBUG_MODE" = "full" ]; then
-     XML_LOG=$MAIN_DIR/.cache/XML_CHECK_FULL
+     	XML_LOG=$MAIN_DIR/.cache/XML_CHECK_FULL
 elif [ "$DEBUG_MODE" = "double" ]; then
-       XML_LOG_FULL=$MAIN_DIR/.cache/XML_CHECK_FULL
-       LOG_TARGET=$XML_LOG_FULL; update_log
-       XML_LOG=$MAIN_DIR/.cache/XML_$LANG_TARGET
+       	XML_LOG_FULL=$MAIN_DIR/.cache/XML_CHECK_FULL
+       	LOG_TARGET=$XML_LOG_FULL; update_log
+       	XML_LOG=$MAIN_DIR/.cache/XML_$LANG_TARGET
 else
-     XML_LOG=$MAIN_DIR/.cache/XML_$LANG_TARGET
+     	XML_LOG=$MAIN_DIR/.cache/XML_$LANG_TARGET
 fi
 LOG_TARGET=$XML_LOG; update_log
 }
@@ -59,17 +59,17 @@ LOG_TARGET=$XML_LOG; update_log
 update_log () {
 DATE=$(date +"%m-%d-%Y %H:%M:%S")
 if [ -e $LOG_TARGET ]; then
-     LINE_NR=$(wc -l $LOG_TARGET | cut -d' ' -f1)
-     if [ "$(sed -n "$LINE_NR"p $LOG_TARGET)" = '<!-- Start of log --><script type="text/plain">' ]; then 
-           echo '</script></font><font id="green">No errors found in this repository!</font>' >> $LOG_TARGET
-           echo '</script><font id="header"><br><br>Checked '$LANG_NAME' ('$LANG_TARGET') repository on '$DATE'</font>' >> $LOG_TARGET
-           echo '<!-- Start of log --><script type="text/plain">' >> $LOG_TARGET
-     else
-           echo '</script></font><font id="header"><br><br>Checked '$LANG_NAME' ('$LANG_TARGET') repository on '$DATE'</font>' >> $LOG_TARGET
-           echo '<!-- Start of log --><script type="text/plain">' >> $LOG_TARGET
-     fi
+     	LINE_NR=$(wc -l $LOG_TARGET | cut -d' ' -f1)
+     	if [ "$(sed -n "$LINE_NR"p $LOG_TARGET)" = '<!-- Start of log --><script type="text/plain">' ]; then 
+           	echo '</script></font><font id="green">No errors found in this repository!</font>' >> $LOG_TARGET
+           	echo '</script><font id="header"><br><br>Checked '$LANG_NAME' ('$LANG_TARGET') repository on '$DATE'</font>' >> $LOG_TARGET
+           	echo '<!-- Start of log --><script type="text/plain">' >> $LOG_TARGET
+     	else
+           	echo '</script></font><font id="header"><br><br>Checked '$LANG_NAME' ('$LANG_TARGET') repository on '$DATE'</font>' >> $LOG_TARGET
+           	echo '<!-- Start of log --><script type="text/plain">' >> $LOG_TARGET
+     	fi
 else
-     cat >> $LOG_TARGET << EOF
+     	cat >> $LOG_TARGET << EOF
 <!DOCTYPE html>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
 <html>
@@ -142,29 +142,29 @@ fi
 check_log () {
 LINE_NR=$(wc -l $XML_LOG | cut -d' ' -f1)
 if [ "$(sed -n "$LINE_NR"p $XML_LOG)" = '<!-- Start of log --><script type="text/plain">' ]; then 
-     echo '</script><font id="green">No errors found in this repository!</font>' >> $XML_LOG
+     	echo '</script><font id="green">No errors found in this repository!</font>' >> $XML_LOG
 fi
 if [ $DEBUG_MODE = "full" ]; then
-     if [ "$LANG_TARGET" = "$LAST_TARGET" ]; then
-          rm -f $LOG_DIR/XML_CHECK_FULL.html
-          cp $XML_LOG $LOG_DIR/XML_CHECK_FULL.html
-          echo -e "${txtgrn}All languages checked, log at logs/XML_CHECK_FULL.html${txtrst}"
-     fi
+     	if [ "$LANG_TARGET" = "$LAST_TARGET" ]; then
+          	rm -f $LOG_DIR/XML_CHECK_FULL.html
+          	cp $XML_LOG $LOG_DIR/XML_CHECK_FULL.html
+          	echo -e "${txtgrn}All languages checked, log at logs/XML_CHECK_FULL.html${txtrst}"
+     	fi
 elif [ $DEBUG_MODE = "double" ]; then
-     cp $XML_LOG $LOG_DIR/XML_$LANG_TARGET.html
-     echo -e "${txtgrn}$LANG_NAME ($LANG_TARGET) checked, log at logs/XML_$LANG_TARGET.html${txtrst}"
-     if [ "$LANG_TARGET" = "$LAST_TARGET" ]; then
-          LINE_NR=$(wc -l $XML_LOG_FULL | cut -d' ' -f1)
-          if [ "$(sed -n "$LINE_NR"p $XML_LOG_FULL)" = '<!-- Start of log --><script type="text/plain">' ]; then
-               echo '</script><font id="green">No errors found in this repository!</font>' >> $XML_LOG_FULL
-          fi
-          cp $XML_LOG_FULL $LOG_DIR/XML_CHECK_FULL.html
-          echo -e "${txtgrn}All languages checked, log at logs/XML_CHECK_FULL.html${txtrst}"
-     fi
+     	cp $XML_LOG $LOG_DIR/XML_$LANG_TARGET.html
+    	echo -e "${txtgrn}$LANG_NAME ($LANG_TARGET) checked, log at logs/XML_$LANG_TARGET.html${txtrst}"
+     	if [ "$LANG_TARGET" = "$LAST_TARGET" ]; then
+          	LINE_NR=$(wc -l $XML_LOG_FULL | cut -d' ' -f1)
+          	if [ "$(sed -n "$LINE_NR"p $XML_LOG_FULL)" = '<!-- Start of log --><script type="text/plain">' ]; then
+               		echo '</script><font id="green">No errors found in this repository!</font>' >> $XML_LOG_FULL
+          	fi
+          	cp $XML_LOG_FULL $LOG_DIR/XML_CHECK_FULL.html
+          	echo -e "${txtgrn}All languages checked, log at logs/XML_CHECK_FULL.html${txtrst}"
+     	fi
 else
-     rm -f $LOG_DIRl/XML_$LANG_TARGET.html
-     cp $XML_LOG $LOG_DIR/XML_$LANG_TARGET.html
-     echo -e "${txtgrn}$LANG_NAME ($LANG_TARGET) checked, log at logs/XML_$LANG_TARGET.html${txtrst}"
+     	rm -f $LOG_DIRl/XML_$LANG_TARGET.html
+     	cp $XML_LOG $LOG_DIR/XML_$LANG_TARGET.html
+     	echo -e "${txtgrn}$LANG_NAME ($LANG_TARGET) checked, log at logs/XML_$LANG_TARGET.html${txtrst}"
 fi
 }
 
@@ -172,7 +172,7 @@ check_xml_full () {
 ls $MAIN_DIR/languages > $LANG_TARGETS
 LAST_TARGET=$(sed -n "$(wc -l $LANG_TARGETS | cut -d' ' -f1)"p $LANG_TARGETS)
 cat $LANG_TARGETS | while read all_line; do
-    init_xml_check "$all_line" 
+    	init_xml_check "$all_line" 
 done
 }
 
@@ -182,28 +182,31 @@ LANG_TARGET=$(echo $LANG)
 LANG_NAME=$(cat $LANG_NAMES | grep ''$LANG'=' | cut -d'=' -f2)
 
 if [ -d $MAIN_DIR/languages/$LANG_TARGET ]; then
-   echo -e "${txtblu}\nChecking $LANG_NAME ($LANG_TARGET)${txtrst}"
-   rm -f $XML_TARGETS_ARRAYS $XML_TARGETS_STRINGS $XML_TARGETS_PLURALS
-   find $MAIN_DIR/languages/$LANG_TARGET -iname "arrays.xml" >> $XML_TARGETS_ARRAYS
-   find $MAIN_DIR/languages/$LANG_TARGET -iname "strings.xml" >> $XML_TARGETS_STRINGS
-   find $MAIN_DIR/languages/$LANG_TARGET -iname "plurals.xml" >> $XML_TARGETS_PLURALS
-   sort $XML_TARGETS_ARRAYS > $XML_TARGETS_ARRAYS.new; mv $XML_TARGETS_ARRAYS.new $XML_TARGETS_ARRAYS
-   sort $XML_TARGETS_STRINGS > $XML_TARGETS_STRINGS.new; mv $XML_TARGETS_STRINGS.new $XML_TARGETS_STRINGS
-   sort $XML_TARGETS_PLURALS > $XML_TARGETS_PLURALS.new; mv $XML_TARGETS_PLURALS.new $XML_TARGETS_PLURALS
-   debug_mode
-   start_xml_check
+   	echo -e "${txtblu}\nChecking $LANG_NAME ($LANG_TARGET)${txtrst}"
+   	rm -f $XML_TARGETS_ARRAYS $XML_TARGETS_STRINGS $XML_TARGETS_PLURALS
+   	find $MAIN_DIR/languages/$LANG_TARGET -iname "arrays.xml" >> $XML_TARGETS_ARRAYS
+   	find $MAIN_DIR/languages/$LANG_TARGET -iname "arrays.xml.part" >> $XML_TARGETS_ARRAYS 
+   	find $MAIN_DIR/languages/$LANG_TARGET -iname "strings.xml" >> $XML_TARGETS_STRINGS
+   	find $MAIN_DIR/languages/$LANG_TARGET -iname "strings.xml.part" >> $XML_TARGETS_STRINGS 
+   	find $MAIN_DIR/languages/$LANG_TARGET -iname "plurals.xml" >> $XML_TARGETS_PLURALS
+   	find $MAIN_DIR/languages/$LANG_TARGET -iname "plurals.xml.part" >> $XML_TARGETS_PLURALS 
+   	sort $XML_TARGETS_ARRAYS > $XML_TARGETS_ARRAYS.new; mv $XML_TARGETS_ARRAYS.new $XML_TARGETS_ARRAYS
+   	sort $XML_TARGETS_STRINGS > $XML_TARGETS_STRINGS.new; mv $XML_TARGETS_STRINGS.new $XML_TARGETS_STRINGS
+   	sort $XML_TARGETS_PLURALS > $XML_TARGETS_PLURALS.new; mv $XML_TARGETS_PLURALS.new $XML_TARGETS_PLURALS
+   	debug_mode
+   	start_xml_check
 fi
 }
 
 start_xml_check () {
 cat $XML_TARGETS_ARRAYS | while read all_line; do
-    $CHECK_MODE "$all_line" arrays
+    	$CHECK_MODE "$all_line" arrays
 done; clean_cache
 cat $XML_TARGETS_STRINGS | while read all_line; do
-    $CHECK_MODE "$all_line" strings
+    	$CHECK_MODE "$all_line" strings
 done; clean_cache
 cat $XML_TARGETS_PLURALS | while read all_line; do
-    $CHECK_MODE "$all_line" plurals
+    	$CHECK_MODE "$all_line" plurals
 done; clean_cache
 check_log
 }
@@ -214,48 +217,46 @@ XML_TARGET=$(echo $XML)
 XML_TYPE=$2
 
 if [ -e "$XML_TARGET" ]; then
-     echo -e '</script><font id="black"><br>'$XML_TARGET'</font><script type="text/plain">' >> $XML_LOG
+     	echo -e '</script><font id="black"><br>'$XML_TARGET'</font><script type="text/plain">' >> $XML_LOG
 
-     # Check for XML Parser errors
-     xmllint --noout $XML_TARGET 2>> $XML_LOG
+     	# Check for XML Parser errors
+     	xmllint --noout $XML_TARGET 2>> $XML_LOG
 
-     # Check for doubles in strings.xml
-     if [ "$XML_TYPE" = "strings" ]; then
-          echo '</script><font id="orange"><script type="text/plain">' >> $XML_LOG
-          cat $XML_TARGET | while read all_line; do grep "<string" | cut -d'>' -f1; done > $XML_TARGET_STRIPPED
-          sort $XML_TARGET_STRIPPED | uniq --repeated > $DOUBLE_RESULT
-          cat $DOUBLE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_LOG
-          if [ "$(sed -n "$(wc -l $XML_LOG | cut -d' ' -f1)"p $XML_LOG)" = '</script><font id="orange"><script type="text/plain">' ]; then
-               sed -i '$ d' $XML_LOG
-          fi
-     fi
+     	# Check for doubles in strings.xml
+     	if [ "$XML_TYPE" = "strings" ]; then
+          	echo '</script><font id="orange"><script type="text/plain">' >> $XML_LOG
+          	cat $XML_TARGET | while read all_line; do grep "<string" | cut -d'>' -f1; done > $XML_TARGET_STRIPPED
+          	sort $XML_TARGET_STRIPPED | uniq --repeated > $DOUBLE_RESULT
+          	cat $DOUBLE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_LOG
+          	if [ "$(sed -n "$(wc -l $XML_LOG | cut -d' ' -f1)"p $XML_LOG)" = '</script><font id="orange"><script type="text/plain">' ]; then
+               		sed -i '$ d' $XML_LOG
+          	fi
+     	fi
 
-     # Check for apostrophe errors in strings.xml
-     if [ "$XML_TYPE" = "strings" ]; then
-          echo '</script></font><font id="brown"><script type="text/plain">' >> $XML_LOG
-          grep "<string" $XML_TARGET | grep -v '>"' > $XML_TARGET_STRIPPED
-          if [ -e $XML_TARGET_STRIPPED ]; then
-               grep "'" $XML_TARGET_STRIPPED | grep -v "'\''" > $APOSTROPHE_RESULT
-               if [ -e $APOSTROPHE_RESULT ]; then
-                    cat $APOSTROPHE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_LOG
-               fi
-          fi
-          if [ "$(sed -n "$(wc -l $XML_LOG | cut -d' ' -f1)"p $XML_LOG)" = '</script></font><font id="brown"><script type="text/plain">' ]; then
-               sed -i '$ d' $XML_LOG
-          fi
-     fi
+     	# Check for apostrophe errors in strings.xml
+     	echo '</script></font><font id="brown"><script type="text/plain">' >> $XML_LOG
+     	grep "<string" $XML_TARGET | grep -v '>"' > $XML_TARGET_STRIPPED
+     	if [ -e $XML_TARGET_STRIPPED ]; then
+          	grep "'" $XML_TARGET_STRIPPED | grep -v "'\''" > $APOSTROPHE_RESULT
+          	if [ -e $APOSTROPHE_RESULT ]; then
+               		cat $APOSTROPHE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_LOG
+          	fi
+     	fi
+     	if [ "$(sed -n "$(wc -l $XML_LOG | cut -d' ' -f1)"p $XML_LOG)" = '</script></font><font id="brown"><script type="text/plain">' ]; then
+          	sed -i '$ d' $XML_LOG
+     	fi
 
-     # Check for '+' at the beginning of a line, outside <string>
-     echo '</script></font><font id="blue"><script type="text/plain">' >> $XML_LOG
-     grep -ne "+ * <s" $XML_TARGET >> $XML_LOG 
-     if [ "$(sed -n "$(wc -l $XML_LOG | cut -d' ' -f1)"p $XML_LOG)" = '</script></font><font id="blue"><script type="text/plain">' ]; then
-          sed -i '$ d' $XML_LOG
-     fi; 
+     	# Check for '+' at the beginning of a line, outside <string>
+     	echo '</script></font><font id="blue"><script type="text/plain">' >> $XML_LOG
+     	grep -ne "+ * <s" $XML_TARGET >> $XML_LOG 
+     	if [ "$(sed -n "$(wc -l $XML_LOG | cut -d' ' -f1)"p $XML_LOG)" = '</script></font><font id="blue"><script type="text/plain">' ]; then
+          	sed -i '$ d' $XML_LOG
+     	fi; 
 
-     # Clean up log if there are no errors
-     if [ "$(sed -n "$(wc -l $XML_LOG | cut -d' ' -f1)"p $XML_LOG)" = '</script><font id="black"><br>'$XML_TARGET'</font><script type="text/plain">' ]; then 
-          sed -i '$ d' $XML_LOG
-     fi
+     	# Clean up log if there are no errors
+     	if [ "$(sed -n "$(wc -l $XML_LOG | cut -d' ' -f1)"p $XML_LOG)" = '</script><font id="black"><br>'$XML_TARGET'</font><script type="text/plain">' ]; then 
+          	sed -i '$ d' $XML_LOG
+     	fi
 fi
 }
 
@@ -266,52 +267,50 @@ XML_TYPE=$2
 
 rm -f $XML_CACHE_LOG
 if [ -e "$XML_TARGET" ]; then
-     echo -e '</script><font id="black"><br>'$XML_TARGET'</font><script type="text/plain">' >> $XML_CACHE_LOG
+     	echo -e '</script><font id="black"><br>'$XML_TARGET'</font><script type="text/plain">' >> $XML_CACHE_LOG
 
-     # Check for XML Parser errors
-     xmllint --noout $XML_TARGET 2>> $XML_CACHE_LOG
+     	# Check for XML Parser errors
+     	xmllint --noout $XML_TARGET 2>> $XML_CACHE_LOG
 
-     # Check for doubles in strings.xml
-     if [ "$XML_TYPE" = "strings" ]; then
-          echo '</script><font id="orange"><script type="text/plain">' >> $XML_CACHE_LOG
-          cat $XML_TARGET | while read all_line; do grep "<string" | cut -d'>' -f1; done > $XML_TARGET_STRIPPED
-          sort $XML_TARGET_STRIPPED | uniq --repeated > $DOUBLE_RESULT
-          cat $DOUBLE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_CACHE_LOG
-          if [ "$(sed -n "$(wc -l $XML_CACHE_LOG | cut -d' ' -f1)"p $XML_CACHE_LOG)" = '</script><font id="orange"><script type="text/plain">' ]; then
-               sed -i '$ d' $XML_CACHE_LOG
-          fi
-     fi
+     	# Check for doubles in strings.xml
+     	if [ "$XML_TYPE" = "strings" ]; then
+          	echo '</script><font id="orange"><script type="text/plain">' >> $XML_CACHE_LOG
+          	cat $XML_TARGET | while read all_line; do grep "<string" | cut -d'>' -f1; done > $XML_TARGET_STRIPPED
+          	sort $XML_TARGET_STRIPPED | uniq --repeated > $DOUBLE_RESULT
+          	cat $DOUBLE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_CACHE_LOG
+          	if [ "$(sed -n "$(wc -l $XML_CACHE_LOG | cut -d' ' -f1)"p $XML_CACHE_LOG)" = '</script><font id="orange"><script type="text/plain">' ]; then
+               		sed -i '$ d' $XML_CACHE_LOG
+          	fi
+     	fi
 
-     # Check for apostrophe errors in strings.xml
-     if [ "$XML_TYPE" = "strings" ]; then
-          echo '</script></font><font id="brown"><script type="text/plain">' >> $XML_CACHE_LOG
-          grep "<string" $XML_TARGET > $XML_TARGET_STRIPPED
-          grep -v '>"' $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT
-          if [ -e $APOSTROPHE_RESULT ]; then
-               grep "'" $APOSTROPHE_RESULT > $XML_TARGET_STRIPPED
-               grep -v "'\''" $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT
-               if [ -e $APOSTROPHE_RESULT ]; then
-                    cat $APOSTROPHE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_CACHE_LOG
-               fi
-          fi
-          if [ "$(sed -n "$(wc -l $XML_CACHE_LOG | cut -d' ' -f1)"p $XML_CACHE_LOG)" = '</script></font><font id="brown"><script type="text/plain">' ]; then
-               sed -i '$ d' $XML_CACHE_LOG
-          fi
-     fi
+     	# Check for apostrophe errors in strings.xml
+        echo '</script></font><font id="brown"><script type="text/plain">' >> $XML_CACHE_LOG
+        grep "<string" $XML_TARGET > $XML_TARGET_STRIPPED
+        grep -v '>"' $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT
+        if [ -e $APOSTROPHE_RESULT ]; then
+        	grep "'" $APOSTROPHE_RESULT > $XML_TARGET_STRIPPED
+               	grep -v "'\''" $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT
+               	if [ -e $APOSTROPHE_RESULT ]; then
+                   	cat $APOSTROPHE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_CACHE_LOG
+               	fi
+        fi
+        if [ "$(sed -n "$(wc -l $XML_CACHE_LOG | cut -d' ' -f1)"p $XML_CACHE_LOG)" = '</script></font><font id="brown"><script type="text/plain">' ]; then
+               	sed -i '$ d' $XML_CACHE_LOG
+        fi
 
-     # Check for '+' at the beginning of a line, outside <string>
-     echo '</script></font><font id="blue"><script type="text/plain">' >> $XML_CACHE_LOG
-     grep -ne "+ * <s" $XML_TARGET >> $XML_CACHE_LOG
-     if [ "$(sed -n "$(wc -l $XML_CACHE_LOG | cut -d' ' -f1)"p $XML_CACHE_LOG)" = '</script></font><font id="blue"><script type="text/plain">' ]; then
-          sed -i '$ d' $XML_CACHE_LOG
-     fi; 
+     	# Check for '+' at the beginning of a line, outside <string>
+     	echo '</script></font><font id="blue"><script type="text/plain">' >> $XML_CACHE_LOG
+     	grep -ne "+ * <s" $XML_TARGET >> $XML_CACHE_LOG
+     	if [ "$(sed -n "$(wc -l $XML_CACHE_LOG | cut -d' ' -f1)"p $XML_CACHE_LOG)" = '</script></font><font id="blue"><script type="text/plain">' ]; then
+          	sed -i '$ d' $XML_CACHE_LOG
+     	fi; 
 
-     # Clean up log if there are no errors
-     if [ "$(sed -n "$(wc -l $XML_CACHE_LOG | cut -d' ' -f1)"p $XML_CACHE_LOG)" = '</script><font id="black"><br>'$XML_TARGET'</font><script type="text/plain">' ]; then 
-          sed -i '$ d' $XML_CACHE_LOG
-     fi
-     cat $XML_CACHE_LOG >> $XML_LOG_FULL
-     cat $XML_CACHE_LOG >> $XML_LOG
+     	# Clean up log if there are no errors
+     	if [ "$(sed -n "$(wc -l $XML_CACHE_LOG | cut -d' ' -f1)"p $XML_CACHE_LOG)" = '</script><font id="black"><br>'$XML_TARGET'</font><script type="text/plain">' ]; then 
+          	sed -i '$ d' $XML_CACHE_LOG
+     	fi
+     	cat $XML_CACHE_LOG >> $XML_LOG_FULL
+     	cat $XML_CACHE_LOG >> $XML_LOG
 fi
 }
 
@@ -322,9 +321,9 @@ ISO=$2
 REPO=$3
 echo -e "${txtblu}\nSyncing $LANG${txtrst}"
 if [ -e $MAIN_DIR/languages/$ISO ]; then
-     cd $MAIN_DIR/languages/$ISO; git pull; cd ../../..
+     	cd $MAIN_DIR/languages/$ISO; git pull; cd ../../..
 else
-     git clone $REPO $MAIN_DIR/languages/$ISO
+     	git clone $REPO $MAIN_DIR/languages/$ISO
 fi
 }
 
@@ -332,9 +331,9 @@ remove_langs () {
 ls $MAIN_DIR/languages > $LANG_TARGETS
 LAST_TARGET=$(sed -n "$(wc -l $LANG_TARGETS | cut -d' ' -f1)"p $LANG_TARGETS)
 cat $LANG_TARGETS | while read all_line; do
-    if [ -d $MAIN_DIR/languages/$all_line ]; then
-         rm -rf $MAIN_DIR/languages/$all_line
-    fi 
+    	if [ -d $MAIN_DIR/languages/$all_line ]; then
+         	rm -rf $MAIN_DIR/languages/$all_line
+    	fi 
 done
 }
 
@@ -361,13 +360,13 @@ exit
 }
 
 if [ $# -gt 0 ]; then
-     if [ $1 == "--help" ]; then
-          show_argument_help
-     elif [ $1 == "--check" ]; then
-            clear_cache
-            DEBUG_MODE=lang
-            CHECK_MODE=xml_check
-            case "$2" in
+     	if [ $1 == "--help" ]; then
+          	show_argument_help
+     	elif [ $1 == "--check" ]; then
+            	clear_cache
+            	DEBUG_MODE=lang
+            	CHECK_MODE=xml_check
+            	case "$2" in
                        all) if [ "$3" = "full" ]; then
                                  DEBUG_MODE=full
                             elif [ "$3" = "double" ]; then
@@ -402,9 +401,9 @@ if [ $# -gt 0 ]; then
                  ukrainian) init_xml_check "uk";; 
                 vietnamese) init_xml_check "vi";; 
                          *) echo "Language not supported or language not specified"; exit;;
-           esac
-     elif [ $1 == "--pull" ]; then
-            case "$2" in
+           	esac
+     	elif [ $1 == "--pull" ]; then
+            	case "$2" in
                        all) pull_lang "Arabic" "ar" "git@github.com:MIUI-Palestine/MIUIPalestine_V5_Arabic_XML.git"
                             pull_lang "Brazilian-Portuguese" "pt-rBR" "git@bitbucket.org:miuibrasil/ma-xml-5.0-portuguese-brazilian.git"
                             pull_lang "Bulgarian" "bg" "git@github.com:ingbrzy/MA-XML-5.0-BULGARIAN.git"
@@ -460,25 +459,25 @@ if [ $# -gt 0 ]; then
                  ukrainian) pull_lang "Ukrainian" "uk" "git@github.com:KDGDev/miui-v5-ukrainian-translation-for-miuiandroid.git";;
                 vietnamese) pull_lang "Vietnamese" "vi" "git@github.com:HoangTuBot/MA-xml-v5-vietnam.git";;
                          *) echo "Language not supported or language not specified"; exit;;
-           esac
-     elif [ $1 == "--cleanup" ]; then
-            if [ "$2" != " " ]; then
-                 case "$2" in
-                      logs) rm -f $LOG_DIR/XML_*.html;;
-                 languages) remove_langs;;
-                       all) rm -f $LOG_DIR/XML_*.html
-                            remove langs;;
-                 esac 
-            else
-                 remove_langs
-                 rm -f $LOG_DIR/XML_*.html
-            fi
-     else
-            show_argument_help
-     fi
+           	esac
+     	elif [ $1 == "--cleanup" ]; then
+            	if [ "$2" != " " ]; then
+                 	case "$2" in
+                             logs) rm -f $LOG_DIR/XML_*.html;;
+                        languages) remove_langs;;
+                              all) rm -f $LOG_DIR/XML_*.html
+                                   remove langs;;
+                 	esac 
+            	else
+                 	remove_langs
+                 	rm -f $LOG_DIR/XML_*.html
+            	fi
+     	else
+            	show_argument_help
+     	fi
 else
-     clear_cache
-     DEBUG_MODE=full
-     CHECK_MODE=xml_check
-     check_xml_full
+     	clear_cache
+     	DEBUG_MODE=full
+     	CHECK_MODE=xml_check
+     	check_xml_full
 fi
