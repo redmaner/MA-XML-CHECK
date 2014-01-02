@@ -78,6 +78,7 @@ else
 script {
   display: block;
   padding: auto;
+  white-space: pre;
 }
 #header {
   font-weight: bold;
