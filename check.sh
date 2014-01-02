@@ -112,6 +112,7 @@ table {
         }
 #error {
   white-space: pre;
+  margin-top: -10px;
 }
 </style></head>
 <body id="red">
