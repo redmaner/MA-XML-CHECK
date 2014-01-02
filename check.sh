@@ -78,7 +78,6 @@ else
 script {
   display: block;
   padding: auto;
-  white-space: pre;
 }
 #header {
   font-weight: bold;
@@ -111,6 +110,9 @@ table {
         border-right: 0px solid #000000;
         text-align: left;
         }
+#error {
+  white-space: pre;
+}
 </style></head>
 <body id="red">
 <br><br>
@@ -201,13 +203,13 @@ fi
 
 start_xml_check () {
 cat $XML_TARGETS_ARRAYS | while read all_line; do
-    	$CHECK_MODE "$all_line" arrays
+    	xml_check "$all_line" arrays
 done; clean_cache
 cat $XML_TARGETS_STRINGS | while read all_line; do
-    	$CHECK_MODE "$all_line" strings
+    	xml_check "$all_line" strings
 done; clean_cache
 cat $XML_TARGETS_PLURALS | while read all_line; do
-    	$CHECK_MODE "$all_line" plurals
+    	xml_check "$all_line" plurals
 done; clean_cache
 check_log
 }
@@ -217,75 +219,26 @@ XML=$1
 XML_TARGET=$(echo $XML)
 XML_TYPE=$2
 
-if [ -e "$XML_TARGET" ]; then
-     	echo -e '</script><font id="black"><br>'$XML_TARGET'</font><script type="text/plain">' >> $XML_LOG
-
-     	# Check for XML Parser errors
-     	xmllint --noout $XML_TARGET 2>> $XML_LOG
-
-     	# Check for doubles in strings.xml
-     	if [ "$XML_TYPE" = "strings" ]; then
-          	echo '</script><font id="orange"><script type="text/plain">' >> $XML_LOG
-          	cat $XML_TARGET | while read all_line; do grep "<string" | cut -d'>' -f1; done > $XML_TARGET_STRIPPED
-          	sort $XML_TARGET_STRIPPED | uniq --repeated > $DOUBLE_RESULT
-          	cat $DOUBLE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_LOG
-          	if [ "$(sed -n "$(wc -l $XML_LOG | cut -d' ' -f1)"p $XML_LOG)" = '</script><font id="orange"><script type="text/plain">' ]; then
-               		sed -i '$ d' $XML_LOG
-          	fi
-     	fi
-
-     	# Check for apostrophe errors in strings.xml
-     	echo '</script></font><font id="brown"><script type="text/plain">' >> $XML_LOG
-     	grep "<string" $XML_TARGET | grep -v '>"' > $XML_TARGET_STRIPPED
-     	if [ -e $XML_TARGET_STRIPPED ]; then
-          	grep "'" $XML_TARGET_STRIPPED | grep -v "'\''" > $APOSTROPHE_RESULT
-          	if [ -e $APOSTROPHE_RESULT ]; then
-               		cat $APOSTROPHE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_LOG
-          	fi
-     	fi
-     	if [ "$(sed -n "$(wc -l $XML_LOG | cut -d' ' -f1)"p $XML_LOG)" = '</script></font><font id="brown"><script type="text/plain">' ]; then
-          	sed -i '$ d' $XML_LOG
-     	fi
-
-     	# Check for '+' at the beginning of a line, outside <string>
-     	echo '</script></font><font id="blue"><script type="text/plain">' >> $XML_LOG
-     	grep -ne "+ * <s" $XML_TARGET >> $XML_LOG 
-     	if [ "$(sed -n "$(wc -l $XML_LOG | cut -d' ' -f1)"p $XML_LOG)" = '</script></font><font id="blue"><script type="text/plain">' ]; then
-          	sed -i '$ d' $XML_LOG
-     	fi; 
-
-     	# Clean up log if there are no errors
-     	if [ "$(sed -n "$(wc -l $XML_LOG | cut -d' ' -f1)"p $XML_LOG)" = '</script><font id="black"><br>'$XML_TARGET'</font><script type="text/plain">' ]; then 
-          	sed -i '$ d' $XML_LOG
-     	fi
-fi
-}
-
-xml_check_double () {
-XML=$1
-XML_TARGET=$(echo $XML)
-XML_TYPE=$2
-
 rm -f $XML_CACHE_LOG
 if [ -e "$XML_TARGET" ]; then
-     	echo -e '</script><font id="black"><br>'$XML_TARGET'</font><script type="text/plain">' >> $XML_CACHE_LOG
+     	echo -e '</script><font id="black"><br>'$XML_TARGET'</font><script id="error" type="text/plain">' >> $XML_CACHE_LOG
 
      	# Check for XML Parser errors
      	xmllint --noout $XML_TARGET 2>> $XML_CACHE_LOG
 
      	# Check for doubles in strings.xml
      	if [ "$XML_TYPE" = "strings" ]; then
-          	echo '</script><font id="orange"><script type="text/plain">' >> $XML_CACHE_LOG
+          	echo '</script><font id="orange"><script id="error" type="text/plain">' >> $XML_CACHE_LOG
           	cat $XML_TARGET | while read all_line; do grep "<string" | cut -d'>' -f1; done > $XML_TARGET_STRIPPED
           	sort $XML_TARGET_STRIPPED | uniq --repeated > $DOUBLE_RESULT
           	cat $DOUBLE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_CACHE_LOG
-          	if [ "$(sed -n "$(wc -l $XML_CACHE_LOG | cut -d' ' -f1)"p $XML_CACHE_LOG)" = '</script><font id="orange"><script type="text/plain">' ]; then
+          	if [ "$(sed -n "$(wc -l $XML_CACHE_LOG | cut -d' ' -f1)"p $XML_CACHE_LOG)" = '</script><font id="orange"><script id="error" type="text/plain">' ]; then
                		sed -i '$ d' $XML_CACHE_LOG
           	fi
      	fi
 
      	# Check for apostrophe errors in strings.xml
-        echo '</script></font><font id="brown"><script type="text/plain">' >> $XML_CACHE_LOG
+        echo '</script></font><font id="brown"><script id="error" type="text/plain">' >> $XML_CACHE_LOG
         grep "<string" $XML_TARGET > $XML_TARGET_STRIPPED
         grep -v '>"' $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT
         if [ -e $APOSTROPHE_RESULT ]; then
@@ -295,23 +248,27 @@ if [ -e "$XML_TARGET" ]; then
                    	cat $APOSTROPHE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_CACHE_LOG
                	fi
         fi
-        if [ "$(sed -n "$(wc -l $XML_CACHE_LOG | cut -d' ' -f1)"p $XML_CACHE_LOG)" = '</script></font><font id="brown"><script type="text/plain">' ]; then
+        if [ "$(sed -n "$(wc -l $XML_CACHE_LOG | cut -d' ' -f1)"p $XML_CACHE_LOG)" = '</script></font><font id="brown"><script id="error" type="text/plain">' ]; then
                	sed -i '$ d' $XML_CACHE_LOG
         fi
 
      	# Check for '+' at the beginning of a line, outside <string>
-     	echo '</script></font><font id="blue"><script type="text/plain">' >> $XML_CACHE_LOG
+     	echo '</script></font><font id="blue"><script id="error" type="text/plain">' >> $XML_CACHE_LOG
      	grep -ne "+ * <s" $XML_TARGET >> $XML_CACHE_LOG
-     	if [ "$(sed -n "$(wc -l $XML_CACHE_LOG | cut -d' ' -f1)"p $XML_CACHE_LOG)" = '</script></font><font id="blue"><script type="text/plain">' ]; then
+     	if [ "$(sed -n "$(wc -l $XML_CACHE_LOG | cut -d' ' -f1)"p $XML_CACHE_LOG)" = '</script></font><font id="blue"><script id="error" type="text/plain">' ]; then
           	sed -i '$ d' $XML_CACHE_LOG
      	fi; 
 
      	# Clean up log if there are no errors
-     	if [ "$(sed -n "$(wc -l $XML_CACHE_LOG | cut -d' ' -f1)"p $XML_CACHE_LOG)" = '</script><font id="black"><br>'$XML_TARGET'</font><script type="text/plain">' ]; then 
+     	if [ "$(sed -n "$(wc -l $XML_CACHE_LOG | cut -d' ' -f1)"p $XML_CACHE_LOG)" = '</script><font id="black"><br>'$XML_TARGET'</font><script id="error" type="text/plain">' ]; then 
           	sed -i '$ d' $XML_CACHE_LOG
      	fi
-     	cat $XML_CACHE_LOG >> $XML_LOG_FULL
-     	cat $XML_CACHE_LOG >> $XML_LOG
+        if [ "$DEBUG_MODE" = "double" ]; then
+		cat $XML_CACHE_LOG >> $XML_LOG_FULL
+     		cat $XML_CACHE_LOG >> $XML_LOG
+     	else
+		cat $XML_CACHE_LOG >> $XML_LOG
+        fi
 fi
 }
 
@@ -366,13 +323,11 @@ if [ $# -gt 0 ]; then
      	elif [ $1 == "--check" ]; then
             	clear_cache
             	DEBUG_MODE=lang
-            	CHECK_MODE=xml_check
             	case "$2" in
                        all) if [ "$3" = "full" ]; then
                                  DEBUG_MODE=full
                             elif [ "$3" = "double" ]; then
                                    DEBUG_MODE=double
-                                   CHECK_MODE=xml_check_double
                             fi; check_xml_full;;
                     arabic) init_xml_check "ar";; 
       brazilian-portuguese) init_xml_check "pt-rBR";;
@@ -479,6 +434,5 @@ if [ $# -gt 0 ]; then
 else
      	clear_cache
      	DEBUG_MODE=full
-     	CHECK_MODE=xml_check
      	check_xml_full
 fi
