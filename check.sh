@@ -80,26 +80,26 @@ script {
   padding: auto;
 }
 #header {
-  font-weight: bold;
-  color: #000000;
+  	font-weight: bold;
+  	color: #000000;
 }
 #black {
-  color: #000000;
+  	color: #000000;
 }
 #green {
-  color: #006633;
+  	color: #006633;
 }
 #red {
-  color: #ff0000;
+  	color: #ff0000;
 }
 #blue {
-  color: #0000ff;
+  	color: #0000ff;
 }
 #orange {
-  color: #CC6633;
+  	color: #CC6633;
 }
 #brown {
-  color: #660000;
+  	color: #660000;
 }
 table {
         background-color: #ffffff;
@@ -111,11 +111,11 @@ table {
         text-align: left;
         }
 #error {
-  white-space: pre;
-  margin-top: -10px;
+  	white-space: pre;
+  	margin-top: -10px;
 }
 </style></head>
-<body id="red">
+<body>
 <br><br>
 <table border="0" cellpadding="0" cellspacing="0">
 <td height="auto" width="120px"><font id="green">Green text</font></td>
@@ -222,7 +222,7 @@ XML_TYPE=$2
 
 rm -f $XML_CACHE_LOG
 if [ -e "$XML_TARGET" ]; then
-     	echo -e '</script><font id="black"><br>'$XML_TARGET'</font><script id="error" type="text/plain">' >> $XML_CACHE_LOG
+     	echo -e '</script><font id="black"><br>'$XML_TARGET'</font><font id="red"><script id="error" type="text/plain">' >> $XML_CACHE_LOG
 
      	# Check for XML Parser errors
      	xmllint --noout $XML_TARGET 2>> $XML_CACHE_LOG
@@ -261,7 +261,7 @@ if [ -e "$XML_TARGET" ]; then
      	fi; 
 
      	# Clean up log if there are no errors
-     	if [ "$(sed -n "$(wc -l $XML_CACHE_LOG | cut -d' ' -f1)"p $XML_CACHE_LOG)" = '</script><font id="black"><br>'$XML_TARGET'</font><script id="error" type="text/plain">' ]; then 
+     	if [ "$(sed -n "$(wc -l $XML_CACHE_LOG | cut -d' ' -f1)"p $XML_CACHE_LOG)" = '</script><font id="black"><br>'$XML_TARGET'</font><font id="red"><script id="error" type="text/plain">' ]; then 
           	sed -i '$ d' $XML_CACHE_LOG
      	fi
         if [ "$DEBUG_MODE" = "double" ]; then
