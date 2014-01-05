@@ -68,10 +68,10 @@ if [ -e $LOG_TARGET ]; then
      	LINE_NR=$(wc -l $LOG_TARGET | cut -d' ' -f1)
      	if [ "$(sed -n "$LINE_NR"p $LOG_TARGET)" = '<!-- Start of log --><script type="text/plain">' ]; then 
            	echo '</script></span><span class="green">No errors found in this repository!</span>' >> $LOG_TARGET
-           	echo '</script><span class="header"><br>Checked <a href="'$LANG_URL'" title="'$LANG_NAME' ('$LANG_TARGET')" target="_blank">'$LANG_NAME' ('$LANG_TARGET') repository</a> on '$DATE'</span>' >> $LOG_TARGET
+           	echo '</script><span class="header"><br><br>Checked <a href="'$LANG_URL'" title="'$LANG_NAME' ('$LANG_TARGET')" target="_blank">'$LANG_NAME' ('$LANG_TARGET') repository</a> on '$DATE'</span>' >> $LOG_TARGET
            	echo '<!-- Start of log --><script type="text/plain">' >> $LOG_TARGET
      	else
-           	echo '</script></span><span class="header"><br>Checked <a href="'$LANG_URL'" title="'$LANG_NAME' ('$LANG_TARGET')" target="_blank">'$LANG_NAME' ('$LANG_TARGET') repository</a> on '$DATE'</span>' >> $LOG_TARGET
+           	echo '</script></span><span class="header"><br><br>Checked <a href="'$LANG_URL'" title="'$LANG_NAME' ('$LANG_TARGET')" target="_blank">'$LANG_NAME' ('$LANG_TARGET') repository</a> on '$DATE'</span>' >> $LOG_TARGET
            	echo '<!-- Start of log --><script type="text/plain">' >> $LOG_TARGET
      	fi
 else
