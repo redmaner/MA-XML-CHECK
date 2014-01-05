@@ -21,8 +21,10 @@ else
      	LOG_DIR=$PWD/logs
 fi
 
-LANG_TARGETS=$MAIN_DIR/.cache/language.targets
-LANG_NAMES=$MAIN_DIR/languages/language.names
+#########################################################################################################
+# VARIABLES / CACHE
+#########################################################################################################
+LANG_XML=$MAIN_DIR/languages/languages.xml
 XML_TARGETS_ARRAYS=$MAIN_DIR/.cache/xml.targets.arrays
 XML_TARGETS_STRINGS=$MAIN_DIR/.cache/xml.targets.strings
 XML_TARGETS_PLURALS=$MAIN_DIR/.cache/xml.targets.plurals
@@ -30,6 +32,7 @@ XML_TARGET_STRIPPED=$MAIN_DIR/.cache/xml.target.stripped
 DOUBLE_RESULT=$MAIN_DIR/.cache/xml.double.result
 APOSTROPHE_RESULT=$MAIN_DIR/.cache/xml.apostrophe.result
 XML_CACHE_LOG=$MAIN_DIR/.cache/XML_CACHE_LOG
+XML_LOG_TEMP=$MAIN_DIR/.cache/XML_LOG_TEMP
 
 clear_cache () {
 rm -rf $MAIN_DIR/.cache
@@ -43,15 +46,18 @@ rm -f $OPOSTROPHE_RESULT
 rm -f $XML_CACHE_LOG
 }
 
+#########################################################################################################
+# INITIAL LOGGING
+#########################################################################################################
 debug_mode () {
 if [ "$DEBUG_MODE" = "full" ]; then
      	XML_LOG=$MAIN_DIR/.cache/XML_CHECK_FULL
 elif [ "$DEBUG_MODE" = "double" ]; then
        	XML_LOG_FULL=$MAIN_DIR/.cache/XML_CHECK_FULL
        	LOG_TARGET=$XML_LOG_FULL; update_log
-       	XML_LOG=$MAIN_DIR/.cache/XML_$LANG_TARGET
+       	XML_LOG=$MAIN_DIR/.cache/XML_$LANG_NAME-$LANG_TARGET
 else
-     	XML_LOG=$MAIN_DIR/.cache/XML_$LANG_TARGET
+     	XML_LOG=$MAIN_DIR/.cache/XML_$LANG_NAME-$LANG_TARGET
 fi
 LOG_TARGET=$XML_LOG; update_log
 }
@@ -62,10 +68,10 @@ if [ -e $LOG_TARGET ]; then
      	LINE_NR=$(wc -l $LOG_TARGET | cut -d' ' -f1)
      	if [ "$(sed -n "$LINE_NR"p $LOG_TARGET)" = '<!-- Start of log --><script type="text/plain">' ]; then 
            	echo '</script></font><font id="green">No errors found in this repository!</font>' >> $LOG_TARGET
-           	echo '</script><font id="header"><br><br>Checked '$LANG_NAME' ('$LANG_TARGET') repository on '$DATE'</font>' >> $LOG_TARGET
+           	echo '</script><font id="header"><br><br>Checked <a href="'$LANG_URL'" target="_blank">'$LANG_NAME' ('$LANG_TARGET') repository</a> on '$DATE'</font>' >> $LOG_TARGET
            	echo '<!-- Start of log --><script type="text/plain">' >> $LOG_TARGET
      	else
-           	echo '</script></font><font id="header"><br><br>Checked '$LANG_NAME' ('$LANG_TARGET') repository on '$DATE'</font>' >> $LOG_TARGET
+           	echo '</script></font><font id="header"><br><br>Checked <a href="'$LANG_URL'" target="_blank">'$LANG_NAME' ('$LANG_TARGET') repository</a> on '$DATE'</font>' >> $LOG_TARGET
            	echo '<!-- Start of log --><script type="text/plain">' >> $LOG_TARGET
      	fi
 else
@@ -110,6 +116,17 @@ table {
         border-right: 0px solid #000000;
         text-align: left;
         }
+
+a, a:active, a:visited {
+        color: #000000;
+        text-decoration: none;
+        }
+
+a:hover {
+        color: #ec6e00;
+        text-decoration: underline;
+        }
+
 #error {
   	white-space: pre;
   	margin-top: -10px;
@@ -137,7 +154,7 @@ table {
 <td height="auto" width="120px"><font id="blue">Blue text</font></td>
 <td height="auto" width="220px"><font id="black">'+' outside of tags</font><td>
 </table>
-<font id="header"><br><br>Checked $LANG_NAME ($LANG_TARGET) repository on $DATE<br></font>
+<font id="header"><br><br>Checked <a href="$LANG_URL" target="_blank">$LANG_NAME ($LANG_TARGET) repository</a> on $DATE<br></font>
 <!-- Start of log --><script type="text/plain">
 EOF
 fi
@@ -155,8 +172,9 @@ if [ $DEBUG_MODE = "full" ]; then
           	echo -e "${txtgrn}All languages checked, log at logs/XML_CHECK_FULL.html${txtrst}"
      	fi
 elif [ $DEBUG_MODE = "double" ]; then
-     	cp $XML_LOG $LOG_DIR/XML_$LANG_TARGET.html
-    	echo -e "${txtgrn}$LANG_NAME ($LANG_TARGET) checked, log at logs/XML_$LANG_TARGET.html${txtrst}"
+	rm -f $LOG_DIR/XML_$LANG_NAME-$LANG_TARGET.html
+     	cp $XML_LOG $LOG_DIR/XML_$LANG_NAME-$LANG_TARGET.html
+    	echo -e "${txtgrn}$LANG_NAME ($LANG_TARGET) checked, log at logs/XML_$LANG_NAME-$LANG_TARGET.html${txtrst}"
      	if [ "$LANG_TARGET" = "$LAST_TARGET" ]; then
           	LINE_NR=$(wc -l $XML_LOG_FULL | cut -d' ' -f1)
           	if [ "$(sed -n "$LINE_NR"p $XML_LOG_FULL)" = '<!-- Start of log --><script type="text/plain">' ]; then
@@ -166,25 +184,16 @@ elif [ $DEBUG_MODE = "double" ]; then
           	echo -e "${txtgrn}All languages checked, log at logs/XML_CHECK_FULL.html${txtrst}"
      	fi
 else
-     	rm -f $LOG_DIRl/XML_$LANG_TARGET.html
-     	cp $XML_LOG $LOG_DIR/XML_$LANG_TARGET.html
-     	echo -e "${txtgrn}$LANG_NAME ($LANG_TARGET) checked, log at logs/XML_$LANG_TARGET.html${txtrst}"
+     	rm -f $LOG_DIR/XML_$LANG_NAME-$LANG_TARGET.html
+     	cp $XML_LOG $LOG_DIR/XML_$LANG_NAME-$LANG_TARGET.html
+     	echo -e "${txtgrn}$LANG_NAME ($LANG_TARGET) checked, log at logs/XML_$LANG_NAME-$LANG_TARGET.html${txtrst}"
 fi
 }
 
-check_xml_full () {
-ls $MAIN_DIR/languages > $LANG_TARGETS
-LAST_TARGET=$(sed -n "$(wc -l $LANG_TARGETS | cut -d' ' -f1)"p $LANG_TARGETS)
-cat $LANG_TARGETS | while read all_line; do
-    	init_xml_check "$all_line" 
-done
-}
-
+#########################################################################################################
+# XML CHECK
+#########################################################################################################
 init_xml_check () {
-LANG=$1
-LANG_TARGET=$(echo $LANG)
-LANG_NAME=$(cat $LANG_NAMES | grep ''$LANG'=' | cut -d'=' -f2)
-
 if [ -d $MAIN_DIR/languages/$LANG_TARGET ]; then
    	echo -e "${txtblu}\nChecking $LANG_NAME ($LANG_TARGET)${txtrst}"
    	rm -f $XML_TARGETS_ARRAYS $XML_TARGETS_STRINGS $XML_TARGETS_PLURALS
@@ -199,6 +208,7 @@ if [ -d $MAIN_DIR/languages/$LANG_TARGET ]; then
    	sort $XML_TARGETS_PLURALS > $XML_TARGETS_PLURALS.new; mv $XML_TARGETS_PLURALS.new $XML_TARGETS_PLURALS
    	debug_mode
    	start_xml_check
+	check_log
 fi
 }
 
@@ -212,7 +222,6 @@ done; clean_cache
 cat $XML_TARGETS_PLURALS | while read all_line; do
     	xml_check "$all_line" plurals
 done; clean_cache
-check_log
 }
 
 xml_check () {
@@ -221,25 +230,21 @@ XML_TARGET=$(echo $XML)
 XML_TYPE=$2
 
 rm -f $XML_CACHE_LOG
+rm -f $XML_LOG_TEMP
 if [ -e "$XML_TARGET" ]; then
-     	echo -e '</script><font id="black"><br>'$XML_TARGET'</font><font id="red"><script id="error" type="text/plain">' >> $XML_CACHE_LOG
-
      	# Check for XML Parser errors
      	xmllint --noout $XML_TARGET 2>> $XML_CACHE_LOG
+	write_log
 
      	# Check for doubles in strings.xml
      	if [ "$XML_TYPE" = "strings" ]; then
-          	echo '</script><font id="orange"><script id="error" type="text/plain">' >> $XML_CACHE_LOG
           	cat $XML_TARGET | while read all_line; do grep "<string" | cut -d'>' -f1; done > $XML_TARGET_STRIPPED
           	sort $XML_TARGET_STRIPPED | uniq --repeated > $DOUBLE_RESULT
           	cat $DOUBLE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_CACHE_LOG
-          	if [ "$(sed -n "$(wc -l $XML_CACHE_LOG | cut -d' ' -f1)"p $XML_CACHE_LOG)" = '</script><font id="orange"><script id="error" type="text/plain">' ]; then
-               		sed -i '$ d' $XML_CACHE_LOG
-          	fi
+		write_log_error "orange"
      	fi
 
      	# Check for apostrophe errors in strings.xml
-        echo '</script></font><font id="brown"><script id="error" type="text/plain">' >> $XML_CACHE_LOG
         grep "<string" $XML_TARGET > $XML_TARGET_STRIPPED
         grep -v '>"' $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT
         if [ -e $APOSTROPHE_RESULT ]; then
@@ -249,71 +254,83 @@ if [ -e "$XML_TARGET" ]; then
                    	cat $APOSTROPHE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_CACHE_LOG
                	fi
         fi
-        if [ "$(sed -n "$(wc -l $XML_CACHE_LOG | cut -d' ' -f1)"p $XML_CACHE_LOG)" = '</script></font><font id="brown"><script id="error" type="text/plain">' ]; then
-               	sed -i '$ d' $XML_CACHE_LOG
-        fi
+	write_log_error "brown"
 
      	# Check for '+' at the beginning of a line, outside <string>
-     	echo '</script></font><font id="blue"><script id="error" type="text/plain">' >> $XML_CACHE_LOG
      	grep -ne "+ * <s" $XML_TARGET >> $XML_CACHE_LOG
-     	if [ "$(sed -n "$(wc -l $XML_CACHE_LOG | cut -d' ' -f1)"p $XML_CACHE_LOG)" = '</script></font><font id="blue"><script id="error" type="text/plain">' ]; then
-          	sed -i '$ d' $XML_CACHE_LOG
-     	fi; 
-
-     	# Clean up log if there are no errors
-     	if [ "$(sed -n "$(wc -l $XML_CACHE_LOG | cut -d' ' -f1)"p $XML_CACHE_LOG)" = '</script><font id="black"><br>'$XML_TARGET'</font><font id="red"><script id="error" type="text/plain">' ]; then 
-          	sed -i '$ d' $XML_CACHE_LOG
-     	fi
-        if [ "$DEBUG_MODE" = "double" ]; then
-		cat $XML_CACHE_LOG >> $XML_LOG_FULL
-     		cat $XML_CACHE_LOG >> $XML_LOG
-     	else
-		cat $XML_CACHE_LOG >> $XML_LOG
-        fi
+	write_log_error "blue"
+	write_log_finish
 fi
 }
 
-# Pull / remove langs
+write_log_error () {
+if [ -s $XML_CACHE_LOG ]; then
+	echo '</script><font id="'$1'"><script id="error" type="text/plain">' >> $XML_LOG_TEMP
+	cat $XML_CACHE_LOG >> $XML_LOG_TEMP
+fi
+rm -f $XML_CACHE_LOG
+}
+
+write_log_finish () {
+if [ -s $XML_LOG_TEMP ]; then
+	if [ "$DEBUG_MODE" = "double" ]; then
+		echo '</script><font id="black"><br>'$XML_TARGET'</font><font id="red"><script id="error" type="text/plain">' >> $XML_LOG_FULL
+		cat $XML_LOG_TEMP >> $XML_LOG_FULL
+	fi
+	echo '</script><font id="black"><br>'$XML_TARGET'</font><font id="red"><script id="error" type="text/plain">' >> $XML_LOG
+	cat $XML_LOG_TEMP >> $XML_LOG
+fi
+rm -f $XML_CACHE_LOG
+}
+
+write_log () {
+cat $XML_CACHE_LOG >> $XML_LOG_TEMP
+rm -f $XML_CACHE_LOG
+}	
+
+#########################################################################################################
+# PULL LANGUAGES
+#########################################################################################################
 pull_lang () {
-LANG=$1
-ISO=$2
-REPO=$3
-echo -e "${txtblu}\nSyncing $LANG${txtrst}"
-if [ -e $MAIN_DIR/languages/$ISO ]; then
-     	cd $MAIN_DIR/languages/$ISO; git pull; cd ../../..
+if [ "$PULL_FLAG" != "" ]; then
+	if [ $PULL_FLAG = "force" ]; then
+		rm -rf $MAIN_DIR/languages/$PULL_ISO; sleep 1; sync
+	fi
+fi
+echo -e "${txtblu}\nSyncing $PULL_NAME${txtrst}"
+if [ -e $MAIN_DIR/languages/$PULL_ISO ]; then
+     	cd $MAIN_DIR/languages/$PULL_ISO; git pull origin $PULL_BRANCH; cd ../../..
 else
-     	git clone $REPO $MAIN_DIR/languages/$ISO
+     	git clone $PULL_GIT  -b $PULL_BRANCH $MAIN_DIR/languages/$PULL_ISO
 fi
 }
 
-remove_langs () {
-ls $MAIN_DIR/languages > $LANG_TARGETS
-LAST_TARGET=$(sed -n "$(wc -l $LANG_TARGETS | cut -d' ' -f1)"p $LANG_TARGETS)
-cat $LANG_TARGETS | while read all_line; do
-    	if [ -d $MAIN_DIR/languages/$all_line ]; then
-         	rm -rf $MAIN_DIR/languages/$all_line
-    	fi 
-done
+pull_languages_xml () {
+wget -q https://raw.github.com/Redmaner/MA-XML-LANGUAGES/master/languages.xml -O $LANG_XML
 }
 
-
-# Specific arguments
+#########################################################################################################
+# ARGUMENTS
+#########################################################################################################
 show_argument_help () { 
 echo 
-echo "MIUIAndroid.com language repo XML check"
+echo "MIUIAndroid.com language repo XML check $VERSION"
 echo 
 echo "Usage: check.sh [option]"
 echo 
 echo " [option]:"
 echo " 		--help					This help"
-echo "		--check [your_language]	[full/double]	Check specified language"
-echo "							If [your_language] is 'all', then all languages will be checked"
+echo "		--check [all|language] [full|double]	Check specified language"
+echo "							If all is specified, then all languages will be checked"
+echo "							If a specific language is specified, that language will be checked"
 echo "							If third argument is not defined, all languages will be logged in seperate files"
 echo "							If third argument is 'full', all languages will be logged in one file"
 echo "							If third argument is 'double', all languages will be logged in one file and in seperate files"
-echo "		--pull [your_language]			Sync specified language"
-echo "							If [your_language] is 'all', then all languages will be synced/updated"
-echo "		--cleanup [logs|languages|all]		Removes logs and/or languages"
+echo "		--pull [all|language] [force]		Pull specified language"
+echo "							If all is specified, then all languages will be pulled"
+echo "							If a specific language is specified, that language will be pulled"
+echo "							If force is specified, language(s) will be removed and resynced"
+echo "		--remove [logs|all|language]		Removes logs and or language(s)"
 echo 
 exit 
 }
@@ -322,118 +339,82 @@ if [ $# -gt 0 ]; then
      	if [ $1 == "--help" ]; then
           	show_argument_help
      	elif [ $1 == "--check" ]; then
+		pull_languages_xml
             	clear_cache
             	DEBUG_MODE=lang
             	case "$2" in
-                       all) if [ "$3" = "full" ]; then
+		  	all) if [ "$3" = "full" ]; then
                                  DEBUG_MODE=full
-                            elif [ "$3" = "double" ]; then
-                                   DEBUG_MODE=double
-                            fi; check_xml_full;;
-                    arabic) init_xml_check "ar";; 
-      brazilian-portuguese) init_xml_check "pt-rBR";;
-                 bulgarian) init_xml_check "bg";;
-                     czech) init_xml_check "cs";;
-                    danish) init_xml_check "da";;
-                     dutch) init_xml_check "nl";; 
-                   english) init_xml_check "en";; 
-                   finnish) init_xml_check "fi";;
-                    french) init_xml_check "fr";;
-                    german) init_xml_check "de";; 
-                     greek) init_xml_check "el";; 
-                 hungarian) init_xml_check "hu";; 
-                indonesian) init_xml_check "in";; 
-                   italian) init_xml_check "it";; 
-                    korean) init_xml_check "ko";; 
-                 malaysian) init_xml_check "ms-rMY";;
-                 norwegian) init_xml_check "nb";; 
-                    polish) init_xml_check "pl";;
-                  romanian) init_xml_check "ro";; 
-                   russian) init_xml_check "ru";;
-                    slovak) init_xml_check "sk";; 
-                   spanish) init_xml_check "es";;
-                   swedish) init_xml_check "sv";;
-                      thai) init_xml_check "th";; 
-                   turkish) init_xml_check "tr";; 
-                 ukrainian) init_xml_check "uk";; 
-                vietnamese) init_xml_check "vi";; 
-                         *) echo "Language not supported or language not specified"; exit;;
+                             elif [ "$3" = "double" ]; then
+                               	 DEBUG_MODE=double
+                             fi; 
+			     LINE_NR=$(cat $LANG_XML | grep '<language enabled="yes"' | wc -l)
+			     LAST_TARGET=$(cat $LANG_XML | grep '<language enabled="yes"' | sed -n "$LINE_NR"p | awk '{print $4}' | cut -d'"' -f2)
+			     cat $LANG_XML | grep '<language enabled="yes"' | while read all_line; do
+					LANG_TARGET=$(echo $all_line | awk '{print $4}' | cut -d'"' -f2)
+				      	LANG_NAME=$(echo $all_line | awk '{print $3}' | cut -d'"' -f2)
+					LANG_URL=$(echo $all_line | awk '{print $5}' | cut -d'"' -f2)
+                        		init_xml_check
+   			     done;;
+			  *) if [ "`cat $LANG_XML | grep 'name="'$2'"' | wc -l`" -gt 0 ]; then
+					LANG_TARGET=$(cat $LANG_XML | grep 'name="'$2'"' | awk '{print $4}' | cut -d'"' -f2) 
+				      	LANG_NAME=$(cat $LANG_XML | grep 'name="'$2'"' | awk '{print $3}' | cut -d'"' -f2)
+					LANG_URL=$(cat $LANG_XML | grep 'name="'$2'"'| awk '{print $5}' | cut -d'"' -f2)
+                                 	init_xml_check
+                             else
+					echo "Language not supported or language not specified"; exit
+			     fi;;
            	esac
      	elif [ $1 == "--pull" ]; then
+		pull_languages_xml
             	case "$2" in
-                       all) pull_lang "Arabic" "ar" "git@github.com:MIUI-Palestine/MIUIPalestine_V5_Arabic_XML.git"
-                            pull_lang "Brazilian-Portuguese" "pt-rBR" "git@bitbucket.org:miuibrasil/ma-xml-5.0-portuguese-brazilian.git"
-                            pull_lang "Bulgarian" "bg" "git@github.com:ingbrzy/MA-XML-5.0-BULGARIAN.git"
-                            pull_lang "Czech" "cs" "git@github.com:MIUICzech-Slovak/MA-XML-5.0-CZECH.git"
-                            pull_lang "Danish" "da" "git@github.com:1982Strand/XML_MIUI-v5_Danish.git"
-                            pull_lang "Dutch" "nl" "git@github.com:Redmaner/MA-XML-5.0-DUTCH.git"
-                            pull_lang "English" "en" "git@github.com:iBotPeaches/MIUIAndroid_XML_v5.git"
-                            pull_lang "Finnish" "fi" "git@github.com:ingbrzy/MA-XML-5.0-FINNISH.git"
-                            pull_lang "French" "fr" "git@github.com:ingbrzy/ma-xml-5.0-FRENCH.git"
-                            pull_lang "German" "de" "git@github.com:Bitti09/ma-xml-5.0-german.git"
-                            pull_lang "Greek" "el" "git@bitbucket.org:finner/ma-xml-5.0-greek.git"
-                            pull_lang "Hungarian" "hu" "git@github.com:vagyula1/miui-v5-hungarian-translation-for-miuiandroid.git"
-                            pull_lang "Indonesian" "in" "git@github.com:ingbrzy/MA-XML-5.0-INDONESIAN.git"
-                            pull_lang "Italian" "it" "git@bitbucket.org:Mish/miui_v5_italy.git"
-                            pull_lang "Korean" "ko" "git@github.com:nosoy1/ma-xml-5.0-korean.git"
-                            pull_lang "Malaysian" "ms-rMY" "git@github.com:ingbrzy/MA-XML-5.0-MALAY.git"
-                            pull_lang "Norwegian" "nb" "git@github.com:ingbrzy/MA-XML-5.0-NORWEGIAN.git"
-                            pull_lang "Polish" "pl" "git@github.com:Acid-miuipolskapl/XML_MIUI-v5.git"
-                            pull_lang "Romanian" "ro" "git@github.com:ingbrzy/MA-XML-5.0-ROMANIAN.git"
-                            pull_lang "Russian" "ru" "git@github.com:KDGDev/miui-v5-russian-translation-for-miuiandroid.git"
-                            pull_lang "Slovak" "sk" "git@github.com:MIUICzech-Slovak/MA-XML-5.0-SLOVAK.git"
-                            pull_lang "Spanish" "es" "git@github.com:ingbrzy/MA-XML-5.0-SPANISH.git"
-                            pull_lang "Swedish" "sv" "git@github.com:ingbrzy/ma-xml-5.0-SWEDISH.git"
-                            pull_lang "Thai" "th" "git@github.com:rcset/MIUIAndroid_XML_v5_TH.git"
-                            pull_lang "Turkish" "tr" "git@github.com:ingbrzy/MA-XML-5.0-TURKISH.git"
-                            pull_lang "Ukrainian" "uk" "git@github.com:KDGDev/miui-v5-ukrainian-translation-for-miuiandroid.git"
-                            pull_lang "Vietnamese" "vi" "git@github.com:HoangTuBot/MA-xml-v5-vietnam.git";;
-                    arabic) pull_lang "Arabic" "ar" "git@github.com:MIUI-Palestine/MIUIPalestine_V5_Arabic_XML.git";;
-      brazilian-portuguese) pull_lang "Brazilian-Portuguese" "pt-rBR" "git@bitbucket.org:miuibrasil/ma-xml-5.0-portuguese-brazilian.git";;
-                 bulgarian) pull_lang "Bulgarian" "bg" "git@github.com:ingbrzy/MA-XML-5.0-BULGARIAN.git";;
-                     czech) pull_lang "Czech" "cs" "git@github.com:MIUICzech-Slovak/MA-XML-5.0-CZECH.git";;
-                    danish) pull_lang "Danish" "da" "git@github.com:1982Strand/XML_MIUI-v5_Danish.git";;
-                     dutch) pull_lang "Dutch" "nl" "git@github.com:Redmaner/MA-XML-5.0-DUTCH.git";;
-                   english) pull_lang "English" "en" "git@github.com:iBotPeaches/MIUIAndroid_XML_v5.git";;
-                   finnish) pull_lang "Finnish" "fi" "git@github.com:ingbrzy/MA-XML-5.0-FINNISH.git";;
-                    french) pull_lang "French" "fr" "git@github.com:ingbrzy/ma-xml-5.0-FRENCH.git";;
-                    german) pull_lang "German" "de" "git@github.com:Bitti09/ma-xml-5.0-german.git";;
-                     greek) pull_lang "Greek" "el" "git@bitbucket.org:finner/ma-xml-5.0-greek.git";;
-                 hungarian) pull_lang "Hungarian" "hu" "git@github.com:vagyula1/miui-v5-hungarian-translation-for-miuiandroid.git";;
-                indonesian) pull_lang "Indonesian" "in" "git@github.com:ingbrzy/MA-XML-5.0-INDONESIAN.git";;
-                   italian) pull_lang "Italian" "it" "git@bitbucket.org:Mish/miui_v5_italy.git";;
-                    korean) pull_lang "Korean" "ko" "git@github.com:nosoy1/ma-xml-5.0-korean.git";;
-                 malaysian) pull_lang "Malaysian" "ms-rMY" "git@github.com:ingbrzy/MA-XML-5.0-MALAY.git";;
-                 norwegian) pull_lang "Norwegian" "nb" "git@github.com:ingbrzy/MA-XML-5.0-NORWEGIAN.git";;
-                    polish) pull_lang "Polish" "pl" "git@github.com:Acid-miuipolskapl/XML_MIUI-v5.git";;
-                  romanian) pull_lang "Romanian" "ro" "git@github.com:ingbrzy/MA-XML-5.0-ROMANIAN.git";;
-                   russian) pull_lang "Russian" "ru" "git@github.com:KDGDev/miui-v5-russian-translation-for-miuiandroid.git";;
-                    slovak) pull_lang "Slovak" "sk" "git@github.com:MIUICzech-Slovak/MA-XML-5.0-SLOVAK.git";;
-                   spanish) pull_lang "Spanish" "es" "git@github.com:ingbrzy/MA-XML-5.0-SPANISH.git";;
-                   swedish) pull_lang "Swedish" "sv" "git@github.com:ingbrzy/ma-xml-5.0-SWEDISH.git";;
-                      thai) pull_lang "Thai" "th" "git@github.com:rcset/MIUIAndroid_XML_v5_TH.git";;
-                   turkish) pull_lang "Turkish" "tr" "git@github.com:ingbrzy/MA-XML-5.0-TURKISH.git";;
-                 ukrainian) pull_lang "Ukrainian" "uk" "git@github.com:KDGDev/miui-v5-ukrainian-translation-for-miuiandroid.git";;
-                vietnamese) pull_lang "Vietnamese" "vi" "git@github.com:HoangTuBot/MA-xml-v5-vietnam.git";;
-                         *) echo "Language not supported or language not specified"; exit;;
+			all) cat $LANG_XML | grep '<language enabled="yes"' | while read all_line; do
+					if [ "$3" != "" ]; then
+   						if [ $3 = "force" ]; then
+							PULL_FLAG="force"
+						fi
+					fi
+					PULL_NAME=$(echo $all_line | awk '{print $3}' | cut -d'"' -f2)
+					PULL_ISO=$(echo $all_line | awk '{print $4}' | cut -d'"' -f2) 
+					PULL_GIT=$(echo $all_line | awk '{print $6}' | cut -d'"' -f2)
+					PULL_BRANCH=$(echo $all_line | awk '{print $7}' | cut -d'"' -f2)
+                        		pull_lang
+   			     done;;
+			  *) if [ "`cat $LANG_XML | grep 'name="'$2'"' | wc -l`" -gt 0 ]; then
+					if [ "$3" != "" ]; then
+   						if [ $3 = "force" ]; then
+							PULL_FLAG="force"
+						fi
+					fi
+					PULL_NAME=$(cat $LANG_XML | grep 'name="'$2'"' | awk '{print $3}' | cut -d'"' -f2)
+					PULL_ISO=$(cat $LANG_XML | grep 'name="'$2'"' | awk '{print $4}' | cut -d'"' -f2) 
+					PULL_GIT=$(cat $LANG_XML | grep 'name="'$2'"' | awk '{print $6}' | cut -d'"' -f2)
+					PULL_BRANCH=$(cat $LANG_XML | grep 'name="'$2'"' | awk '{print $7}' | cut -d'"' -f2)
+                        		pull_lang 
+                             else
+					echo "Language not supported or language not specified"; exit
+			     fi;;
            	esac
-     	elif [ $1 == "--cleanup" ]; then
+     	elif [ $1 == "--remove" ]; then
+		pull_languages_xml
             	if [ "$2" != " " ]; then
                  	case "$2" in
                              logs) rm -f $LOG_DIR/XML_*.html;;
-                        languages) remove_langs;;
-                              all) rm -f $LOG_DIR/XML_*.html
-                                   remove langs;;
+                              all) cat $LANG_XML | grep '<language enabled=' | while read all_line; do
+					RM_ISO=$(echo $all_line | awk '{print $4}' | cut -d'"' -f2)
+                        		rm -rf $MAIN_DIR/languages/$RM_ISO 
+   			           done;;
+				*) if [ "`cat $LANG_XML | grep 'name="'$2'"' | wc -l`" -gt 0 ]; then
+						RM_ISO=$(cat $LANG_XML | grep 'name="'$2'"' | awk '{print $4}' | cut -d'"' -f2) 
+                        			rm -rf $MAIN_DIR/languages/$RM_ISO 
+                             	   else
+						echo "Language not supported or language not specified"; exit
+			           fi;;
                  	esac 
-            	else
-                 	remove_langs
-                 	rm -f $LOG_DIR/XML_*.html
             	fi
      	else
-            	show_argument_help
+            	show_argument_help; exit
      	fi
 else
-     	clear_cache
-     	DEBUG_MODE=full
-     	check_xml_full
+     	show_argument_help; exit
 fi
