@@ -67,11 +67,11 @@ DATE=$(date +"%m-%d-%Y %H:%M:%S")
 if [ -e $LOG_TARGET ]; then
      	LINE_NR=$(wc -l $LOG_TARGET | cut -d' ' -f1)
      	if [ "$(sed -n "$LINE_NR"p $LOG_TARGET)" = '<!-- Start of log --><script type="text/plain">' ]; then 
-           	echo '</script></font><font id="green">No errors found in this repository!</font>' >> $LOG_TARGET
-           	echo '</script><font id="header"><br><br>Checked <a href="'$LANG_URL'" target="_blank">'$LANG_NAME' ('$LANG_TARGET') repository</a> on '$DATE'</font>' >> $LOG_TARGET
+           	echo '</script></span><span class="green">No errors found in this repository!</span>' >> $LOG_TARGET
+           	echo '</script><span class="header"><br>Checked <a href="'$LANG_URL'" title="'$LANG_NAME' ('$LANG_TARGET')" target="_blank">'$LANG_NAME' ('$LANG_TARGET') repository</a> on '$DATE'</span>' >> $LOG_TARGET
            	echo '<!-- Start of log --><script type="text/plain">' >> $LOG_TARGET
      	else
-           	echo '</script></font><font id="header"><br><br>Checked <a href="'$LANG_URL'" target="_blank">'$LANG_NAME' ('$LANG_TARGET') repository</a> on '$DATE'</font>' >> $LOG_TARGET
+           	echo '</script></span><span class="header"><br>Checked <a href="'$LANG_URL'" title="'$LANG_NAME' ('$LANG_TARGET')" target="_blank">'$LANG_NAME' ('$LANG_TARGET') repository</a> on '$DATE'</span>' >> $LOG_TARGET
            	echo '<!-- Start of log --><script type="text/plain">' >> $LOG_TARGET
      	fi
 else
@@ -81,30 +81,33 @@ else
 <html>
 <head>
 <style>
-script {
-  display: block;
-  padding: auto;
+body {
+	margin: 0px 35px;
 }
-#header {
+script {
+  	display: block;
+  	padding: auto;
+}
+.header {
   	font-weight: bold;
   	color: #000000;
 }
-#black {
+.black {
   	color: #000000;
 }
-#green {
+.green {
   	color: #006633;
 }
-#red {
+.red {
   	color: #ff0000;
 }
-#blue {
+.blue {
   	color: #0000ff;
 }
-#orange {
+.orange {
   	color: #CC6633;
 }
-#brown {
+.brown {
   	color: #660000;
 }
 table {
@@ -127,34 +130,35 @@ a:hover {
         text-decoration: underline;
         }
 
-#error {
+.error {
   	white-space: pre;
   	margin-top: -10px;
 }
 </style></head>
 <body>
+<img src="http://xiaomi.eu/community/styles/xiaomi/xenforo/xiaomi-europe-logo.png">
 <br><br>
 <table border="0" cellpadding="0" cellspacing="0">
-<td height="auto" width="120px"><font id="green">Green text</font></td>
-<td height="auto" width="220px"><font id="black">No errors found</font><td>
+<td height="auto" width="120px"><span class="green">Green text</span></td>
+<td height="auto" width="220px"><span class="black">No errors found</span><td>
 </table>
 <table border="0" cellpadding="0" cellspacing="0">
-<td height="auto" width="120px"><font id="red">Red text</font></td>
-<td height="auto" width="220px"><font id="black">Parser error</font><td>
+<td height="auto" width="120px"><span class="red">Red text</span></td>
+<td height="auto" width="220px"><span class="black">Parser error</span><td>
 </table>
 <table border="0" cellpadding="0" cellspacing="0">
-<td height="auto" width="120px"><font id="orange">Orange text</font></td>
-<td height="auto" width="220px"><font id="black">Double strings</font><td>
+<td height="auto" width="120px"><span class="orange">Orange text</span></td>
+<td height="auto" width="220px"><span class="black">Double strings</span><td>
 </table>
 <table  border="0" cellpadding="0" cellspacing="0">
-<td height="auto" width="120px"><font id="brown">Brown text</font></td>
-<td height="auto" width="220px"><font id="black">Apostrophe syntax error</font><td>
+<td height="auto" width="120px"><span class="brown">Brown text</span></td>
+<td height="auto" width="220px"><span class="black">Apostrophe syntax error</span><td>
 </table>
 <table border="0" cellpadding="0" cellspacing="0">
-<td height="auto" width="120px"><font id="blue">Blue text</font></td>
-<td height="auto" width="220px"><font id="black">'+' outside of tags</font><td>
+<td height="auto" width="120px"><span class="blue">Blue text</span></td>
+<td height="auto" width="220px"><span class="black">'+' outside of tags</span><td>
 </table>
-<font id="header"><br><br>Checked <a href="$LANG_URL" target="_blank">$LANG_NAME ($LANG_TARGET) repository</a> on $DATE<br></font>
+<span class="header"><br>Checked <a href="$LANG_URL" title="$LANG_NAME ($LANG_TARGET)" target="_blank">$LANG_NAME ($LANG_TARGET) repository</a> on $DATE<br></span>
 <!-- Start of log --><script type="text/plain">
 EOF
 fi
@@ -163,7 +167,7 @@ fi
 check_log () {
 LINE_NR=$(wc -l $XML_LOG | cut -d' ' -f1)
 if [ "$(sed -n "$LINE_NR"p $XML_LOG)" = '<!-- Start of log --><script type="text/plain">' ]; then 
-     	echo '</script><font id="green">No errors found in this repository!</font>' >> $XML_LOG
+     	echo '</script><span class="green">No errors found in this repository!</span>' >> $XML_LOG
 fi
 if [ $DEBUG_MODE = "full" ]; then
      	if [ "$LANG_TARGET" = "$LAST_TARGET" ]; then
@@ -178,7 +182,7 @@ elif [ $DEBUG_MODE = "double" ]; then
      	if [ "$LANG_TARGET" = "$LAST_TARGET" ]; then
           	LINE_NR=$(wc -l $XML_LOG_FULL | cut -d' ' -f1)
           	if [ "$(sed -n "$LINE_NR"p $XML_LOG_FULL)" = '<!-- Start of log --><script type="text/plain">' ]; then
-               		echo '</script><font id="green">No errors found in this repository!</font>' >> $XML_LOG_FULL
+               		echo '</script><span class="green">No errors found in this repository!</span>' >> $XML_LOG_FULL
           	fi
           	cp $XML_LOG_FULL $LOG_DIR/XML_CHECK_FULL.html
           	echo -e "${txtgrn}All languages checked, log at logs/XML_CHECK_FULL.html${txtrst}"
@@ -265,7 +269,7 @@ fi
 
 write_log_error () {
 if [ -s $XML_CACHE_LOG ]; then
-	echo '</script><font id="'$1'"><script id="error" type="text/plain">' >> $XML_LOG_TEMP
+	echo '</script><span class="'$1'"><script class="error" type="text/plain">' >> $XML_LOG_TEMP
 	cat $XML_CACHE_LOG >> $XML_LOG_TEMP
 fi
 rm -f $XML_CACHE_LOG
@@ -274,10 +278,10 @@ rm -f $XML_CACHE_LOG
 write_log_finish () {
 if [ -s $XML_LOG_TEMP ]; then
 	if [ "$DEBUG_MODE" = "double" ]; then
-		echo '</script><font id="black"><br>'$XML_TARGET'</font><font id="red"><script id="error" type="text/plain">' >> $XML_LOG_FULL
+		echo '</script><span class="black"><br>'$XML_TARGET'</span><span class="red"><script class="error" type="text/plain">' >> $XML_LOG_FULL
 		cat $XML_LOG_TEMP >> $XML_LOG_FULL
 	fi
-	echo '</script><font id="black"><br>'$XML_TARGET'</font><font id="red"><script id="error" type="text/plain">' >> $XML_LOG
+	echo '</script><span class="black"><br>'$XML_TARGET'</span><span class="red"><script class="error" type="text/plain">' >> $XML_LOG
 	cat $XML_LOG_TEMP >> $XML_LOG
 fi
 rm -f $XML_CACHE_LOG
