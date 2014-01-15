@@ -136,7 +136,7 @@ a:hover {
 }
 </style></head>
 <body>
-<img src="http://xiaomi.eu/community/styles/xiaomi/xenforo/xiaomi-europe-logo.png">
+<a href="http://xiaomi.eu" title="xiaomi.eu Forums - Unofficial International MIUI / Xiaomi Phone Support"><img src="http://xiaomi.eu/community/styles/xiaomi/xenforo/xiaomi-europe-logo.png"></a>
 <br><br>
 <table border="0" cellpadding="0" cellspacing="0">
 <td height="auto" width="120px"><span class="green">Green text</span></td>
@@ -192,6 +192,7 @@ else
      	cp $XML_LOG $LOG_DIR/XML_$LANG_NAME-$LANG_TARGET.html
      	echo -e "${txtgrn}$LANG_NAME ($LANG_TARGET) checked, log at logs/XML_$LANG_NAME-$LANG_TARGET.html${txtrst}"
 fi
+chmod 777 $LOG_DIR/XML_*.html
 }
 
 #########################################################################################################
@@ -307,6 +308,7 @@ if [ -e $MAIN_DIR/languages/$PULL_ISO ]; then
 else
      	git clone $PULL_GIT  -b $PULL_BRANCH $MAIN_DIR/languages/$PULL_ISO
 fi
+chmod -R 777 $MAIN_DIR/languages/$PULL_ISO
 }
 
 pull_languages_xml () {
