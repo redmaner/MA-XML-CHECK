@@ -308,7 +308,6 @@ if [ -e $MAIN_DIR/languages/$PULL_ISO ]; then
 else
      	git clone $PULL_GIT  -b $PULL_BRANCH $MAIN_DIR/languages/$PULL_ISO
 fi
-chmod -R 777 $MAIN_DIR/languages/$PULL_ISO
 }
 
 pull_languages_xml () {
