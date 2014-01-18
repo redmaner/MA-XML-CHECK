@@ -1,15 +1,17 @@
 #!/bin/bash
 case `uname -s` in
     Darwin) 
-     	txtrst='\033[0m' # Color off
-        txtgrn='\033[0;32m' # Green
-        txtblu='\033[0;34m' # Blue
-        ;;
+           txtrst='\033[0m' # Color off
+           txtred='\033[0;31m' # Red
+           txtgrn='\033[0;32m' # Green
+           txtblu='\033[0;34m' # Blue
+           ;;
     *)
-        txtrst='\e[0m' # Color off
-        txtgrn='\e[0;32m' # Green
-        txtblu='\e[0;36m' # Blue
-        ;;
+           txtrst='\e[0m' # Color off
+           txtred='\e[1;31m' # Red
+           txtgrn='\e[1;32m' # Green
+           txtblu='\e[1;36m' # Blue
+           ;;
 esac
 
 # Determine server or a local machine
@@ -21,22 +23,43 @@ else
      	LOG_DIR=$PWD/logs
 fi
 
+# Caching
+if [ -d $MAIN_DIR/.cache ]; then
+	if [ -e $MAIN_DIR/.cache/PLACEHOLDER ]; then
+		if [ -e $MAIN_DIR/.cache1/PLACEHOLDER ]; then
+			echo -e "${txtred}\nTwo processes are currently running, please wait till a proces is complete${txtrst}"; exit
+		else
+			mkdir -p $MAIN_DIR/.cache1
+			CACHE=$MAIN_DIR/.cache1
+			touch $CACHE/PLACEHOLDER
+		fi
+	else
+		rm -rf $MAIN_DIR/.cache
+		mkdir -p $MAIN_DIR/.cache
+		CACHE=$MAIN_DIR/.cache
+		touch $CACHE/PLACEHOLDER
+	fi
+else
+	mkdir -p $MAIN_DIR/.cache
+	CACHE=$MAIN_DIR/.cache
+	touch $CACHE/PLACEHOLDER
+fi
+
 #########################################################################################################
 # VARIABLES / CACHE
 #########################################################################################################
 LANG_XML=$MAIN_DIR/languages/languages.xml
-XML_TARGETS_ARRAYS=$MAIN_DIR/.cache/xml.targets.arrays
-XML_TARGETS_STRINGS=$MAIN_DIR/.cache/xml.targets.strings
-XML_TARGETS_PLURALS=$MAIN_DIR/.cache/xml.targets.plurals
-XML_TARGET_STRIPPED=$MAIN_DIR/.cache/xml.target.stripped
-DOUBLE_RESULT=$MAIN_DIR/.cache/xml.double.result
-APOSTROPHE_RESULT=$MAIN_DIR/.cache/xml.apostrophe.result
-XML_CACHE_LOG=$MAIN_DIR/.cache/XML_CACHE_LOG
-XML_LOG_TEMP=$MAIN_DIR/.cache/XML_LOG_TEMP
+XML_TARGETS_ARRAYS=$CACHE/xml.targets.arrays
+XML_TARGETS_STRINGS=$CACHE/xml.targets.strings
+XML_TARGETS_PLURALS=$CACHE/xml.targets.plurals
+XML_TARGET_STRIPPED=$CACHE/xml.target.stripped
+DOUBLE_RESULT=$CACHE/xml.double.result
+APOSTROPHE_RESULT=$CACHE/xml.apostrophe.result
+XML_CACHE_LOG=$CACHE/XML_CACHE_LOG
+XML_LOG_TEMP=$CACHE/XML_LOG_TEMP
 
 clear_cache () {
-rm -rf $MAIN_DIR/.cache
-mkdir -p $MAIN_DIR/.cache
+rm -rf $CACHE
 }
 
 clean_cache () {
@@ -51,13 +74,13 @@ rm -f $XML_CACHE_LOG
 #########################################################################################################
 debug_mode () {
 if [ "$DEBUG_MODE" = "full" ]; then
-     	XML_LOG=$MAIN_DIR/.cache/XML_CHECK_FULL
+     	XML_LOG=$CACHE/XML_CHECK_FULL
 elif [ "$DEBUG_MODE" = "double" ]; then
-       	XML_LOG_FULL=$MAIN_DIR/.cache/XML_CHECK_FULL
+       	XML_LOG_FULL=$CACHE/XML_CHECK_FULL
        	LOG_TARGET=$XML_LOG_FULL; update_log
-       	XML_LOG=$MAIN_DIR/.cache/XML_$LANG_NAME-$LANG_TARGET
+       	XML_LOG=$CACHE/XML_$LANG_NAME-$LANG_TARGET
 else
-     	XML_LOG=$MAIN_DIR/.cache/XML_$LANG_NAME-$LANG_TARGET
+     	XML_LOG=$CACHE/XML_$LANG_NAME-$LANG_TARGET
 fi
 LOG_TARGET=$XML_LOG; update_log
 }
@@ -345,7 +368,6 @@ if [ $# -gt 0 ]; then
           	show_argument_help
      	elif [ $1 == "--check" ]; then
 		pull_languages_xml
-            	clear_cache
             	DEBUG_MODE=lang
             	case "$2" in
 		  	all) if [ "$3" = "full" ]; then
@@ -370,6 +392,7 @@ if [ $# -gt 0 ]; then
 					echo "Language not supported or language not specified"; exit
 			     fi;;
            	esac
+		clear_cache
      	elif [ $1 == "--pull" ]; then
 		pull_languages_xml
             	case "$2" in
