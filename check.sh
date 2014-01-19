@@ -23,7 +23,13 @@ else
      	LOG_DIR=$PWD/logs
 fi
 
-# Caching
+
+#########################################################################################################
+# VARIABLES / CACHE
+#########################################################################################################
+LANG_XML=$MAIN_DIR/languages/languages.xml
+
+build_cache () {
 if [ -d $MAIN_DIR/.cache ]; then
 	if [ -e $MAIN_DIR/.cache/PLACEHOLDER ]; then
 		if [ -e $MAIN_DIR/.cache1/PLACEHOLDER ]; then
@@ -44,11 +50,6 @@ else
 	CACHE=$MAIN_DIR/.cache
 	touch $CACHE/PLACEHOLDER
 fi
-
-#########################################################################################################
-# VARIABLES / CACHE
-#########################################################################################################
-LANG_XML=$MAIN_DIR/languages/languages.xml
 XML_TARGETS_ARRAYS=$CACHE/xml.targets.arrays
 XML_TARGETS_STRINGS=$CACHE/xml.targets.strings
 XML_TARGETS_PLURALS=$CACHE/xml.targets.plurals
@@ -57,6 +58,7 @@ DOUBLE_RESULT=$CACHE/xml.double.result
 APOSTROPHE_RESULT=$CACHE/xml.apostrophe.result
 XML_CACHE_LOG=$CACHE/XML_CACHE_LOG
 XML_LOG_TEMP=$CACHE/XML_LOG_TEMP
+}
 
 clear_cache () {
 rm -rf $CACHE
@@ -367,6 +369,7 @@ if [ $# -gt 0 ]; then
      	if [ $1 == "--help" ]; then
           	show_argument_help
      	elif [ $1 == "--check" ]; then
+		build_cache
 		pull_languages_xml
             	DEBUG_MODE=lang
             	case "$2" in
