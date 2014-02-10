@@ -335,7 +335,8 @@ if [ "$PULL_FLAG" != "" ]; then
 	fi
 fi
 OLD_GIT=$(grep "url = *" $MAIN_DIR/languages/$PULL_ISO/.git/config | cut -d' ' -f3)
-if "$PULL_GIT" != "$OLD_GIT" ]; then
+if [ "$PULL_GIT" != "$OLD_GIT" ]; then
+	echo -e "${txtblu}\nNew repository detected, removing old repository...\n$OLD_GIT ---> $PULL_GIT${txtrst}"
 	rm -rf $MAIN_DIR/languages/$PULL_ISO
 fi
 echo -e "${txtblu}\nSyncing $PULL_NAME${txtrst}"
