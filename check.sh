@@ -23,6 +23,13 @@ else
      	LOG_DIR=$PWD/logs
 fi
 
+if [ ! -e $MAIN_DIR/languages ]; then
+	mkdir -p $MAIN_DIR/languages
+fi
+if [ ! -e $LOGDIR ]; then
+	mkdir -p $LOGDIR
+fi
+
 
 #########################################################################################################
 # VARIABLES / CACHE
@@ -263,7 +270,7 @@ rm -f $XML_CACHE_LOG
 rm -f $XML_LOG_TEMP
 if [ -e "$XML_TARGET" ]; then
      	# Check for XML Parser errors
-     	xmllint --noout $XML_TARGET 2>> $XML_CACHE_LOG
+	xmllint --noout $XML_TARGET 2>> $XML_CACHE_LOG
 	write_log
 
      	# Check for doubles in strings.xml
@@ -326,6 +333,10 @@ if [ "$PULL_FLAG" != "" ]; then
 	if [ $PULL_FLAG = "force" ]; then
 		rm -rf $MAIN_DIR/languages/$PULL_ISO; sleep 1; sync
 	fi
+fi
+OLD_GIT=$(grep "url = *" $MAIN_DIR/languages/$PULL_ISO/.git/config | cut -d' ' -f3)
+if "$PULL_GIT" != "$OLD_GIT" ]; then
+	rm -rf $MAIN_DIR/languages/$PULL_ISO
 fi
 echo -e "${txtblu}\nSyncing $PULL_NAME${txtrst}"
 if [ -e $MAIN_DIR/languages/$PULL_ISO ]; then
