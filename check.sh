@@ -275,7 +275,7 @@ if [ -e "$XML_TARGET" ]; then
 
      	# Check for doubles in strings.xml
      	if [ "$XML_TYPE" = "strings" ]; then
-          	cat $XML_TARGET | while read all_line; do grep "<string" | cut -d'>' -f1; done > $XML_TARGET_STRIPPED
+          	cat $XML_TARGET | while read all_line; do grep "<string" | cut -d'>' -f1 | cut -d'<' -f2; done > $XML_TARGET_STRIPPED
           	sort $XML_TARGET_STRIPPED | uniq --repeated > $DOUBLE_RESULT
           	cat $DOUBLE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_CACHE_LOG
 		write_log_error "orange"
