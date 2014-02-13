@@ -349,6 +349,9 @@ fi
 
 pull_languages_xml () {
 wget -q https://raw.github.com/Redmaner/MA-XML-LANGUAGES/master/languages.xml -O $LANG_XML
+if [ ! -s $LANG_XML ]; then
+	echo -e "${txtred}\nError downloading languages.xml, do you have an internet connection?${txtrst}"; exit
+fi
 }
 
 #########################################################################################################
@@ -404,7 +407,7 @@ if [ $# -gt 0 ]; then
 					LANG_URL=$(cat $LANG_XML | grep 'name="'$2'"'| awk '{print $5}' | cut -d'"' -f2)
                                  	init_xml_check
                              else
-					echo "Language not supported or language not specified"; exit
+					echo -e "${txtred}\nLanguage not supported or language not specified${txtrst}"; exit
 			     fi;;
            	esac
 		clear_cache
@@ -435,7 +438,7 @@ if [ $# -gt 0 ]; then
 					PULL_BRANCH=$(cat $LANG_XML | grep 'name="'$2'"' | awk '{print $7}' | cut -d'"' -f2)
                         		pull_lang 
                              else
-					echo "Language not supported or language not specified"; exit
+					echo -e "${txtred}\nLanguage not supported or language not specified${txtrst}"; exit
 			     fi;;
            	esac
      	elif [ $1 == "--remove" ]; then
@@ -451,7 +454,7 @@ if [ $# -gt 0 ]; then
 						RM_ISO=$(cat $LANG_XML | grep 'name="'$2'"' | awk '{print $4}' | cut -d'"' -f2) 
                         			rm -rf $MAIN_DIR/languages/$RM_ISO 
                              	   else
-						echo "Language not supported or language not specified"; exit
+						echo -e "${txtred}\nLanguage not supported or language not specified${txtrst}"; exit
 			           fi;;
                  	esac 
             	fi
