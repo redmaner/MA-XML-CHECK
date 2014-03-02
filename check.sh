@@ -87,9 +87,9 @@ if [ "$DEBUG_MODE" = "full" ]; then
 elif [ "$DEBUG_MODE" = "double" ]; then
        	XML_LOG_FULL=$CACHE/XML_CHECK_FULL
        	LOG_TARGET=$XML_LOG_FULL; update_log
-       	XML_LOG=$CACHE/XML_$LANG_NAME-$LANG_TARGET
+       	XML_LOG=$CACHE/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO
 else
-     	XML_LOG=$CACHE/XML_$LANG_NAME-$LANG_TARGET
+     	XML_LOG=$CACHE/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO
 fi
 LOG_TARGET=$XML_LOG; update_log
 }
@@ -100,10 +100,10 @@ if [ -e $LOG_TARGET ]; then
      	LINE_NR=$(wc -l $LOG_TARGET | cut -d' ' -f1)
      	if [ "$(sed -n "$LINE_NR"p $LOG_TARGET)" = '<!-- Start of log --><script type="text/plain">' ]; then 
            	echo '</script></span><span class="green">No errors found in this repository!</span>' >> $LOG_TARGET
-           	echo '</script><span class="header"><br><br>Checked <a href="'$LANG_URL'" title="'$LANG_NAME' ('$LANG_TARGET')" target="_blank">'$LANG_NAME' ('$LANG_TARGET') repository</a> on '$DATE'</span>' >> $LOG_TARGET
+           	echo '</script><span class="header"><br><br>Checked <a href="'$LANG_URL'" title="'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO')" target="_blank">'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO') repository</a> on '$DATE'</span>' >> $LOG_TARGET
            	echo '<!-- Start of log --><script type="text/plain">' >> $LOG_TARGET
      	else
-           	echo '</script></span><span class="header"><br><br>Checked <a href="'$LANG_URL'" title="'$LANG_NAME' ('$LANG_TARGET')" target="_blank">'$LANG_NAME' ('$LANG_TARGET') repository</a> on '$DATE'</span>' >> $LOG_TARGET
+           	echo '</script></span><span class="header"><br><br>Checked <a href="'$LANG_URL'" title="'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO')" target="_blank">'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO') repository</a> on '$DATE'</span>' >> $LOG_TARGET
            	echo '<!-- Start of log --><script type="text/plain">' >> $LOG_TARGET
      	fi
 else
@@ -190,7 +190,7 @@ a:hover {
 <td height="auto" width="120px"><span class="blue">Blue text</span></td>
 <td height="auto" width="220px"><span class="black">'+' outside of tags</span><td>
 </table>
-<span class="header"><br>Checked <a href="$LANG_URL" title="$LANG_NAME ($LANG_TARGET)" target="_blank">$LANG_NAME ($LANG_TARGET) repository</a> on $DATE<br></span>
+<span class="header"><br>Checked <a href="$LANG_URL" title="$LANG_NAME MIUI$LANG_VERSION ($LANG_ISO)" target="_blank">$LANG_NAME MIUI$LANG_VERSION ($LANG_ISO) repository</a> on $DATE<br></span>
 <!-- Start of log --><script type="text/plain">
 EOF
 fi
@@ -202,16 +202,16 @@ if [ "$(sed -n "$LINE_NR"p $XML_LOG)" = '<!-- Start of log --><script type="text
      	echo '</script><span class="green">No errors found in this repository!</span>' >> $XML_LOG
 fi
 if [ $DEBUG_MODE = "full" ]; then
-     	if [ "$LANG_TARGET" = "$LAST_TARGET" ]; then
+     	if [ "$LANG_ISO" = "$LAST_URL" ]; then
           	rm -f $LOG_DIR/XML_CHECK_FULL.html
           	cp $XML_LOG $LOG_DIR/XML_CHECK_FULL.html
           	echo -e "${txtgrn}All languages checked, log at logs/XML_CHECK_FULL.html${txtrst}"
      	fi
 elif [ $DEBUG_MODE = "double" ]; then
-	rm -f $LOG_DIR/XML_$LANG_NAME-$LANG_TARGET.html
-     	cp $XML_LOG $LOG_DIR/XML_$LANG_NAME-$LANG_TARGET.html
-    	echo -e "${txtgrn}$LANG_NAME ($LANG_TARGET) checked, log at logs/XML_$LANG_NAME-$LANG_TARGET.html${txtrst}"
-     	if [ "$LANG_TARGET" = "$LAST_TARGET" ]; then
+	rm -f $LOG_DIR/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO.html
+     	cp $XML_LOG $LOG_DIR/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO.html
+    	echo -e "${txtgrn}$LANG_NAME ($LANG_ISO) checked, log at logs/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO.html${txtrst}"
+     	if [ "$LANG_ISO" = "$LAST_URL" ]; then
           	LINE_NR=$(wc -l $XML_LOG_FULL | cut -d' ' -f1)
           	if [ "$(sed -n "$LINE_NR"p $XML_LOG_FULL)" = '<!-- Start of log --><script type="text/plain">' ]; then
                		echo '</script><span class="green">No errors found in this repository!</span>' >> $XML_LOG_FULL
@@ -220,9 +220,9 @@ elif [ $DEBUG_MODE = "double" ]; then
           	echo -e "${txtgrn}All languages checked, log at logs/XML_CHECK_FULL.html${txtrst}"
      	fi
 else
-     	rm -f $LOG_DIR/XML_$LANG_NAME-$LANG_TARGET.html
-     	cp $XML_LOG $LOG_DIR/XML_$LANG_NAME-$LANG_TARGET.html
-     	echo -e "${txtgrn}$LANG_NAME ($LANG_TARGET) checked, log at logs/XML_$LANG_NAME-$LANG_TARGET.html${txtrst}"
+     	rm -f $LOG_DIR/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO.html
+     	cp $XML_LOG $LOG_DIR/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO.html
+     	echo -e "${txtgrn}$LANG_NAME ($LANG_ISO) checked, log at logs/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO.html${txtrst}"
 fi
 chmod 777 $LOG_DIR/XML_*.html
 }
@@ -232,7 +232,7 @@ chmod 777 $LOG_DIR/XML_*.html
 #########################################################################################################
 init_xml_check () {
 if [ -d $MAIN_DIR/languages/$LANG_TARGET ]; then
-   	echo -e "${txtblu}\nChecking $LANG_NAME ($LANG_TARGET)${txtrst}"
+   	echo -e "${txtblu}\nChecking $LANG_NAME MIUI$LANG_VERSION ($LANG_ISO)${txtrst}"
    	rm -f $XML_TARGETS_ARRAYS $XML_TARGETS_STRINGS $XML_TARGETS_PLURALS
    	find $MAIN_DIR/languages/$LANG_TARGET -iname "arrays.xml" >> $XML_TARGETS_ARRAYS
    	find $MAIN_DIR/languages/$LANG_TARGET -iname "arrays.xml.part" >> $XML_TARGETS_ARRAYS 
@@ -331,19 +331,22 @@ rm -f $XML_CACHE_LOG
 pull_lang () {
 if [ "$PULL_FLAG" != "" ]; then
 	if [ $PULL_FLAG = "force" ]; then
-		rm -rf $MAIN_DIR/languages/$PULL_ISO; sleep 1; sync
+		rm -rf $MAIN_DIR/languages/$PULL_TARGET; sleep 1; sync
 	fi
 fi
-OLD_GIT=$(grep "url = *" $MAIN_DIR/languages/$PULL_ISO/.git/config | cut -d' ' -f3)
-if [ "$PULL_GIT" != "$OLD_GIT" ]; then
-	echo -e "${txtblu}\nNew repository detected, removing old repository...\n$OLD_GIT ---> $PULL_GIT${txtrst}"
-	rm -rf $MAIN_DIR/languages/$PULL_ISO
+if [ -d $MAIN_DIR/languages/$PULL_TARGET ]; then
+	OLD_GIT=$(grep "url = *" $MAIN_DIR/languages/$PULL_TARGET/.git/config | cut -d' ' -f3)
+	if [ "$PULL_GIT" != "$OLD_GIT" ]; then
+		echo -e "${txtblu}\nNew repository detected, removing old repository...\n$OLD_GIT ---> $PULL_GIT${txtrst}"
+		rm -rf $MAIN_DIR/languages/$PULL_TARGET
+	fi
 fi
-echo -e "${txtblu}\nSyncing $PULL_NAME${txtrst}"
-if [ -e $MAIN_DIR/languages/$PULL_ISO ]; then
-     	cd $MAIN_DIR/languages/$PULL_ISO; git pull origin $PULL_BRANCH; cd ../../..
+
+echo -e "${txtblu}\nSyncing $PULL_NAME MIUI$PULL_VERSION${txtrst}"
+if [ -e $MAIN_DIR/languages/$PULL_TARGET ]; then
+     	cd $MAIN_DIR/languages/$PULL_TARGET; git pull origin $PULL_BRANCH; cd ../../..
 else
-     	git clone $PULL_GIT  -b $PULL_BRANCH $MAIN_DIR/languages/$PULL_ISO
+     	git clone $PULL_GIT  -b $PULL_BRANCH $MAIN_DIR/languages/$PULL_TARGET
 fi
 }
 
@@ -353,6 +356,19 @@ if [ ! -s $LANG_XML ]; then
 	echo -e "${txtred}\nError downloading languages.xml, do you have an internet connection?${txtrst}"; exit
 fi
 }
+
+clean_up () {
+#pull_languages_xml
+cat $LANG_XML | grep '<language enabled=' | while read all_line; do
+	CHANGE_VERSION=$(echo $all_line | awk '{print $3}' | cut -d'"' -f2)
+	CHANGE_NAME=$(echo $all_line | awk '{print $4}' | cut -d'"' -f2)
+	CHANGE_ISO=$(echo $all_line | awk '{print $5}' | cut -d'"' -f2) 
+	if [ -d $MAIN_DIR/languages/$CHANGE_ISO ]; then
+		mv $MAIN_DIR/languages/$CHANGE_ISO $MAIN_DIR/languages/"$CHANGE_NAME"_"$CHANGE_VERSION"
+	fi
+done
+}
+
 
 #########################################################################################################
 # ARGUMENTS
@@ -380,12 +396,13 @@ echo
 exit 
 }
 
+clean_up
 if [ $# -gt 0 ]; then
      	if [ $1 == "--help" ]; then
           	show_argument_help
      	elif [ $1 == "--check" ]; then
 		build_cache
-		pull_languages_xml
+#		pull_languages_xml
             	DEBUG_MODE=lang
             	case "$2" in
 		  	all) if [ "$3" = "full" ]; then
@@ -394,17 +411,21 @@ if [ $# -gt 0 ]; then
                                	 DEBUG_MODE=double
                              fi; 
 			     LINE_NR=$(cat $LANG_XML | grep '<language enabled="yes"' | wc -l)
-			     LAST_TARGET=$(cat $LANG_XML | grep '<language enabled="yes"' | sed -n "$LINE_NR"p | awk '{print $4}' | cut -d'"' -f2)
+			     LAST_URL=$(cat $LANG_XML | grep '<language enabled="yes"' | sed -n "$LINE_NR"p | awk '{print $6}' | cut -d'"' -f2)
 			     cat $LANG_XML | grep '<language enabled="yes"' | while read all_line; do
-					LANG_TARGET=$(echo $all_line | awk '{print $4}' | cut -d'"' -f2)
-				      	LANG_NAME=$(echo $all_line | awk '{print $3}' | cut -d'"' -f2)
-					LANG_URL=$(echo $all_line | awk '{print $5}' | cut -d'"' -f2)
+					LANG_VERSION=$(echo $all_line | awk '{print $3}' | cut -d'"' -f2)
+					LANG_ISO=$(echo $all_line | awk '{print $5}' | cut -d'"' -f2)
+				      	LANG_NAME=$(echo $all_line | awk '{print $4}' | cut -d'"' -f2)
+					LANG_URL=$(echo $all_line | awk '{print $6}' | cut -d'"' -f2)
+					LANG_TARGET=""$LANG_NAME"_"$LANG_VERSION""
                         		init_xml_check
    			     done;;
 			  *) if [ "`cat $LANG_XML | grep 'name="'$2'"' | wc -l`" -gt 0 ]; then
-					LANG_TARGET=$(cat $LANG_XML | grep 'name="'$2'"' | awk '{print $4}' | cut -d'"' -f2) 
-				      	LANG_NAME=$(cat $LANG_XML | grep 'name="'$2'"' | awk '{print $3}' | cut -d'"' -f2)
-					LANG_URL=$(cat $LANG_XML | grep 'name="'$2'"'| awk '{print $5}' | cut -d'"' -f2)
+					LANG_VERSION=$(echo $all_line | awk '{print $3}' | cut -d'"' -f2)
+					LANG_ISO=$(echo $all_line | awk '{print $5}' | cut -d'"' -f2)
+				      	LANG_NAME=$(echo $all_line | awk '{print $4}' | cut -d'"' -f2)
+					LANG_URL=$(echo $all_line | awk '{print $6}' | cut -d'"' -f2)
+					LANG_TARGET=""$LANG_NAME"_"$LANG_VERSION""
                                  	init_xml_check
                              else
 					echo -e "${txtred}\nLanguage not supported or language not specified${txtrst}"; exit
@@ -412,7 +433,7 @@ if [ $# -gt 0 ]; then
            	esac
 		clear_cache
      	elif [ $1 == "--pull" ]; then
-		pull_languages_xml
+#		pull_languages_xml
             	case "$2" in
 			all) cat $LANG_XML | grep '<language enabled="yes"' | while read all_line; do
 					if [ "$3" != "" ]; then
@@ -420,39 +441,50 @@ if [ $# -gt 0 ]; then
 							PULL_FLAG="force"
 						fi
 					fi
-					PULL_NAME=$(echo $all_line | awk '{print $3}' | cut -d'"' -f2)
-					PULL_ISO=$(echo $all_line | awk '{print $4}' | cut -d'"' -f2) 
-					PULL_GIT=$(echo $all_line | awk '{print $6}' | cut -d'"' -f2)
-					PULL_BRANCH=$(echo $all_line | awk '{print $7}' | cut -d'"' -f2)
+					PULL_VERSION=$(echo $all_line | awk '{print $3}' | cut -d'"' -f2)
+					PULL_NAME=$(echo $all_line | awk '{print $4}' | cut -d'"' -f2)
+					PULL_GIT=$(echo $all_line | awk '{print $7}' | cut -d'"' -f2)
+					PULL_BRANCH=$(echo $all_line | awk '{print $8}' | cut -d'"' -f2)
+					PULL_TARGET=""$PULL_NAME"_"$PULL_VERSION""
                         		pull_lang
    			     done;;
-			  *) if [ "`cat $LANG_XML | grep 'name="'$2'"' | wc -l`" -gt 0 ]; then
-					if [ "$3" != "" ]; then
-   						if [ $3 = "force" ]; then
+			  *) if [ "$3" = "" ]; then
+				    	echo -e "${txtred}\nSpecifiy MIUI version${txtrst}"; exit
+			     elif [ "$3" = "force" ]; then
+					echo -e "${txtred}\nSpecifiy MIUI version before force flag${txtrst}"; exit
+			     fi
+			     if [ "`cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"' | wc -l`" -gt 0 ]; then
+					if [ "$4" != "" ]; then
+   						if [ $4 = "force" ]; then
 							PULL_FLAG="force"
 						fi
 					fi
-					PULL_NAME=$(cat $LANG_XML | grep 'name="'$2'"' | awk '{print $3}' | cut -d'"' -f2)
-					PULL_ISO=$(cat $LANG_XML | grep 'name="'$2'"' | awk '{print $4}' | cut -d'"' -f2) 
-					PULL_GIT=$(cat $LANG_XML | grep 'name="'$2'"' | awk '{print $6}' | cut -d'"' -f2)
-					PULL_BRANCH=$(cat $LANG_XML | grep 'name="'$2'"' | awk '{print $7}' | cut -d'"' -f2)
+					PULL_VERSION=$(cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"' | awk '{print $3}' | cut -d'"' -f2)
+					PULL_NAME=$(cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"' | awk '{print $4}' | cut -d'"' -f2)
+					PULL_GIT=$(cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"'| awk '{print $7}' | cut -d'"' -f2)
+					PULL_BRANCH=$(cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"'| awk '{print $8}' | cut -d'"' -f2)
+					PULL_TARGET=""$PULL_NAME"_"$PULL_VERSION""
                         		pull_lang 
                              else
 					echo -e "${txtred}\nLanguage not supported or language not specified${txtrst}"; exit
 			     fi;;
            	esac
      	elif [ $1 == "--remove" ]; then
-		pull_languages_xml
+#		pull_languages_xml
             	if [ "$2" != " " ]; then
                  	case "$2" in
                              logs) rm -f $LOG_DIR/XML_*.html;;
                               all) cat $LANG_XML | grep '<language enabled=' | while read all_line; do
-					RM_ISO=$(echo $all_line | awk '{print $4}' | cut -d'"' -f2)
-                        		rm -rf $MAIN_DIR/languages/$RM_ISO 
+					RM_VERSION=$(echo $all_line | awk '{print $3}' | cut -d'"' -f2)
+					RM_NAME=$(echo $all_line | awk '{print $4}' | cut -d'"' -f2)
+					RM_TARGET=""$RM_NAME"_"$RM_VERSION""
+                        		rm -rf $MAIN_DIR/languages/$RM_TARGET 
    			           done;;
 				*) if [ "`cat $LANG_XML | grep 'name="'$2'"' | wc -l`" -gt 0 ]; then
-						RM_ISO=$(cat $LANG_XML | grep 'name="'$2'"' | awk '{print $4}' | cut -d'"' -f2) 
-                        			rm -rf $MAIN_DIR/languages/$RM_ISO 
+						RM_VERSION=$(echo $all_line | awk '{print $3}' | cut -d'"' -f2)
+						RM_NAME=$(echo $all_line | awk '{print $4}' | cut -d'"' -f2)
+						RM_TARGET=""$RM_NAME"_"$RM_VERSION""
+                        			rm -rf $MAIN_DIR/languages/$RM_TARGET 
                              	   else
 						echo -e "${txtred}\nLanguage not supported or language not specified${txtrst}"; exit
 			           fi;;
