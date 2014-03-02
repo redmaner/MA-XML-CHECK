@@ -420,11 +420,14 @@ if [ $# -gt 0 ]; then
 					LANG_TARGET=""$LANG_NAME"_"$LANG_VERSION""
                         		init_xml_check
    			     done;;
-			  *) if [ "`cat $LANG_XML | grep 'name="'$2'"' | wc -l`" -gt 0 ]; then
-					LANG_VERSION=$(echo $all_line | awk '{print $3}' | cut -d'"' -f2)
-					LANG_ISO=$(echo $all_line | awk '{print $5}' | cut -d'"' -f2)
-				      	LANG_NAME=$(echo $all_line | awk '{print $4}' | cut -d'"' -f2)
-					LANG_URL=$(echo $all_line | awk '{print $6}' | cut -d'"' -f2)
+			  *) if [ "$3" = "" ]; then
+				    	echo -e "${txtred}\nError: Specifiy MIUI version${txtrst}"; exit
+			     fi
+			     if [ "`cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"'| wc -l`" -gt 0 ]; then
+					LANG_VERSION=$(cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"' | awk '{print $3}' | cut -d'"' -f2)
+					LANG_ISO=$(cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"' | awk '{print $5}' | cut -d'"' -f2)
+				      	LANG_NAME=$(cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"' | awk '{print $4}' | cut -d'"' -f2)
+					LANG_URL=$(cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"' | awk '{print $6}' | cut -d'"' -f2)
 					LANG_TARGET=""$LANG_NAME"_"$LANG_VERSION""
                                  	init_xml_check
                              else
@@ -449,9 +452,9 @@ if [ $# -gt 0 ]; then
                         		pull_lang
    			     done;;
 			  *) if [ "$3" = "" ]; then
-				    	echo -e "${txtred}\nSpecifiy MIUI version${txtrst}"; exit
+				    	echo -e "${txtred}\nError: Specifiy MIUI version${txtrst}"; exit
 			     elif [ "$3" = "force" ]; then
-					echo -e "${txtred}\nSpecifiy MIUI version before force flag${txtrst}"; exit
+					echo -e "${txtred}\nError: Specifiy MIUI version before force flag${txtrst}"; exit
 			     fi
 			     if [ "`cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"' | wc -l`" -gt 0 ]; then
 					if [ "$4" != "" ]; then
