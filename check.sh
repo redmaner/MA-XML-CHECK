@@ -358,7 +358,7 @@ fi
 }
 
 clean_up () {
-#pull_languages_xml
+pull_languages_xml
 cat $LANG_XML | grep '<language enabled=' | while read all_line; do
 	CHANGE_VERSION=$(echo $all_line | awk '{print $3}' | cut -d'"' -f2)
 	CHANGE_NAME=$(echo $all_line | awk '{print $4}' | cut -d'"' -f2)
@@ -402,7 +402,7 @@ if [ $# -gt 0 ]; then
           	show_argument_help
      	elif [ $1 == "--check" ]; then
 		build_cache
-#		pull_languages_xml
+		pull_languages_xml
             	DEBUG_MODE=lang
             	case "$2" in
 		  	all) if [ "$3" = "full" ]; then
@@ -433,7 +433,7 @@ if [ $# -gt 0 ]; then
            	esac
 		clear_cache
      	elif [ $1 == "--pull" ]; then
-#		pull_languages_xml
+		pull_languages_xml
             	case "$2" in
 			all) cat $LANG_XML | grep '<language enabled="yes"' | while read all_line; do
 					if [ "$3" != "" ]; then
@@ -470,7 +470,7 @@ if [ $# -gt 0 ]; then
 			     fi;;
            	esac
      	elif [ $1 == "--remove" ]; then
-#		pull_languages_xml
+		pull_languages_xml
             	if [ "$2" != " " ]; then
                  	case "$2" in
                              logs) rm -f $LOG_DIR/XML_*.html;;
