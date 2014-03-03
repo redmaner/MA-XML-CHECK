@@ -82,9 +82,9 @@ rm -f $XML_CACHE_LOG
 # INITIAL LOGGING
 #########################################################################################################
 debug_mode () {
-if [ "$DEBUG_MODE" = "full" ]; then
+if [ "$DEBUG_MODE" == "full" ]; then
      	XML_LOG=$CACHE/XML_CHECK_FULL
-elif [ "$DEBUG_MODE" = "double" ]; then
+elif [ "$DEBUG_MODE" == "double" ]; then
        	XML_LOG_FULL=$CACHE/XML_CHECK_FULL
        	LOG_TARGET=$XML_LOG_FULL; update_log
        	XML_LOG=$CACHE/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO
@@ -98,7 +98,7 @@ update_log () {
 DATE=$(date +"%m-%d-%Y %H:%M:%S")
 if [ -e $LOG_TARGET ]; then
      	LINE_NR=$(wc -l $LOG_TARGET | cut -d' ' -f1)
-     	if [ "$(sed -n "$LINE_NR"p $LOG_TARGET)" = '<!-- Start of log --><script type="text/plain">' ]; then 
+     	if [ "$(sed -n "$LINE_NR"p $LOG_TARGET)" == '<!-- Start of log --><script type="text/plain">' ]; then 
            	echo '</script></span><span class="green">No errors found in this repository!</span>' >> $LOG_TARGET
            	echo '</script><span class="header"><br><br>Checked <a href="'$LANG_URL'" title="'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO')" target="_blank">'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO') repository</a> on '$DATE'</span>' >> $LOG_TARGET
            	echo '<!-- Start of log --><script type="text/plain">' >> $LOG_TARGET
@@ -198,22 +198,22 @@ fi
 
 check_log () {
 LINE_NR=$(wc -l $XML_LOG | cut -d' ' -f1)
-if [ "$(sed -n "$LINE_NR"p $XML_LOG)" = '<!-- Start of log --><script type="text/plain">' ]; then 
+if [ "$(sed -n "$LINE_NR"p $XML_LOG)" == '<!-- Start of log --><script type="text/plain">' ]; then 
      	echo '</script><span class="green">No errors found in this repository!</span>' >> $XML_LOG
 fi
-if [ $DEBUG_MODE = "full" ]; then
-     	if [ "$LANG_ISO" = "$LAST_URL" ]; then
+if [ $DEBUG_MODE == "full" ]; then
+     	if [ "$LANG_URL" == "$LAST_URL" ]; then
           	rm -f $LOG_DIR/XML_CHECK_FULL.html
           	cp $XML_LOG $LOG_DIR/XML_CHECK_FULL.html
           	echo -e "${txtgrn}All languages checked, log at logs/XML_CHECK_FULL.html${txtrst}"
      	fi
-elif [ $DEBUG_MODE = "double" ]; then
+elif [ $DEBUG_MODE == "double" ]; then
 	rm -f $LOG_DIR/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO.html
      	cp $XML_LOG $LOG_DIR/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO.html
     	echo -e "${txtgrn}$LANG_NAME ($LANG_ISO) checked, log at logs/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO.html${txtrst}"
-     	if [ "$LANG_ISO" = "$LAST_URL" ]; then
+     	if [ "$LANG_URL" == "$LAST_URL" ]; then
           	LINE_NR=$(wc -l $XML_LOG_FULL | cut -d' ' -f1)
-          	if [ "$(sed -n "$LINE_NR"p $XML_LOG_FULL)" = '<!-- Start of log --><script type="text/plain">' ]; then
+          	if [ "$(sed -n "$LINE_NR"p $XML_LOG_FULL)" == '<!-- Start of log --><script type="text/plain">' ]; then
                		echo '</script><span class="green">No errors found in this repository!</span>' >> $XML_LOG_FULL
           	fi
           	cp $XML_LOG_FULL $LOG_DIR/XML_CHECK_FULL.html
@@ -274,7 +274,7 @@ if [ -e "$XML_TARGET" ]; then
 	write_log
 
      	# Check for doubles in strings.xml
-     	if [ "$XML_TYPE" = "strings" ]; then
+     	if [ "$XML_TYPE" == "strings" ]; then
           	cat $XML_TARGET | while read all_line; do grep "<string" | cut -d'>' -f1 | cut -d'<' -f2; done > $XML_TARGET_STRIPPED
           	sort $XML_TARGET_STRIPPED | uniq --repeated > $DOUBLE_RESULT
           	cat $DOUBLE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_CACHE_LOG
@@ -310,7 +310,7 @@ rm -f $XML_CACHE_LOG
 
 write_log_finish () {
 if [ -s $XML_LOG_TEMP ]; then
-	if [ "$DEBUG_MODE" = "double" ]; then
+	if [ "$DEBUG_MODE" == "double" ]; then
 		echo '</script><span class="black"><br>'$XML_TARGET'</span><span class="red"><script class="error" type="text/plain">' >> $XML_LOG_FULL
 		cat $XML_LOG_TEMP >> $XML_LOG_FULL
 	fi
@@ -330,7 +330,7 @@ rm -f $XML_CACHE_LOG
 #########################################################################################################
 pull_lang () {
 if [ "$PULL_FLAG" != "" ]; then
-	if [ $PULL_FLAG = "force" ]; then
+	if [ $PULL_FLAG == "force" ]; then
 		rm -rf $MAIN_DIR/languages/$PULL_TARGET; sleep 1; sync
 	fi
 fi
@@ -405,9 +405,9 @@ if [ $# -gt 0 ]; then
 		pull_languages_xml
             	DEBUG_MODE=lang
             	case "$2" in
-		  	all) if [ "$3" = "full" ]; then
+		  	all) if [ "$3" == "full" ]; then
                                  DEBUG_MODE=full
-                             elif [ "$3" = "double" ]; then
+                             elif [ "$3" == "double" ]; then
                                	 DEBUG_MODE=double
                              fi; 
 			     LINE_NR=$(cat $LANG_XML | grep '<language enabled="yes"' | wc -l)
@@ -420,7 +420,7 @@ if [ $# -gt 0 ]; then
 					LANG_TARGET=""$LANG_NAME"_"$LANG_VERSION""
                         		init_xml_check
    			     done;;
-			  *) if [ "$3" = "" ]; then
+			  *) if [ "$3" == "" ]; then
 				    	echo -e "${txtred}\nError: Specifiy MIUI version${txtrst}"; exit
 			     fi
 			     if [ "`cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"'| wc -l`" -gt 0 ]; then
@@ -440,7 +440,7 @@ if [ $# -gt 0 ]; then
             	case "$2" in
 			all) cat $LANG_XML | grep '<language enabled="yes"' | while read all_line; do
 					if [ "$3" != "" ]; then
-   						if [ $3 = "force" ]; then
+   						if [ $3 == "force" ]; then
 							PULL_FLAG="force"
 						fi
 					fi
@@ -451,9 +451,9 @@ if [ $# -gt 0 ]; then
 					PULL_TARGET=""$PULL_NAME"_"$PULL_VERSION""
                         		pull_lang
    			     done;;
-			  *) if [ "$3" = "" ]; then
+			  *) if [ "$3" == "" ]; then
 				    	echo -e "${txtred}\nError: Specifiy MIUI version${txtrst}"; exit
-			     elif [ "$3" = "force" ]; then
+			     elif [ "$3" == "force" ]; then
 					echo -e "${txtred}\nError: Specifiy MIUI version before force flag${txtrst}"; exit
 			     fi
 			     if [ "`cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"' | wc -l`" -gt 0 ]; then
