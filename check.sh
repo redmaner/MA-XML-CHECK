@@ -57,9 +57,8 @@ else
 	CACHE=$MAIN_DIR/.cache
 	touch $CACHE/PLACEHOLDER
 fi
-XML_TARGETS_ARRAYS=$CACHE/xml.targets.arrays
-XML_TARGETS_STRINGS=$CACHE/xml.targets.strings
-XML_TARGETS_PLURALS=$CACHE/xml.targets.plurals
+APK_TARGETS=$CACHE/apk.targets
+XML_TARGETS=$CACHE/xml.targets
 XML_TARGET_STRIPPED=$CACHE/xml.target.stripped
 DOUBLE_RESULT=$CACHE/xml.double.result
 APOSTROPHE_RESULT=$CACHE/xml.apostrophe.result
@@ -232,49 +231,50 @@ chmod 777 $LOG_DIR/XML_*.html
 #########################################################################################################
 init_xml_check () {
 if [ -d $MAIN_DIR/languages/$LANG_TARGET ]; then
-   	echo -e "${txtblu}\nChecking $LANG_NAME MIUI$LANG_VERSION ($LANG_ISO)${txtrst}"
-   	rm -f $XML_TARGETS_ARRAYS $XML_TARGETS_STRINGS $XML_TARGETS_PLURALS
-   	find $MAIN_DIR/languages/$LANG_TARGET -iname "arrays.xml" >> $XML_TARGETS_ARRAYS
-   	find $MAIN_DIR/languages/$LANG_TARGET -iname "arrays.xml.part" >> $XML_TARGETS_ARRAYS 
-   	find $MAIN_DIR/languages/$LANG_TARGET -iname "strings.xml" >> $XML_TARGETS_STRINGS
-   	find $MAIN_DIR/languages/$LANG_TARGET -iname "strings.xml.part" >> $XML_TARGETS_STRINGS 
-   	find $MAIN_DIR/languages/$LANG_TARGET -iname "plurals.xml" >> $XML_TARGETS_PLURALS
-   	find $MAIN_DIR/languages/$LANG_TARGET -iname "plurals.xml.part" >> $XML_TARGETS_PLURALS 
-   	sort $XML_TARGETS_ARRAYS > $XML_TARGETS_ARRAYS.new; mv $XML_TARGETS_ARRAYS.new $XML_TARGETS_ARRAYS
-   	sort $XML_TARGETS_STRINGS > $XML_TARGETS_STRINGS.new; mv $XML_TARGETS_STRINGS.new $XML_TARGETS_STRINGS
-   	sort $XML_TARGETS_PLURALS > $XML_TARGETS_PLURALS.new; mv $XML_TARGETS_PLURALS.new $XML_TARGETS_PLURALS
-   	debug_mode
-   	start_xml_check
+	echo -e "${txtblu}\nChecking $LANG_NAME MIUI$LANG_VERSION ($LANG_ISO)${txtrst}"
+   	rm -f $APK_TARGETS
+	find $MAIN_DIR/languages/$LANG_TARGET -iname "*.apk" >> $APK_TARGETS
+	sort $APK_TARGETS > $APK_TARGETS.new; mv $APK_TARGETS.new $APK_TARGETS
+	debug_mode
+	find_xml_targets
 	check_log
 fi
 }
 
+find_xml_targets () {
+cat $APK_TARGETS | while read all_line; do
+	APK="$all_line"
+   	rm -f $XML_TARGETS
+   	find $all_line -iname "arrays.xml" >> $XML_TARGETS
+   	find $all_line -iname "arrays.xml.part"  >> $XML_TARGETS
+   	find $all_line -iname "strings.xml" >> $XML_TARGETS
+   	find $all_line -iname "strings.xml.part" >> $XML_TARGETS
+   	find $all_line -iname "plurals.xml" >> $XML_TARGETS
+   	find $all_line -iname "plurals.xml.part" >> $XML_TARGETS
+   	start_xml_check
+done
+}
+
 start_xml_check () {
-cat $XML_TARGETS_ARRAYS | while read all_line; do
-    	xml_check "$all_line" arrays
-done; clean_cache
-cat $XML_TARGETS_STRINGS | while read all_line; do
-    	xml_check "$all_line" strings
-done; clean_cache
-cat $XML_TARGETS_PLURALS | while read all_line; do
-    	xml_check "$all_line" plurals
+cat $XML_TARGETS | while read all_line; do
+    	xml_check "$all_line"
 done; clean_cache
 }
 
 xml_check () {
-XML=$1
-XML_TARGET=$(echo $XML)
-XML_TYPE=$2
+XML_TARGET=$1
 
 rm -f $XML_CACHE_LOG
 rm -f $XML_LOG_TEMP
 if [ -e "$XML_TARGET" ]; then
+	XML_TYPE=$(basename $XML_TARGET)
+
      	# Check for XML Parser errors
 	xmllint --noout $XML_TARGET 2>> $XML_CACHE_LOG
 	write_log
 
      	# Check for doubles in strings.xml
-     	if [ "$XML_TYPE" == "strings" ]; then
+     	if [ "$XML_TYPE" == "strings.xml" ]; then
           	cat $XML_TARGET | while read all_line; do grep "<string" | cut -d'>' -f1 | cut -d'<' -f2; done > $XML_TARGET_STRIPPED
           	sort $XML_TARGET_STRIPPED | uniq --repeated > $DOUBLE_RESULT
           	cat $DOUBLE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_CACHE_LOG
@@ -477,6 +477,7 @@ if [ $# -gt 0 ]; then
             	if [ "$2" != " " ]; then
                  	case "$2" in
                              logs) rm -f $LOG_DIR/XML_*.html;;
+			    cache) rm -rf .cache .cache1;;
                               all) cat $LANG_XML | grep '<language enabled=' | while read all_line; do
 					RM_VERSION=$(echo $all_line | awk '{print $3}' | cut -d'"' -f2)
 					RM_NAME=$(echo $all_line | awk '{print $4}' | cut -d'"' -f2)
