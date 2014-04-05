@@ -34,7 +34,7 @@ fi
 #########################################################################################################
 # VARIABLES / CACHE
 #########################################################################################################
-LANG_XML=$MAIN_DIR/languages/languages.xml
+LANG_XML=$MAIN_DIR/resources/languages.xml
 
 build_cache () {
 if [ -d $MAIN_DIR/.cache ]; then
@@ -141,13 +141,16 @@ script {
 .brown {
   	color: #660000;
 }
+.purple {
+	color: #6633FF;
+}
 table {
         background-color: #ffffff;
         border-collapse: collapse;
-        border-top: 0px solid #000000;
-        border-bottom: 1px solid #000000;
-        border-left: 0px solid #000000;
-        border-right: 0px solid #000000;
+        border-top: 0px solid #ffffff;
+        border-bottom: 0px solid #ffffff;
+        border-left: 0px solid #ffffff;
+        border-right: 0px solid #ffffff;
         text-align: left;
         }
 
@@ -170,24 +173,30 @@ a:hover {
 <a href="http://xiaomi.eu" title="xiaomi.eu Forums - Unofficial International MIUI / Xiaomi Phone Support"><img src="http://xiaomi.eu/community/styles/xiaomi/xenforo/xiaomi-europe-logo.png"></a>
 <br><br>
 <table border="0" cellpadding="0" cellspacing="0">
-<td height="auto" width="120px"><span class="green">Green text</span></td>
-<td height="auto" width="220px"><span class="black">No errors found</span><td>
-</table>
-<table border="0" cellpadding="0" cellspacing="0">
-<td height="auto" width="120px"><span class="red">Red text</span></td>
-<td height="auto" width="220px"><span class="black">Parser error</span><td>
-</table>
-<table border="0" cellpadding="0" cellspacing="0">
-<td height="auto" width="120px"><span class="orange">Orange text</span></td>
-<td height="auto" width="220px"><span class="black">Double strings</span><td>
-</table>
-<table  border="0" cellpadding="0" cellspacing="0">
-<td height="auto" width="120px"><span class="brown">Brown text</span></td>
-<td height="auto" width="220px"><span class="black">Apostrophe syntax error</span><td>
-</table>
-<table border="0" cellpadding="0" cellspacing="0">
-<td height="auto" width="120px"><span class="blue">Blue text</span></td>
-<td height="auto" width="220px"><span class="black">'+' outside of tags</span><td>
+	<tr>
+		<td height="auto" width="120px"><span class="green">Green text</span></td>
+		<td height="auto" width="auto"><span class="black">No errors found</span><td>
+	</tr>
+	<tr>
+		<td height="auto" width="120px"><span class="red">Red text</span></td>
+		<td height="auto" width="auto"><span class="black">Parser error</span><td>
+	</tr>
+	<tr>
+		<td height="auto" width="120px"><span class="orange">Orange text</span></td>
+		<td height="auto" width="auto"><span class="black">Double strings</span><td>
+	</tr>
+	<tr>
+		<td height="auto" width="120px"><span class="brown">Brown text</span></td>
+		<td height="auto" width="auto"><span class="black">Apostrophe syntax error</span><td>
+	</tr>
+	<tr>
+		<td height="auto" width="120px"><span class="purple">Purple text</span></td>
+		<td height="auto" width="auto"><span class="black">Untranslateable string, array or plural</span><td>
+	</tr>
+	<tr>
+		<td height="auto" width="120px"><span class="blue">Blue text</span></td>
+		<td height="auto" width="auto"><span class="black">'+' outside of tags</span><td>
+	</tr>
 </table>
 <span class="header"><br>Checked <a href="$LANG_URL" title="$LANG_NAME MIUI$LANG_VERSION ($LANG_ISO)" target="_blank">$LANG_NAME MIUI$LANG_VERSION ($LANG_ISO) repository</a> on $DATE<br></span>
 <!-- Start of log --><script type="text/plain">
@@ -243,7 +252,7 @@ fi
 
 find_xml_targets () {
 cat $APK_TARGETS | while read all_line; do
-	APK="$all_line"
+	APK=$(basename $all_line)
    	rm -f $XML_TARGETS
    	find $all_line -iname "arrays.xml" >> $XML_TARGETS
    	find $all_line -iname "arrays.xml.part"  >> $XML_TARGETS
@@ -269,6 +278,17 @@ rm -f $XML_LOG_TEMP
 if [ -e "$XML_TARGET" ]; then
 	XML_TYPE=$(basename $XML_TARGET)
 
+	# Fix .part files for XML_TYPE 
+	if [ $(echo $XML_TYPE | grep ".part" | wc -l) -gt 0 ]; then
+		if [ $XML_TYPE == "strings.xml.part" ]; then
+			XML_TYPE="strings.xml"
+		elif [ $XML_TYPE == "arrays.xml.part" ]; then
+			XML_TYPE="arrays.xml"
+		elif [ $XML_TYPE == "plurals.xml.part" ]; then
+			XML_TYPE="plurals.xml"
+		fi
+	fi
+
      	# Check for XML Parser errors
 	xmllint --noout $XML_TARGET 2>> $XML_CACHE_LOG
 	write_log
@@ -293,10 +313,20 @@ if [ -e "$XML_TARGET" ]; then
         fi
 	write_log_error "brown"
 
+	# Check for untranslateable strings, arrays, plurals
+	if [ $(cat $IGNORE_LIST | grep 'application="'$APK'"' | grep 'file="'$XML_TYPE'"' | wc -l) -gt 0 ]; then
+		cat $IGNORE_LIST | grep 'application="'$APK'"' | grep 'file="'$XML_TYPE'"' | while read all_line; do
+			IGNORE_STRING=$(echo $all_line | awk '{print $4}' | cut -d'"' -f2)
+			grep -ne "$IGNORE_STRING" $XML_TARGET
+		done >> $XML_CACHE_LOG
+	fi
+	write_log_error "purple"
+
      	# Check for '+' at the beginning of a line, outside <string>
      	grep -ne "+ * <s" $XML_TARGET >> $XML_CACHE_LOG
 	write_log_error "blue"
 	write_log_finish
+		
 fi
 }
 
@@ -350,15 +380,20 @@ else
 fi
 }
 
-pull_languages_xml () {
-wget -q https://raw.github.com/Redmaner/MA-XML-LANGUAGES/master/languages.xml -O $LANG_XML
-if [ ! -s $LANG_XML ]; then
-	echo -e "${txtred}\nError downloading languages.xml, do you have an internet connection?${txtrst}"; exit
+sync_resources () {
+echo -e "${txtblu}\nSyncing resources${txtrst}"
+if [ -d $MAIN_DIR/resources ]; then
+	cd $MAIN_DIR/resources
+	git pull origin master
+	cd $MAIN_DIR
+else
+	git clone git@github.com:Redmaner/MA-XML-CHECK-RESOURCES.git -b master $MAIN_DIR/resources
 fi
+rm -f $MAIN_DIR/languages/languages.xml
 }
 
 clean_up () {
-pull_languages_xml
+sync_resources
 cat $LANG_XML | grep '<language enabled=' | while read all_line; do
 	CHANGE_VERSION=$(echo $all_line | awk '{print $3}' | cut -d'"' -f2)
 	CHANGE_NAME=$(echo $all_line | awk '{print $4}' | cut -d'"' -f2)
@@ -396,13 +431,12 @@ echo
 exit 
 }
 
-clean_up
 if [ $# -gt 0 ]; then
      	if [ $1 == "--help" ]; then
           	show_argument_help
      	elif [ $1 == "--check" ]; then
 		build_cache
-		pull_languages_xml
+		sync_resources
             	DEBUG_MODE=lang
             	case "$2" in
 		  	all) if [ "$3" == "full" ]; then
@@ -418,6 +452,7 @@ if [ $# -gt 0 ]; then
 				      	LANG_NAME=$(echo $all_line | awk '{print $4}' | cut -d'"' -f2)
 					LANG_URL=$(echo $all_line | awk '{print $6}' | cut -d'"' -f2)
 					LANG_TARGET=""$LANG_NAME"_"$LANG_VERSION""
+					IGNORE_LIST=$MAIN_DIR/resources/MIUI"$LANG_VERSION"_ignorelist.xml
                         		init_xml_check
    			     done;;
 			  *) if [ "$3" == "" ]; then
@@ -429,6 +464,7 @@ if [ $# -gt 0 ]; then
 				      	LANG_NAME=$(cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"' | awk '{print $4}' | cut -d'"' -f2)
 					LANG_URL=$(cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"' | awk '{print $6}' | cut -d'"' -f2)
 					LANG_TARGET=""$LANG_NAME"_"$LANG_VERSION""
+					IGNORE_LIST=$MAIN_DIR/resources/MIUI"$LANG_VERSION"_ignorelist.xml
                                  	init_xml_check
                              else
 					echo -e "${txtred}\nLanguage not supported or language not specified${txtrst}"; exit
@@ -436,7 +472,7 @@ if [ $# -gt 0 ]; then
            	esac
 		clear_cache
      	elif [ $1 == "--pull" ]; then
-		pull_languages_xml
+		sync_resources
             	case "$2" in
 			all) cat $LANG_XML | grep '<language enabled="yes"' | while read all_line; do
 					if [ "$3" != "" ]; then
@@ -473,7 +509,7 @@ if [ $# -gt 0 ]; then
 			     fi;;
            	esac
      	elif [ $1 == "--remove" ]; then
-		pull_languages_xml
+		sync_resources
             	if [ "$2" != " " ]; then
                  	case "$2" in
                              logs) rm -f $LOG_DIR/XML_*.html;;
@@ -494,6 +530,8 @@ if [ $# -gt 0 ]; then
 			           fi;;
                  	esac 
             	fi
+     	elif [ $1 == "--fix_languages" ]; then
+		clean_up
      	else
             	show_argument_help; exit
      	fi
