@@ -23,9 +23,11 @@ esac
 if [ -d /home/translators.xiaomi.eu ]; then
      	MAIN_DIR=/home/translators.xiaomi.eu/scripts
      	LOG_DIR=/home/translators.xiaomi.eu/public_html
+	SERVER=yes
 else
      	MAIN_DIR=$PWD
      	LOG_DIR=$PWD/logs
+	SERVER=no
 fi
 
 if [ ! -e $MAIN_DIR/languages ]; then
@@ -44,25 +46,21 @@ VERSION=4.0
 LANG_XML=$MAIN_DIR/resources/languages.xml
 
 build_cache () {
-if [ -d $MAIN_DIR/.cache ]; then
-	if [ -e $MAIN_DIR/.cache/PLACEHOLDER ]; then
-		if [ -e $MAIN_DIR/.cache1/PLACEHOLDER ]; then
-			echo -e "${txtred}\nTwo processes are currently running, please wait till a proces is complete${txtrst}"; exit
-		else
-			mkdir -p $MAIN_DIR/.cache1
-			CACHE=$MAIN_DIR/.cache1
-			touch $CACHE/PLACEHOLDER
-		fi
-	else
-		rm -rf $MAIN_DIR/.cache
-		mkdir -p $MAIN_DIR/.cache
-		CACHE=$MAIN_DIR/.cache
-		touch $CACHE/PLACEHOLDER
-	fi
+DATE=$(date +"%m-%d-%Y-%H-%M-%S")
+CACHE="$MAIN_DIR/.cache-$DATE"
+if [ -d $CACHE ]; then
+	case "$SERVER" in
+		yes) rm -rf $CACHE; mkdir $CACHE;;
+		 no) echo -e "${txtred}ERROR:${TXTRST} $CACHE already exsists\nDo you want to remove the cache? This can interrupt a current check!"
+	    	     echo -en "(y,n): "; read cache_remove_awnser
+		     if [ $cache_remove_awnser == "y" ]; then
+				rm -rf $CACHE; mkdir $CACHE
+		     else
+				exit
+		     fi;;
+	esac
 else
-	mkdir -p $MAIN_DIR/.cache
-	CACHE=$MAIN_DIR/.cache
-	touch $CACHE/PLACEHOLDER
+	rm -rf $CACHE; mkdir $CACHE
 fi
 APK_TARGETS=$CACHE/apk.targets
 XML_TARGETS=$CACHE/xml.targets
@@ -252,8 +250,7 @@ init_xml_check () {
 if [ -d $MAIN_DIR/languages/$LANG_TARGET ]; then
 	echo -e "${txtblu}\nChecking $LANG_NAME MIUI$LANG_VERSION ($LANG_ISO)${txtrst}"
    	rm -f $APK_TARGETS
-	find $MAIN_DIR/languages/$LANG_TARGET -iname "*.apk" >> $APK_TARGETS
-	sort $APK_TARGETS > $APK_TARGETS.new; mv $APK_TARGETS.new $APK_TARGETS
+	find $MAIN_DIR/languages/$LANG_TARGET -iname "*.apk" | sort >> $APK_TARGETS
 	debug_mode
 	find_xml_targets
 	check_log
@@ -526,7 +523,9 @@ if [ $# -gt 0 ]; then
             	if [ "$2" != " " ]; then
                  	case "$2" in
                              logs) rm -f $LOG_DIR/XML_*.html;;
-			    cache) rm -rf .cache .cache1;;
+			    cache) ls -a | grep ".cache" | while read found_cache; do
+					rm -rf $found_cache
+				   done;;
                               all) cat $LANG_XML | grep '<language enabled=' | while read all_line; do
 					RM_VERSION=$(echo $all_line | awk '{print $3}' | cut -d'"' -f2)
 					RM_NAME=$(echo $all_line | awk '{print $4}' | cut -d'"' -f2)
