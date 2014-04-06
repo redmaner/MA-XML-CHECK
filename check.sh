@@ -92,8 +92,8 @@ case "$DEBUG_MODE" in
    full) XML_LOG=$CACHE/XML_LOG_FULL;;
  double) XML_LOG_FULL=$CACHE/XML_CHECK_FULL
        	 LOG_TARGET=$XML_LOG_FULL; update_log
-       	 XML_LOG=$CACHE/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO;;
-      *) XML_LOG=$CACHE/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO;;
+       	 XML_LOG=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO;;
+      *) XML_LOG=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO;;
 esac
 LOG_TARGET=$XML_LOG; update_log
 }
@@ -225,9 +225,9 @@ case "$DEBUG_MODE" in
           	cp $XML_LOG $LOG_DIR/XML_CHECK_FULL.html
           	echo -e "${txtgrn}All languages checked, log at logs/XML_CHECK_FULL.html${txtrst}"
      	  fi;;
-  double) rm -f $LOG_DIR/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO.html
-     	  cp $XML_LOG $LOG_DIR/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO.html
-    	  echo -e "${txtgrn}$LANG_NAME ($LANG_ISO) checked, log at logs/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO.html${txtrst}"
+  double) rm -f $LOG_DIR/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
+     	  cp $XML_LOG $LOG_DIR/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
+    	  echo -e "${txtgrn}$LANG_NAME ($LANG_ISO) checked, log at logs/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html${txtrst}"
      	  if [ "$LANG_URL" == "$LAST_URL" ]; then
           	LINE_NR=$(wc -l $XML_LOG_FULL | cut -d' ' -f1)
           	if [ "$(sed -n "$LINE_NR"p $XML_LOG_FULL)" == '<!-- Start of log --><script type="text/plain">' ]; then
@@ -236,9 +236,9 @@ case "$DEBUG_MODE" in
           	cp $XML_LOG_FULL $LOG_DIR/XML_CHECK_FULL.html
           	echo -e "${txtgrn}All languages checked, log at logs/XML_CHECK_FULL.html${txtrst}"
      	  fi;;
-       *) rm -f $LOG_DIR/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO.html
-     	  cp $XML_LOG $LOG_DIR/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO.html
-     	  echo -e "${txtgrn}$LANG_NAME ($LANG_ISO) checked, log at logs/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO.html${txtrst}";;
+       *) rm -f $LOG_DIR/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
+     	  cp $XML_LOG $LOG_DIR/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
+     	  echo -e "${txtgrn}$LANG_NAME ($LANG_ISO) checked, log at logs/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html${txtrst}";;
 esac
 chmod 777 $LOG_DIR/XML_*.html
 }
@@ -519,20 +519,21 @@ if [ $# -gt 0 ]; then
 			     fi;;
            	esac
      	elif [ $1 == "--remove" ]; then
-		sync_resources
             	if [ "$2" != " " ]; then
                  	case "$2" in
                              logs) rm -f $LOG_DIR/XML_*.html;;
 			    cache) ls -a | grep ".cache" | while read found_cache; do
 					rm -rf $found_cache
 				   done;;
-                              all) cat $LANG_XML | grep '<language enabled=' | while read all_line; do
+                              all) sync_resources
+				   cat $LANG_XML | grep '<language enabled=' | while read all_line; do
 					RM_VERSION=$(echo $all_line | awk '{print $3}' | cut -d'"' -f2)
 					RM_NAME=$(echo $all_line | awk '{print $4}' | cut -d'"' -f2)
 					RM_TARGET=""$RM_NAME"_"$RM_VERSION""
                         		rm -rf $MAIN_DIR/languages/$RM_TARGET 
    			           done;;
-				*) if [ "`cat $LANG_XML | grep 'name="'$2'"' | wc -l`" -gt 0 ]; then
+				*) sync_resources
+				   if [ "`cat $LANG_XML | grep 'name="'$2'"' | wc -l`" -gt 0 ]; then
 						RM_VERSION=$(echo $all_line | awk '{print $3}' | cut -d'"' -f2)
 						RM_NAME=$(echo $all_line | awk '{print $4}' | cut -d'"' -f2)
 						RM_TARGET=""$RM_NAME"_"$RM_VERSION""
