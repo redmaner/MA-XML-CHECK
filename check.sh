@@ -316,8 +316,8 @@ if [ -e "$XML_TARGET" ]; then
 	# Check for untranslateable strings, arrays, plurals
 	if [ $(cat $IGNORE_LIST | grep 'application="'$APK'"' | grep 'file="'$XML_TYPE'"' | wc -l) -gt 0 ]; then
 		cat $IGNORE_LIST | grep 'application="'$APK'"' | grep 'file="'$XML_TYPE'"' | while read all_line; do
-			IGNORE_STRING=$(echo $all_line | awk '{print $4}' | cut -d'"' -f2)
-			grep -ne "$IGNORE_STRING" $XML_TARGET
+			IGNORE_STRING=$(echo $all_line | awk '{print $4}' | cut -d'/' -f1)
+			grep -ne ''$IGNORE_STRING'' $XML_TARGET
 		done >> $XML_CACHE_LOG
 	fi
 	write_log_error "purple"
