@@ -191,7 +191,7 @@ a:hover {
 	</tr>
 	<tr>
 		<td height="auto" width="120px"><span class="purple">Purple text</span></td>
-		<td height="auto" width="auto"><span class="black">Untranslateable string, array or plural</span><td>
+		<td height="auto" width="auto"><span class="black">Untranslateable string, array or plural - Has to be removed from xml!</span><td>
 	</tr>
 	<tr>
 		<td height="auto" width="120px"><span class="blue">Blue text</span></td>
