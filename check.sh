@@ -1,4 +1,9 @@
 #!/bin/bash
+# Copyright (c) 2013 - 2014, Redmaner
+# This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International license
+# The license can be found at http://creativecommons.org/licenses/by-nc-sa/4.0/
+
+# Define bash colors for Mac OSX / Linux
 case `uname -s` in
     Darwin) 
            txtrst='\033[0m' # Color off
@@ -26,6 +31,7 @@ fi
 if [ ! -e $MAIN_DIR/languages ]; then
 	mkdir -p $MAIN_DIR/languages
 fi
+
 if [ ! -e $LOGDIR ]; then
 	mkdir -p $LOGDIR
 fi
@@ -34,6 +40,7 @@ fi
 #########################################################################################################
 # VARIABLES / CACHE
 #########################################################################################################
+VERSION=4.0
 LANG_XML=$MAIN_DIR/resources/languages.xml
 
 build_cache () {
@@ -80,19 +87,20 @@ rm -f $XML_CACHE_LOG
 #########################################################################################################
 # INITIAL LOGGING
 #########################################################################################################
+
+# Define logs
 debug_mode () {
-if [ "$DEBUG_MODE" == "full" ]; then
-     	XML_LOG=$CACHE/XML_CHECK_FULL
-elif [ "$DEBUG_MODE" == "double" ]; then
-       	XML_LOG_FULL=$CACHE/XML_CHECK_FULL
-       	LOG_TARGET=$XML_LOG_FULL; update_log
-       	XML_LOG=$CACHE/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO
-else
-     	XML_LOG=$CACHE/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO
-fi
+case "$DEBUG_MODE" in
+   full) XML_LOG=$CACHE/XML_LOG_FULL;;
+ double) XML_LOG_FULL=$CACHE/XML_CHECK_FULL
+       	 LOG_TARGET=$XML_LOG_FULL; update_log
+       	 XML_LOG=$CACHE/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO;;
+      *) XML_LOG=$CACHE/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO;;
+esac
 LOG_TARGET=$XML_LOG; update_log
 }
 
+# Update log if log exsists (full/double debug mode) else create log
 update_log () {
 DATE=$(date +"%m-%d-%Y %H:%M:%S")
 if [ -e $LOG_TARGET ]; then
@@ -106,7 +114,12 @@ if [ -e $LOG_TARGET ]; then
            	echo '<!-- Start of log --><script type="text/plain">' >> $LOG_TARGET
      	fi
 else
-     	cat >> $LOG_TARGET << EOF
+	create_log
+fi
+}
+
+create_log () {
+cat >> $LOG_TARGET << EOF
 <!DOCTYPE html>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
 <html>
@@ -201,42 +214,10 @@ a:hover {
 <span class="header"><br>Checked <a href="$LANG_URL" title="$LANG_NAME MIUI$LANG_VERSION ($LANG_ISO)" target="_blank">$LANG_NAME MIUI$LANG_VERSION ($LANG_ISO) repository</a> on $DATE<br></span>
 <!-- Start of log --><script type="text/plain">
 EOF
-fi
-}
-
-check_log () {
-LINE_NR=$(wc -l $XML_LOG | cut -d' ' -f1)
-if [ "$(sed -n "$LINE_NR"p $XML_LOG)" == '<!-- Start of log --><script type="text/plain">' ]; then 
-     	echo '</script><span class="green">No errors found in this repository!</span>' >> $XML_LOG
-fi
-if [ $DEBUG_MODE == "full" ]; then
-     	if [ "$LANG_URL" == "$LAST_URL" ]; then
-          	rm -f $LOG_DIR/XML_CHECK_FULL.html
-          	cp $XML_LOG $LOG_DIR/XML_CHECK_FULL.html
-          	echo -e "${txtgrn}All languages checked, log at logs/XML_CHECK_FULL.html${txtrst}"
-     	fi
-elif [ $DEBUG_MODE == "double" ]; then
-	rm -f $LOG_DIR/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO.html
-     	cp $XML_LOG $LOG_DIR/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO.html
-    	echo -e "${txtgrn}$LANG_NAME ($LANG_ISO) checked, log at logs/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO.html${txtrst}"
-     	if [ "$LANG_URL" == "$LAST_URL" ]; then
-          	LINE_NR=$(wc -l $XML_LOG_FULL | cut -d' ' -f1)
-          	if [ "$(sed -n "$LINE_NR"p $XML_LOG_FULL)" == '<!-- Start of log --><script type="text/plain">' ]; then
-               		echo '</script><span class="green">No errors found in this repository!</span>' >> $XML_LOG_FULL
-          	fi
-          	cp $XML_LOG_FULL $LOG_DIR/XML_CHECK_FULL.html
-          	echo -e "${txtgrn}All languages checked, log at logs/XML_CHECK_FULL.html${txtrst}"
-     	fi
-else
-     	rm -f $LOG_DIR/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO.html
-     	cp $XML_LOG $LOG_DIR/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO.html
-     	echo -e "${txtgrn}$LANG_NAME ($LANG_ISO) checked, log at logs/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO.html${txtrst}"
-fi
-chmod 777 $LOG_DIR/XML_*.html
 }
 
 #########################################################################################################
-# XML CHECK
+# START XML CHECK
 #########################################################################################################
 init_xml_check () {
 if [ -d $MAIN_DIR/languages/$LANG_TARGET ]; then
@@ -270,6 +251,9 @@ cat $XML_TARGETS | while read all_line; do
 done; clean_cache
 }
 
+#########################################################################################################
+# XML CHECK
+#########################################################################################################
 xml_check () {
 XML_TARGET=$1
 
@@ -278,15 +262,13 @@ rm -f $XML_LOG_TEMP
 if [ -e "$XML_TARGET" ]; then
 	XML_TYPE=$(basename $XML_TARGET)
 
-	# Fix .part files for XML_TYPE 
+	# Fix .part files for XML_TYPE
 	if [ $(echo $XML_TYPE | grep ".part" | wc -l) -gt 0 ]; then
-		if [ $XML_TYPE == "strings.xml.part" ]; then
-			XML_TYPE="strings.xml"
-		elif [ $XML_TYPE == "arrays.xml.part" ]; then
-			XML_TYPE="arrays.xml"
-		elif [ $XML_TYPE == "plurals.xml.part" ]; then
-			XML_TYPE="plurals.xml"
-		fi
+		case "$XML_TYPE" in
+		     	strings.xml.part) XML_TYPE="strings.xml";;
+			 arrays.xml.part) XML_TYPE="arrays.xml";;
+			plurals.xml.part) XML_TYPE="plurals.xml";;
+		esac
 	fi
 
      	# Check for XML Parser errors
@@ -380,6 +362,7 @@ else
 fi
 }
 
+# Sync required resources (languages.xml, ignorelists etc.)
 sync_resources () {
 echo -e "${txtblu}\nSyncing resources${txtrst}"
 if [ -d $MAIN_DIR/resources ]; then
@@ -392,6 +375,7 @@ fi
 rm -f $MAIN_DIR/languages/languages.xml
 }
 
+# Fix old languages format (trigger with --fix_languages)
 clean_up () {
 sync_resources
 cat $LANG_XML | grep '<language enabled=' | while read all_line; do
@@ -404,13 +388,13 @@ cat $LANG_XML | grep '<language enabled=' | while read all_line; do
 done
 }
 
-
 #########################################################################################################
 # ARGUMENTS
 #########################################################################################################
 show_argument_help () { 
 echo 
-echo "MIUIAndroid.com language repo XML check $VERSION"
+echo "MA-XML-CHECK $VERSION"
+echo "By Redmaner"
 echo 
 echo "Usage: check.sh [option]"
 echo 
@@ -426,7 +410,7 @@ echo "		--pull [all|language] [force]		Pull specified language"
 echo "							If all is specified, then all languages will be pulled"
 echo "							If a specific language is specified, that language will be pulled"
 echo "							If force is specified, language(s) will be removed and resynced"
-echo "		--remove [logs|all|language]		Removes logs and or language(s)"
+echo "		--remove [cache|logs|all|language]	Removes caches, logs or language(s)"
 echo 
 exit 
 }
