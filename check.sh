@@ -216,6 +216,35 @@ a:hover {
 EOF
 }
 
+check_log () {
+LINE_NR=$(wc -l $XML_LOG | cut -d' ' -f1)
+if [ "$(sed -n "$LINE_NR"p $XML_LOG)" == '<!-- Start of log --><script type="text/plain">' ]; then 
+     	echo '</script><span class="green">No errors found in this repository!</span>' >> $XML_LOG
+fi
+case "$DEBUG_MODE" in
+    full) if [ "$LANG_URL" == "$LAST_URL" ]; then
+          	rm -f $LOG_DIR/XML_CHECK_FULL.html
+          	cp $XML_LOG $LOG_DIR/XML_CHECK_FULL.html
+          	echo -e "${txtgrn}All languages checked, log at logs/XML_CHECK_FULL.html${txtrst}"
+     	  fi;;
+  double) rm -f $LOG_DIR/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO.html
+     	  cp $XML_LOG $LOG_DIR/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO.html
+    	  echo -e "${txtgrn}$LANG_NAME ($LANG_ISO) checked, log at logs/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO.html${txtrst}"
+     	  if [ "$LANG_URL" == "$LAST_URL" ]; then
+          	LINE_NR=$(wc -l $XML_LOG_FULL | cut -d' ' -f1)
+          	if [ "$(sed -n "$LINE_NR"p $XML_LOG_FULL)" == '<!-- Start of log --><script type="text/plain">' ]; then
+               		echo '</script><span class="green">No errors found in this repository!</span>' >> $XML_LOG_FULL
+          	fi
+          	cp $XML_LOG_FULL $LOG_DIR/XML_CHECK_FULL.html
+          	echo -e "${txtgrn}All languages checked, log at logs/XML_CHECK_FULL.html${txtrst}"
+     	  fi;;
+       *) rm -f $LOG_DIR/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO.html
+     	  cp $XML_LOG $LOG_DIR/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO.html
+     	  echo -e "${txtgrn}$LANG_NAME ($LANG_ISO) checked, log at logs/XML_$LANG_NAME-MIUI$LANG_VERSION-$LANG_ISO.html${txtrst}";;
+esac
+chmod 777 $LOG_DIR/XML_*.html
+}
+
 #########################################################################################################
 # START XML CHECK
 #########################################################################################################
