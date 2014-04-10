@@ -208,6 +208,10 @@ a:hover {
 		<td height="auto" width="auto"><span class="black">Untranslateable string, array or plural - Has to be removed from xml!</span><td>
 	</tr>
 	<tr>
+		<td height="auto" width="120px"><span class="blue">Teal text</span></td>
+		<td height="auto" width="auto"><span class="black">Incorrect amount of items in array</span><td>
+	</tr>
+	<tr>
 		<td height="auto" width="120px"><span class="blue">Blue text</span></td>
 		<td height="auto" width="auto"><span class="black">'+' outside of tags</span><td>
 	</tr>
