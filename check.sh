@@ -237,7 +237,6 @@ case "$DEBUG_MODE" in
           	cp $XML_LOG_FULL $LOG_DIR/XML_CHECK_FULL.html
           	echo -e "${txtgrn}All languages checked, log at logs/XML_CHECK_FULL.html${txtrst}"
      	  fi;;
-    file) echo -e "${txtgrn}$TARGET_FILE checked, log at logs/file_log.html${txtrst}";;
        *) rm -f $LOG_DIR/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
      	  cp $XML_LOG $LOG_DIR/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
      	  echo -e "${txtgrn}$LANG_NAME ($LANG_ISO) checked, log at logs/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html${txtrst}";;
@@ -328,18 +327,18 @@ if [ -e "$XML_TARGET" ]; then
 		cat $IGNORE_LIST | grep 'application="'$APK'"' | grep 'file="'$XML_TYPE'"' | while read all_line; do
 			IGNORE_STRING=$(echo $all_line | awk '{print $4}' | cut -d'/' -f1)
 			grep -ne ''$IGNORE_STRING'' $XML_TARGET
-	done >> $XML_CACHE_LOG
+		done >> $XML_CACHE_LOG
 	fi
 
 	# Check for untranslateable strings and arrays due automatically search for @
 	case "$XML_TYPE" in 
-		strings.xml) grep -ne "@android\|@string\|@color\|@drawable" $XML_TARGET >> $XML_CACHE_LOG;;
+		strings.xml) grep -ne "@android\|@*android\|@string\|@color\|@drawable" $XML_TARGET >> $XML_CACHE_LOG;;
 		 arrays.xml) cat $XML_TARGET | grep 'name="' | while read arrays; do
 					ARRAY_TYPE=$(echo $arrays | cut -d' ' -f1 | cut -d'<' -f2)
 					ARRAY_NAME=$(echo $arrays | cut -d'>' -f1 | cut -d'"' -f2)
 					source $ARRAY_TOOLS
-					if [ $(arrays_parse $ARRAY_NAME $ARRAY_TYPE $XML_TARGET | grep "@android\|@string\|@color\|@drawable" | wc -l) -gt 0 ]; then
-						arrays_parse $ARRAY_NAME $ARRAY_TYPE $XML_TARGET >> $XML_CACHE_LOG
+					if [ $(arrays_parse $ARRAY_NAME $ARRAY_TYPE $XML_TARGET | grep "@android\|@*android\|@string\|@color\|@drawable" | wc -l) -gt 0 ]; then
+						grep -ne ''$ARRAY_NAME'' $XML_TARGET >> $XML_CACHE_LOG
 					fi
 			      done;;
 	esac
