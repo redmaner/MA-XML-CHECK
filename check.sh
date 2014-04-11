@@ -23,10 +23,12 @@ esac
 if [ -d /home/translators.xiaomi.eu ]; then
      	MAIN_DIR=/home/translators.xiaomi.eu/scripts
      	LOG_DIR=/home/translators.xiaomi.eu/public_html
+	RES_DIR=/home/translators.xiaomi.eu/scripts/resources
 	SERVER=yes
 else
      	MAIN_DIR=$PWD
      	LOG_DIR=$PWD/logs
+	RES_DIR=$PWD/resources
 	SERVER=no
 fi
 
@@ -43,8 +45,10 @@ fi
 # VARIABLES / CACHE
 #########################################################################################################
 VERSION=4.0
-LANG_XML=$MAIN_DIR/resources/languages.xml
-ARRAY_TOOLS=$MAIN_DIR/resources/array_tools.sh
+RESOURCES_GIT="git@github.com:Redmaner/MA-XML-CHECK-RESOURCES.git"
+RESOURCES_BRANCH="master"
+LANG_XML=$RES_DIR/languages.xml
+ARRAY_TOOLS=$RES_DIR/array_tools.sh
 
 build_cache () {
 DATE=$(date +"%m-%d-%Y-%H-%M-%S")
@@ -153,7 +157,8 @@ script {
 .purple {
 	color: #6633FF;
 }
-.teal { color: #008080;
+.teal { 
+	color: #008080;
 }
 table {
         background-color: #ffffff;
@@ -408,12 +413,28 @@ fi
 # Sync required resources (languages.xml, ignorelists etc.)
 sync_resources () {
 echo -e "${txtblu}\nSyncing resources${txtrst}"
-if [ -d $MAIN_DIR/resources ]; then
-	cd $MAIN_DIR/resources
-	git pull origin master
-	cd $MAIN_DIR
-else
-	git clone git@github.com:Redmaner/MA-XML-CHECK-RESOURCES.git -b master $MAIN_DIR/resources
+if [ "$RESOURCES_GIT" != "" ]; then
+	if [ -d $RES_DIR/.git ]; then
+		OLD_GIT=$(grep "url = *" $RES_DIR/.git/config | cut -d' ' -f3)
+		if [ "$RESOURCES_GIT" != "$OLD_GIT" ]; then
+			echo -e "${txtblu}\nNew resources repository detected, removing old repository...\n$OLD_GIT ---> $RESOURCES_GIT${txtrst}"
+			rm -rf $RES_DIR
+		fi
+	fi
+	if [ -d $RES_DIR/.git ]; then
+		OLD_BRANCH=$(grep 'branch "' $RES_DIR/.git/config | cut -d'"' -f2 | cut -d'[' -f2 | cut -d']' -f1)
+		if [ "$RESOURCES_BRANCH" != "$OLD_BRANCH" ]; then
+			echo -e "${txtblu}\nNew resources branch detected, removing old repository...\n$OLD_BRANCH ---> $RESOURCES_BRANCH${txtrst}"
+			rm -rf $RES_DIR
+		fi
+	fi
+	if [ -d $RES_DIR ]; then
+		cd $RES_DIR
+		git pull origin $RESOURCES_BRANCH
+		cd $MAIN_DIR
+	else
+		git clone $RESOURCES_GIT -b $RESOURCES_BRANCH $RES_DIR
+	fi
 fi
 source $ARRAY_TOOLS
 }
@@ -479,8 +500,8 @@ if [ $# -gt 0 ]; then
 				      	LANG_NAME=$(echo $all_line | awk '{print $4}' | cut -d'"' -f2)
 					LANG_URL=$(echo $all_line | awk '{print $6}' | cut -d'"' -f2)
 					LANG_TARGET=""$LANG_NAME"_"$LANG_VERSION""
-					UNTRANSLATEABLE_LIST=$MAIN_DIR/resources/MIUI"$LANG_VERSION"_ignorelist.xml
-					ARRAY_ITEM_LIST=$MAIN_DIR/resources/MIUI"$LANG_VERSION"_arrays_items.xml
+					UNTRANSLATEABLE_LIST=$RES_DIR/MIUI"$LANG_VERSION"_ignorelist.xml
+					ARRAY_ITEM_LIST=$RES_DIR/MIUI"$LANG_VERSION"_arrays_items.xml
                         		init_xml_check
    			     done;;
 			  *) if [ "$3" == "" ]; then
@@ -492,8 +513,8 @@ if [ $# -gt 0 ]; then
 				      	LANG_NAME=$(cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"' | awk '{print $4}' | cut -d'"' -f2)
 					LANG_URL=$(cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"' | awk '{print $6}' | cut -d'"' -f2)
 					LANG_TARGET=""$LANG_NAME"_"$LANG_VERSION""
-					UNTRANSLATEABLE_LIST=$MAIN_DIR/resources/MIUI"$LANG_VERSION"_ignorelist.xml
-					ARRAY_ITEM_LIST=$MAIN_DIR/resources/MIUI"$LANG_VERSION"_arrays_items.xml
+					UNTRANSLATEABLE_LIST=$RES_DIR/MIUI"$LANG_VERSION"_ignorelist.xml
+					ARRAY_ITEM_LIST=$RES_DIR/MIUI"$LANG_VERSION"_arrays_items.xml
                                  	init_xml_check
                              else
 					echo -e "${txtred}\nLanguage not supported or language not specified${txtrst}"; exit
