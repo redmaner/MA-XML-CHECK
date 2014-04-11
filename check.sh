@@ -63,10 +63,7 @@ if [ -d $CACHE ]; then
 else
 	rm -rf $CACHE; mkdir $CACHE
 fi
-APK_TARGETS=$CACHE/apk.targets
-XML_TARGETS=$CACHE/xml.targets
 XML_TARGET_STRIPPED=$CACHE/xml.target.stripped
-DOUBLE_RESULT=$CACHE/xml.double.result
 APOSTROPHE_RESULT=$CACHE/xml.apostrophe.result
 XML_CACHE_LOG=$CACHE/XML_CACHE_LOG
 XML_LOG_TEMP=$CACHE/XML_LOG_TEMP
@@ -257,31 +254,15 @@ init_xml_check () {
 if [ -d $MAIN_DIR/languages/$LANG_TARGET ]; then
 	echo -e "${txtblu}\nChecking $LANG_NAME MIUI$LANG_VERSION ($LANG_ISO)${txtrst}"
    	rm -f $APK_TARGETS
-	find $MAIN_DIR/languages/$LANG_TARGET -iname "*.apk" | sort >> $APK_TARGETS
 	debug_mode
-	find_xml_targets
+	find $MAIN_DIR/languages/$LANG_TARGET -iname "*.apk" | sort | while read apk_target; do
+		APK=$(basename $apk_target)
+		find $apk_target -iname "arrays.xml*" -o -iname "strings.xml*" -o -iname "plurals.xml*" | while read xml_target; do
+			xml_check "$xml_target"
+		done
+	done
 	check_log
 fi
-}
-
-find_xml_targets () {
-cat $APK_TARGETS | while read all_line; do
-	APK=$(basename $all_line)
-   	rm -f $XML_TARGETS
-   	find $all_line -iname "arrays.xml" >> $XML_TARGETS
-   	find $all_line -iname "arrays.xml.part"  >> $XML_TARGETS
-   	find $all_line -iname "strings.xml" >> $XML_TARGETS
-   	find $all_line -iname "strings.xml.part" >> $XML_TARGETS
-   	find $all_line -iname "plurals.xml" >> $XML_TARGETS
-   	find $all_line -iname "plurals.xml.part" >> $XML_TARGETS
-   	start_xml_check
-done
-}
-
-start_xml_check () {
-cat $XML_TARGETS | while read all_line; do
-    	xml_check "$all_line"
-done; clean_cache
 }
 
 #########################################################################################################
@@ -309,28 +290,28 @@ if [ -e "$XML_TARGET" ]; then
 	write_log
 
      	# Check for doubles
-     	if [ "$XML_TYPE" == "strings.xml" ]; then
-          	cat $XML_TARGET | while read all_line; do grep "<string" | cut -d'>' -f1 | cut -d'<' -f2; done > $XML_TARGET_STRIPPED
-          	sort $XML_TARGET_STRIPPED | uniq --repeated > $DOUBLE_RESULT
-          	cat $DOUBLE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_CACHE_LOG
+     	if [ "$XML_TYPE" == "strings.xml" ]; then	
+		cat $XML_TARGET | grep '<string name=' | cut -d'>' -f1 | cut -d'<' -f2 | sort | uniq --repeated | while read double; do
+			grep -ne "$double" $XML_TARGET >> $XML_CACHE_LOG
+		done
 		write_log_error "orange"
-     	fi
-
+	fi
+	
      	# Check for apostrophe errors
         grep "<string" $XML_TARGET > $XML_TARGET_STRIPPED
         grep -v '>"' $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT
         if [ -e $APOSTROPHE_RESULT ]; then
         	grep "'" $APOSTROPHE_RESULT > $XML_TARGET_STRIPPED
-               	grep -v "'\''" $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT
-               	if [ -e $APOSTROPHE_RESULT ]; then
+              	grep -v "'\''" $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT
+              	if [ -e $APOSTROPHE_RESULT ]; then
                    	cat $APOSTROPHE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_CACHE_LOG
-               	fi
+              	fi
         fi
 	write_log_error "brown"
 
 	# Check for untranslateable strings, arrays, plurals using untranslateable list
-	if [ $(cat $UNTRANSLATEABLE_LIST | grep 'application="'$APK'"' | grep 'file="'$XML_TYPE'"' | wc -l) -gt 0 ]; then
-		cat $UNTRANSLATEABLE_LIST | grep 'application="'$APK'"' | grep 'file="'$XML_TYPE'"' | while read all_line; do
+	if [ $(cat $UNTRANSLATEABLE_LIST | grep 'application="'$APK'" file="'$XML_TYPE'"' | wc -l) -gt 0 ]; then
+		cat $UNTRANSLATEABLE_LIST | grep 'application="'$APK'" file="'$XML_TYPE'"' | while read all_line; do
 			UNTRANSLATEABLE_STRING=$(echo $all_line | awk '{print $4}' | cut -d'/' -f1)
 			grep -ne ''$UNTRANSLATEABLE_STRING'' $XML_TARGET
 		done >> $XML_CACHE_LOG
@@ -338,11 +319,11 @@ if [ -e "$XML_TARGET" ]; then
 
 	# Check for untranslateable strings and arrays due automatically search for @
 	case "$XML_TYPE" in 
-		strings.xml) grep -ne '@android\|@string\|@color\|@drawable' $XML_TARGET >> $XML_CACHE_LOG;;
+		strings.xml) egrep -n "@android||@string|@color|@drawable" $XML_TARGET >> $XML_CACHE_LOG;;
 		 arrays.xml) cat $XML_TARGET | grep 'name="' | while read arrays; do
 					ARRAY_TYPE=$(echo $arrays | cut -d' ' -f1 | cut -d'<' -f2)
 					ARRAY_NAME=$(echo $arrays | cut -d'>' -f1 | cut -d'"' -f2)
-					if [ $(arrays_parse $ARRAY_NAME $ARRAY_TYPE $XML_TARGET | grep '@android\|@string\|@color\|@drawable' | wc -l) -gt 0 ]; then
+					if [ $(arrays_parse $ARRAY_NAME $ARRAY_TYPE $XML_TARGET | egrep "@android|@string|@color|@drawable" | wc -l) -gt 0 ]; then
 						grep -ne ''$ARRAY_NAME'' $XML_TARGET >> $XML_CACHE_LOG
 					fi
 			      done;;
