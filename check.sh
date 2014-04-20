@@ -47,6 +47,7 @@ fi
 VERSION=4.0
 RESOURCES_GIT="git@github.com:Redmaner/MA-XML-CHECK-RESOURCES.git"
 RESOURCES_BRANCH="4.0-dev"
+RESOURCES_SYNC_COUNT=$RES_DIR/sync_count
 LANG_XML=$RES_DIR/languages.xml
 ARRAY_TOOLS=$RES_DIR/array_tools.sh
 
@@ -340,14 +341,14 @@ fi
 
 # Check for untranslateable strings and arrays due automatically search for @
 case "$XML_TYPE" in 
-	strings.xml) egrep -n "@android||@string|@color|@drawable" $XML_TARGET >> $XML_CACHE_LOG;;
+	strings.xml) grep -ne '@android\|@string\|@color\|@drawable' $XML_TARGET >> $XML_CACHE_LOG;;
 	 arrays.xml) cat $XML_TARGET | grep 'name="' | while read arrays; do
 				ARRAY_TYPE=$(echo $arrays | cut -d' ' -f1 | cut -d'<' -f2)
 				ARRAY_NAME=$(echo $arrays | cut -d'>' -f1 | cut -d'"' -f2)
-				if [ $(arrays_parse $ARRAY_NAME $ARRAY_TYPE $XML_TARGET | egrep "@android|@string|@color|@drawable" | wc -l) -gt 0 ]; then
-					grep -ne ''$ARRAY_NAME'' $XML_TARGET >> $XML_CACHE_LOG
+				if [ $(arrays_parse $ARRAY_NAME $ARRAY_TYPE $XML_TARGET | grep '@android\|@string\|@color\|@drawable' | wc -l) -gt 0 ]; then
+					grep -ne ''$ARRAY_NAME'' $XML_TARGET 
 				fi
-		      done;;
+		      done >> $XML_CACHE_LOG;;
 esac
 write_log_error "purple"
 
@@ -451,6 +452,16 @@ if [ "$RESOURCES_GIT" != "" ]; then
 	fi
 fi
 source $ARRAY_TOOLS
+if [ -e $RESOURCES_SYNC_COUNT ]; then
+	RES_SYNCS=$(expr $(cat $RESOURCES_SYNC_COUNT) + 1)
+	if [ "$RES_SYNCS" == "16" ]; then
+		bash $RES_DIR/sync_resources.sh "$RESOURCES_BRANCH"
+		RES_SYNCS=1
+	fi
+	echo "$RES_SYNCS" > $RESOURCES_SYNC_COUNT
+else
+	echo "1" > $RESOURCES_SYNC_COUNT
+fi
 }
 
 # Fix old languages format (trigger with --fix_languages)
@@ -523,7 +534,7 @@ if [ $# -gt 0 ]; then
 				    	echo -e "${txtred}\nError: Specifiy MIUI version${txtrst}"; exit
 			     fi
 			     if [ "`cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"'| wc -l`" -gt 0 ]; then
-					LANG_CHECK=$(echo $all_line | awk '{print $2}' | cut -d'"' -f2)
+					LANG_CHECK=$(cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"' | awk '{print $2}' | cut -d'"' -f2)
 					LANG_VERSION=$(cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"' | awk '{print $3}' | cut -d'"' -f2)
 					LANG_ISO=$(cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"' | awk '{print $5}' | cut -d'"' -f2)
 				      	LANG_NAME=$(cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"' | awk '{print $4}' | cut -d'"' -f2)
