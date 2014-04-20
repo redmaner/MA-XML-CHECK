@@ -46,7 +46,7 @@ fi
 #########################################################################################################
 VERSION=4.0
 RESOURCES_GIT="git@github.com:Redmaner/MA-XML-CHECK-RESOURCES.git"
-RESOURCES_BRANCH="master"
+RESOURCES_BRANCH="4.0-dev"
 LANG_XML=$RES_DIR/languages.xml
 ARRAY_TOOLS=$RES_DIR/array_tools.sh
 
@@ -270,9 +270,6 @@ if [ -d $MAIN_DIR/languages/$LANG_TARGET ]; then
 fi
 }
 
-#########################################################################################################
-# XML CHECK
-#########################################################################################################
 xml_check () {
 XML_TARGET=$1
 
@@ -280,6 +277,7 @@ rm -f $XML_CACHE_LOG
 rm -f $XML_LOG_TEMP
 if [ -e "$XML_TARGET" ]; then
 	XML_TYPE=$(basename $XML_TARGET)
+	DIR=$(basename $(dirname $(echo $XML_TARGET | cut -d'.' -f1)))
 
 	# Fix .part files for XML_TYPE
 	if [ $(echo $XML_TYPE | grep ".part" | wc -l) -gt 0 ]; then
@@ -290,76 +288,92 @@ if [ -e "$XML_TARGET" ]; then
 		esac
 	fi
 
-     	# Check for XML Parser errors
-	xmllint --noout $XML_TARGET 2>> $XML_CACHE_LOG
-	write_log
-
-     	# Check for doubles
-     	if [ "$XML_TYPE" == "strings.xml" ]; then	
-		cat $XML_TARGET | grep '<string name=' | cut -d'>' -f1 | cut -d'<' -f2 | sort | uniq --repeated | while read double; do
-			grep -ne "$double" $XML_TARGET >> $XML_CACHE_LOG
-		done
-		write_log_error "orange"
-	fi
-	
-     	# Check for apostrophe errors
-        grep "<string" $XML_TARGET > $XML_TARGET_STRIPPED
-        grep -v '>"' $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT
-        if [ -e $APOSTROPHE_RESULT ]; then
-        	grep "'" $APOSTROPHE_RESULT > $XML_TARGET_STRIPPED
-              	grep -v "'\''" $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT
-              	if [ -e $APOSTROPHE_RESULT ]; then
-                   	cat $APOSTROPHE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_CACHE_LOG
-              	fi
-        fi
-	write_log_error "brown"
-
-	# Check for untranslateable strings, arrays, plurals using untranslateable list
-	if [ $(cat $UNTRANSLATEABLE_LIST | grep 'application="'$APK'" file="'$XML_TYPE'"' | wc -l) -gt 0 ]; then
-		cat $UNTRANSLATEABLE_LIST | grep 'application="'$APK'" file="'$XML_TYPE'"' | while read all_line; do
-			UNTRANSLATEABLE_STRING=$(echo $all_line | awk '{print $4}' | cut -d'/' -f1)
-			grep -ne ''$UNTRANSLATEABLE_STRING'' $XML_TARGET
-		done >> $XML_CACHE_LOG
-	fi
-
-	# Check for untranslateable strings and arrays due automatically search for @
-	case "$XML_TYPE" in 
-		strings.xml) egrep -n "@android||@string|@color|@drawable" $XML_TARGET >> $XML_CACHE_LOG;;
-		 arrays.xml) cat $XML_TARGET | grep 'name="' | while read arrays; do
-					ARRAY_TYPE=$(echo $arrays | cut -d' ' -f1 | cut -d'<' -f2)
-					ARRAY_NAME=$(echo $arrays | cut -d'>' -f1 | cut -d'"' -f2)
-					if [ $(arrays_parse $ARRAY_NAME $ARRAY_TYPE $XML_TARGET | egrep "@android|@string|@color|@drawable" | wc -l) -gt 0 ]; then
-						grep -ne ''$ARRAY_NAME'' $XML_TARGET >> $XML_CACHE_LOG
-					fi
-			      done;;
+	case "$LANG_CHECK" in
+		normal) xml_check_normal;;
+		  full) xml_check_normal; xml_check_full;;
 	esac
-	write_log_error "purple"
-
-	# Count array items
-	if [ "$XML_TYPE" == "arrays.xml" ]; then
-		cat $XML_TARGET | grep 'name=' | while read array_count; do
-			ARRAY_NAME=$(echo $array_count | cut -d'>' -f1 | cut -d'"' -f2)
-			if [ $(cat $ARRAY_ITEM_LIST | grep 'application="'$APK'" name="'$ARRAY_NAME'"' | wc -l) -gt 0 ]; then
-				ARRAY_TYPE=$(echo $array_count | cut -d' ' -f1 | cut -d'<' -f2)
-				DIFF_ARRAY_COUNT=$(cat $ARRAY_ITEM_LIST | grep 'application="'$APK'" name="'$ARRAY_NAME'"' | awk '{print $4}' | cut -d'"' -f2 | cut -d'>' -f1)
-				TARGET_ARRAY_COUNT=$(arrays_count_items $ARRAY_NAME $ARRAY_TYPE $XML_TARGET)
-				if [ "$TARGET_ARRAY_COUNT" != "$DIFF_ARRAY_COUNT" ]; then
-					ARRAY=$(grep -ne ''$ARRAY_NAME'' $XML_TARGET)
-					echo "$ARRAY - has $TARGET_ARRAY_COUNT items, should be $DIFF_ARRAY_COUNT items" >> $XML_CACHE_LOG
-				fi
-			fi
-		done
-	fi				
-	write_log_error "teal"
-
-     	# Check for '+' at the beginning of a line, outside <string>
-     	grep -ne "+ * <s" $XML_TARGET >> $XML_CACHE_LOG
-	write_log_error "blue"
-	write_log_finish
-		
 fi
 }
 
+
+#########################################################################################################
+# XML CHECK
+#########################################################################################################
+xml_check_normal () {
+# Check for XML Parser errors
+xmllint --noout $XML_TARGET 2>> $XML_CACHE_LOG
+write_log
+
+# Check for doubles
+if [ "$XML_TYPE" == "strings.xml" ]; then	
+	cat $XML_TARGET | grep '<string name=' | cut -d'>' -f1 | cut -d'<' -f2 | sort | uniq --repeated | while read double; do
+		grep -ne "$double" $XML_TARGET >> $XML_CACHE_LOG
+	done
+	write_log_error "orange"
+fi
+	
+# Check for apostrophe errors
+grep "<string" $XML_TARGET > $XML_TARGET_STRIPPED
+grep -v '>"' $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT
+if [ -e $APOSTROPHE_RESULT ]; then
+      	grep "'" $APOSTROPHE_RESULT > $XML_TARGET_STRIPPED
+      	grep -v "'\''" $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT
+       	if [ -e $APOSTROPHE_RESULT ]; then
+              	cat $APOSTROPHE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_CACHE_LOG
+       	fi
+fi
+write_log_error "brown"
+
+# Check for '+' at the beginning of a line, outside <string>
+grep -ne "+ * <s" $XML_TARGET >> $XML_CACHE_LOG
+write_log_error "blue"
+}
+
+xml_check_full () {
+# Check for untranslateable strings, arrays, plurals using untranslateable list
+if [ $(cat $UNTRANSLATEABLE_LIST | grep 'application="'$APK'" file="'$XML_TYPE'"' | wc -l) -gt 0 ]; then
+	cat $UNTRANSLATEABLE_LIST | grep 'application="'$APK'" file="'$XML_TYPE'"' | while read all_line; do
+		UNTRANSLATEABLE_STRING=$(echo $all_line | awk '{print $4}' | cut -d'/' -f1)
+		grep -ne ''$UNTRANSLATEABLE_STRING'' $XML_TARGET
+	done >> $XML_CACHE_LOG
+fi
+
+# Check for untranslateable strings and arrays due automatically search for @
+case "$XML_TYPE" in 
+	strings.xml) egrep -n "@android||@string|@color|@drawable" $XML_TARGET >> $XML_CACHE_LOG;;
+	 arrays.xml) cat $XML_TARGET | grep 'name="' | while read arrays; do
+				ARRAY_TYPE=$(echo $arrays | cut -d' ' -f1 | cut -d'<' -f2)
+				ARRAY_NAME=$(echo $arrays | cut -d'>' -f1 | cut -d'"' -f2)
+				if [ $(arrays_parse $ARRAY_NAME $ARRAY_TYPE $XML_TARGET | egrep "@android|@string|@color|@drawable" | wc -l) -gt 0 ]; then
+					grep -ne ''$ARRAY_NAME'' $XML_TARGET >> $XML_CACHE_LOG
+				fi
+		      done;;
+esac
+write_log_error "purple"
+
+# Count array items
+if [ "$XML_TYPE" == "arrays.xml" ]; then
+	cat $XML_TARGET | grep 'name=' | while read array_count; do
+		ARRAY_NAME=$(echo $array_count | cut -d'>' -f1 | cut -d'"' -f2)
+		if [ $(cat $ARRAY_ITEM_LIST | grep 'application="'$APK'" name="'$ARRAY_NAME'"' | wc -l) -gt 0 ]; then
+			ARRAY_TYPE=$(echo $array_count | cut -d' ' -f1 | cut -d'<' -f2)
+			DIFF_ARRAY_COUNT=$(cat $ARRAY_ITEM_LIST | grep 'application="'$APK'" name="'$ARRAY_NAME'"' | awk '{print $4}' | cut -d'"' -f2 | cut -d'>' -f1)
+			TARGET_ARRAY_COUNT=$(arrays_count_items $ARRAY_NAME $ARRAY_TYPE $XML_TARGET)
+			if [ "$TARGET_ARRAY_COUNT" != "$DIFF_ARRAY_COUNT" ]; then
+				ARRAY=$(grep -ne ''$ARRAY_NAME'' $XML_TARGET)
+				echo "$ARRAY - has $TARGET_ARRAY_COUNT items, should be $DIFF_ARRAY_COUNT items" >> $XML_CACHE_LOG
+			fi
+		fi
+	done
+fi				
+write_log_error "teal"
+write_log_finish
+}
+
+
+#########################################################################################################
+# XML CHECK LOGGING
+#########################################################################################################
 write_log_error () {
 if [ -s $XML_CACHE_LOG ]; then
 	echo '</script><span class="'$1'"><script class="error" type="text/plain">' >> $XML_LOG_TEMP
@@ -492,9 +506,10 @@ if [ $# -gt 0 ]; then
                              elif [ "$3" == "double" ]; then
                                	 DEBUG_MODE=double
                              fi; 
-			     LINE_NR=$(cat $LANG_XML | grep '<language enabled="yes"' | wc -l)
-			     LAST_URL=$(cat $LANG_XML | grep '<language enabled="yes"' | sed -n "$LINE_NR"p | awk '{print $6}' | cut -d'"' -f2)
-			     cat $LANG_XML | grep '<language enabled="yes"' | while read all_line; do
+			     LINE_NR=$(cat $LANG_XML | grep 'language check=' | grep -v '<language check="false"' | wc -l)
+			     LAST_URL=$(cat $LANG_XML | grep 'language check=' | grep -v '<language check="false"' | sed -n "$LINE_NR"p | awk '{print $6}' | cut -d'"' -f2)
+			     cat $LANG_XML | grep '<language check=' | grep -v '<language check="false"' | while read all_line; do
+					LANG_CHECK=$(echo $all_line | awk '{print $2}' | cut -d'"' -f2)
 					LANG_VERSION=$(echo $all_line | awk '{print $3}' | cut -d'"' -f2)
 					LANG_ISO=$(echo $all_line | awk '{print $5}' | cut -d'"' -f2)
 				      	LANG_NAME=$(echo $all_line | awk '{print $4}' | cut -d'"' -f2)
@@ -508,6 +523,7 @@ if [ $# -gt 0 ]; then
 				    	echo -e "${txtred}\nError: Specifiy MIUI version${txtrst}"; exit
 			     fi
 			     if [ "`cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"'| wc -l`" -gt 0 ]; then
+					LANG_CHECK=$(echo $all_line | awk '{print $2}' | cut -d'"' -f2)
 					LANG_VERSION=$(cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"' | awk '{print $3}' | cut -d'"' -f2)
 					LANG_ISO=$(cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"' | awk '{print $5}' | cut -d'"' -f2)
 				      	LANG_NAME=$(cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"' | awk '{print $4}' | cut -d'"' -f2)
@@ -524,7 +540,7 @@ if [ $# -gt 0 ]; then
      	elif [ $1 == "--pull" ]; then
 		sync_resources
             	case "$2" in
-			all) cat $LANG_XML | grep '<language enabled="yes"' | while read all_line; do
+			all) cat $LANG_XML | grep 'language check=' | grep -v '<language check="false"' | while read all_line; do
 					if [ "$3" != "" ]; then
    						if [ $3 == "force" ]; then
 							PULL_FLAG="force"
@@ -565,15 +581,12 @@ if [ $# -gt 0 ]; then
 			    cache) ls -a | grep ".cache" | while read found_cache; do
 					rm -rf $found_cache
 				   done;;
-                              all) sync_resources
-				   cat $LANG_XML | grep '<language enabled=' | while read all_line; do
-					LANG_VERSION=$(echo $all_line | awk '{print $3}' | cut -d'"' -f2)
-					LANG_NAME=$(echo $all_line | awk '{print $4}' | cut -d'"' -f2)
-					LANG_TARGET=""$LANG_NAME"_"$LANG_VERSION""
-                        		rm -rf $MAIN_DIR/languages/$LANG_TARGET 
-   			           done;;
+                              all) rm -rf $MAIN_DIR/languages; mkdir -p $MAIN_DIR/languages;;
 				*) sync_resources
-				   if [ "`cat $LANG_XML | grep 'name="'$2'"' | wc -l`" -gt 0 ]; then
+				   if [ "$3" == "" ]; then
+				    	echo -e "${txtred}\nError: Specifiy MIUI version${txtrst}"; exit
+				   fi
+				   if [ "`cat $LANG_XML | grep 'name="'$2'"' | 'miui="'$3'"' | wc -l`" -gt 0 ]; then
 						LANG_VERSION=$(echo $all_line | awk '{print $3}' | cut -d'"' -f2)
 						LANG_NAME=$(echo $all_line | awk '{print $4}' | cut -d'"' -f2)
 						LANG_TARGET=""$LANG_NAME"_"$LANG_VERSION""
@@ -587,9 +600,10 @@ if [ $# -gt 0 ]; then
 		build_cache
 		sync_resources
             	DEBUG_MODE=double
-		LINE_NR=$(cat $LANG_XML | grep '<language enabled="yes"' | wc -l)
-		LAST_URL=$(cat $LANG_XML | grep '<language enabled="yes"' | sed -n "$LINE_NR"p | awk '{print $6}' | cut -d'"' -f2)
-		cat $LANG_XML | grep '<language enabled="yes"' | while read all_line; do
+		LINE_NR=$(cat $LANG_XML | grep '<language check=' | grep -v '<language check="false"' | wc -l)
+		LAST_URL=$(cat $LANG_XML | grep '<language check=' | grep -v '<language check="false"' | sed -n "$LINE_NR"p | awk '{print $6}' | cut -d'"' -f2)
+		cat $LANG_XML | grep '<language check=' | grep -v '<language check="false"' | while read all_line; do
+			LANG_CHECK=$(echo $all_line | awk '{print $2}' | cut -d'"' -f2)
 			LANG_VERSION=$(echo $all_line | awk '{print $3}' | cut -d'"' -f2)
 			LANG_ISO=$(echo $all_line | awk '{print $5}' | cut -d'"' -f2)
 			LANG_NAME=$(echo $all_line | awk '{print $4}' | cut -d'"' -f2)
