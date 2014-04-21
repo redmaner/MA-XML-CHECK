@@ -53,7 +53,6 @@ ARRAY_TOOLS=$TOOL_DIR/array_tools.sh
 CACHE_TOOLS=$TOOL_DIR/cache_tools.sh
 CHECK_TOOLS=$TOOL_DIR/check_tools.sh
 LANG_TOOLS=$TOOL_DIR/lang_tools.sh
-LOG_TOOLS=$TOOL_DIR/log_tools.sh
 RES_TOOLS=$TOOL_DIR/resource_tools.sh
 
 #########################################################################################################
@@ -87,7 +86,7 @@ if [ $# -gt 0 ]; then
      	if [ $1 == "--help" ]; then
           	show_argument_help
      	elif [ $1 == "--check" ]; then
-		source $ARRAY_TOOLS; source $CACHE_TOOLS; source $CHECK_TOOLS; source $LOG_TOOLS;  source $RES_TOOLS
+		source $ARRAY_TOOLS; source $CACHE_TOOLS; source $CHECK_TOOLS; source $RES_TOOLS
 		build_cache
 		sync_resources
             	DEBUG_MODE=lang
