@@ -46,6 +46,7 @@ fi
 # VARIABLES / CACHE
 #########################################################################################################
 VERSION=4.0
+LANG_XML=$RES_DIR/languages.xml
 
 # Tools
 ARRAY_TOOLS=$TOOL_DIR/array_tools.sh

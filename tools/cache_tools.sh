@@ -20,10 +20,6 @@ if [ -d $CACHE ]; then
 else
 	rm -rf $CACHE; mkdir $CACHE
 fi
-XML_TARGET_STRIPPED=$CACHE/xml.target.stripped
-APOSTROPHE_RESULT=$CACHE/xml.apostrophe.result
-XML_CACHE_LOG=$CACHE/XML_CACHE_LOG
-XML_LOG_TEMP=$CACHE/XML_LOG_TEMP
 }
 
 clear_cache () {

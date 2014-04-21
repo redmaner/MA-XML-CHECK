@@ -3,6 +3,12 @@
 # This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International license
 # The license can be found at http://creativecommons.org/licenses/by-nc-sa/4.0/
 
+# Variables
+XML_TARGET_STRIPPED=$CACHE/xml.target.stripped
+APOSTROPHE_RESULT=$CACHE/xml.apostrophe.result
+XML_CACHE_LOG=$CACHE/XML_CACHE_LOG
+XML_LOG_TEMP=$CACHE/XML_LOG_TEMP
+
 #########################################################################################################
 # START XML CHECK
 #########################################################################################################
