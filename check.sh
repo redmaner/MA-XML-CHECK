@@ -42,429 +42,18 @@ if [ ! -e $LOGDIR ]; then
 	mkdir -p $LOGDIR
 fi
 
-
 #########################################################################################################
 # VARIABLES / CACHE
 #########################################################################################################
 VERSION=4.0
 
 # Tools
-LANG_XML=$RES_DIR/languages.xml
 ARRAY_TOOLS=$TOOL_DIR/array_tools.sh
-FIX_LANG=$TOOL_DIR/fix_lang_folder.sh
-SYNC_RES=$TOOL_DIR/sync_resources.sh
-
-build_cache () {
-DATE=$(date +"%m-%d-%Y-%H-%M-%S")
-CACHE="$MAIN_DIR/.cache-$DATE"
-if [ -d $CACHE ]; then
-	case "$SERVER" in
-		yes) rm -rf $CACHE; mkdir $CACHE;;
-		 no) echo -e "${txtred}ERROR:${TXTRST} $CACHE already exsists\nDo you want to remove the cache? This can interrupt a current check!"
-	    	     echo -en "(y,n): "; read cache_remove_awnser
-		     if [ $cache_remove_awnser == "y" ]; then
-				rm -rf $CACHE; mkdir $CACHE
-		     else
-				exit
-		     fi;;
-	esac
-else
-	rm -rf $CACHE; mkdir $CACHE
-fi
-XML_TARGET_STRIPPED=$CACHE/xml.target.stripped
-APOSTROPHE_RESULT=$CACHE/xml.apostrophe.result
-XML_CACHE_LOG=$CACHE/XML_CACHE_LOG
-XML_LOG_TEMP=$CACHE/XML_LOG_TEMP
-}
-
-clear_cache () {
-rm -rf $CACHE
-}
-
-clean_cache () {
-rm -f $XML_TARGETS_STRIPPED
-rm -f $DOUBLE_RESULT
-rm -f $OPOSTROPHE_RESULT
-rm -f $XML_CACHE_LOG
-}
-
-#########################################################################################################
-# INITIAL LOGGING
-#########################################################################################################
-
-# Define logs
-debug_mode () {
-case "$DEBUG_MODE" in
-   full) XML_LOG=$CACHE/XML_LOG_FULL;;
- double) XML_LOG_FULL=$CACHE/XML_CHECK_FULL
-       	 LOG_TARGET=$XML_LOG_FULL; update_log
-       	 XML_LOG=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO;;
-      *) XML_LOG=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO;;
-esac
-LOG_TARGET=$XML_LOG; update_log
-}
-
-# Update log if log exsists (full/double debug mode) else create log
-update_log () {
-DATE=$(date +"%m-%d-%Y %H:%M:%S")
-if [ -e $LOG_TARGET ]; then
-     	LINE_NR=$(wc -l $LOG_TARGET | cut -d' ' -f1)
-     	if [ "$(sed -n "$LINE_NR"p $LOG_TARGET)" == '<!-- Start of log --><script type="text/plain">' ]; then 
-           	echo '</script></span><span class="green">No errors found in this repository!</span>' >> $LOG_TARGET
-           	echo '</script><span class="header"><br><br>Checked <a href="'$LANG_URL'" title="'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO')" target="_blank">'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO') repository</a> on '$DATE'</span>' >> $LOG_TARGET
-           	echo '<!-- Start of log --><script type="text/plain">' >> $LOG_TARGET
-     	else
-           	echo '</script></span><span class="header"><br><br>Checked <a href="'$LANG_URL'" title="'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO')" target="_blank">'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO') repository</a> on '$DATE'</span>' >> $LOG_TARGET
-           	echo '<!-- Start of log --><script type="text/plain">' >> $LOG_TARGET
-     	fi
-else
-	create_log
-fi
-}
-
-create_log () {
-cat >> $LOG_TARGET << EOF
-<!DOCTYPE html>
-<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-<html>
-<head>
-<style>
-body {
-	margin: 0px 35px;
-}
-script {
-  	display: block;
-  	padding: auto;
-}
-.header {
-  	font-weight: bold;
-  	color: #000000;
-}
-.black {
-  	color: #000000;
-}
-.green {
-  	color: #006633;
-}
-.red {
-  	color: #ff0000;
-}
-.blue {
-  	color: #0000ff;
-}
-.orange {
-  	color: #CC6633;
-}
-.brown {
-  	color: #660000;
-}
-.purple {
-	color: #6633FF;
-}
-.teal { 
-	color: #008080;
-}
-table {
-        background-color: #ffffff;
-        border-collapse: collapse;
-        border-top: 0px solid #ffffff;
-        border-bottom: 0px solid #ffffff;
-        border-left: 0px solid #ffffff;
-        border-right: 0px solid #ffffff;
-        text-align: left;
-        }
-
-a, a:active, a:visited {
-        color: #000000;
-        text-decoration: none;
-        }
-
-a:hover {
-        color: #ec6e00;
-        text-decoration: underline;
-        }
-
-.error {
-  	white-space: pre;
-  	margin-top: -10px;
-}
-</style></head>
-<body>
-<a href="http://xiaomi.eu" title="xiaomi.eu Forums - Unofficial International MIUI / Xiaomi Phone Support"><img src="http://xiaomi.eu/community/styles/xiaomi/xenforo/xiaomi-europe-logo.png"></a>
-<br><br>
-<table border="0" cellpadding="0" cellspacing="0">
-	<tr>
-		<td height="auto" width="120px"><span class="green">Green text</span></td>
-		<td height="auto" width="auto"><span class="black">No errors found</span><td>
-	</tr>
-	<tr>
-		<td height="auto" width="120px"><span class="red">Red text</span></td>
-		<td height="auto" width="auto"><span class="black">Parser error</span><td>
-	</tr>
-	<tr>
-		<td height="auto" width="120px"><span class="orange">Orange text</span></td>
-		<td height="auto" width="auto"><span class="black">Double strings</span><td>
-	</tr>
-	<tr>
-		<td height="auto" width="120px"><span class="brown">Brown text</span></td>
-		<td height="auto" width="auto"><span class="black">Apostrophe syntax error</span><td>
-	</tr>
-	<tr>
-		<td height="auto" width="120px"><span class="purple">Purple text</span></td>
-		<td height="auto" width="auto"><span class="black">Untranslateable string, array or plural - Has to be removed from xml!</span><td>
-	</tr>
-	<tr>
-		<td height="auto" width="120px"><span class="teal">Teal text</span></td>
-		<td height="auto" width="auto"><span class="black">Incorrect amount of items in array</span><td>
-	</tr>
-	<tr>
-		<td height="auto" width="120px"><span class="blue">Blue text</span></td>
-		<td height="auto" width="auto"><span class="black">'+' outside of tags</span><td>
-	</tr>
-</table>
-<span class="header"><br>Checked <a href="$LANG_URL" title="$LANG_NAME MIUI$LANG_VERSION ($LANG_ISO)" target="_blank">$LANG_NAME MIUI$LANG_VERSION ($LANG_ISO) repository</a> on $DATE<br></span>
-<!-- Start of log --><script type="text/plain">
-EOF
-}
-
-check_log () {
-LINE_NR=$(wc -l $XML_LOG | cut -d' ' -f1)
-if [ "$(sed -n "$LINE_NR"p $XML_LOG)" == '<!-- Start of log --><script type="text/plain">' ]; then 
-     	echo '</script><span class="green">No errors found in this repository!</span>' >> $XML_LOG
-fi
-case "$DEBUG_MODE" in
-    full) if [ "$LANG_URL" == "$LAST_URL" ]; then
-          	rm -f $LOG_DIR/XML_CHECK_FULL.html
-          	cp $XML_LOG $LOG_DIR/XML_CHECK_FULL.html
-          	echo -e "${txtgrn}All languages checked, log at logs/XML_CHECK_FULL.html${txtrst}"
-     	  fi;;
-  double) rm -f $LOG_DIR/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
-     	  cp $XML_LOG $LOG_DIR/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
-    	  echo -e "${txtgrn}$LANG_NAME ($LANG_ISO) checked, log at logs/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html${txtrst}"
-     	  if [ "$LANG_URL" == "$LAST_URL" ]; then
-          	LINE_NR=$(wc -l $XML_LOG_FULL | cut -d' ' -f1)
-          	if [ "$(sed -n "$LINE_NR"p $XML_LOG_FULL)" == '<!-- Start of log --><script type="text/plain">' ]; then
-               		echo '</script><span class="green">No errors found in this repository!</span>' >> $XML_LOG_FULL
-          	fi
-          	cp $XML_LOG_FULL $LOG_DIR/XML_CHECK_FULL.html
-          	echo -e "${txtgrn}All languages checked, log at logs/XML_CHECK_FULL.html${txtrst}"
-     	  fi;;
-       *) rm -f $LOG_DIR/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
-     	  cp $XML_LOG $LOG_DIR/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
-     	  echo -e "${txtgrn}$LANG_NAME ($LANG_ISO) checked, log at logs/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html${txtrst}";;
-esac
-chmod 777 $LOG_DIR/XML_*.html
-}
-
-#########################################################################################################
-# START XML CHECK
-#########################################################################################################
-init_xml_check () {
-if [ -d $MAIN_DIR/languages/$LANG_TARGET ]; then
-	echo -e "${txtblu}\nChecking $LANG_NAME MIUI$LANG_VERSION ($LANG_ISO)${txtrst}"
-   	rm -f $APK_TARGETS
-	debug_mode
-	find $MAIN_DIR/languages/$LANG_TARGET -iname "*.apk" | sort | while read apk_target; do
-		APK=$(basename $apk_target)
-		DIR=$(basename $(dirname $apk_target))
-		find $apk_target -iname "arrays.xml*" -o -iname "strings.xml*" -o -iname "plurals.xml*" | while read xml_target; do
-			xml_check "$xml_target"
-		done
-	done
-	check_log
-fi
-}
-
-xml_check () {
-XML_TARGET=$1
-
-rm -f $XML_CACHE_LOG
-rm -f $XML_LOG_TEMP
-if [ -e "$XML_TARGET" ]; then
-	XML_TYPE=$(basename $XML_TARGET)
-
-	# Fix .part files for XML_TYPE
-	if [ $(echo $XML_TYPE | grep ".part" | wc -l) -gt 0 ]; then
-		case "$XML_TYPE" in
-		     	strings.xml.part) XML_TYPE="strings.xml";;
-			 arrays.xml.part) XML_TYPE="arrays.xml";;
-			plurals.xml.part) XML_TYPE="plurals.xml";;
-		esac
-	fi
-
-	case "$LANG_CHECK" in
-		normal) xml_check_normal;;
-		  full) xml_check_normal; xml_check_full;;
-	esac
-fi
-}
-
-#########################################################################################################
-# XML CHECK
-#########################################################################################################
-xml_check_normal () {
-# Check for XML Parser errors
-xmllint --noout $XML_TARGET 2>> $XML_CACHE_LOG
-write_log
-
-# Check for doubles
-if [ "$XML_TYPE" == "strings.xml" ]; then	
-	cat $XML_TARGET | grep '<string name=' | cut -d'>' -f1 | cut -d'<' -f2 | sort | uniq --repeated | while read double; do
-		grep -ne "$double" $XML_TARGET >> $XML_CACHE_LOG
-	done
-	write_log_error "orange"
-fi
-	
-# Check for apostrophe errors
-grep "<string" $XML_TARGET > $XML_TARGET_STRIPPED
-grep -v '>"' $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT
-if [ -e $APOSTROPHE_RESULT ]; then
-      	grep "'" $APOSTROPHE_RESULT > $XML_TARGET_STRIPPED
-      	grep -v "'\''" $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT
-       	if [ -e $APOSTROPHE_RESULT ]; then
-              	cat $APOSTROPHE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_CACHE_LOG
-       	fi
-fi
-write_log_error "brown"
-
-# Check for '+' at the beginning of a line, outside <string>
-grep -ne "+ * <s" $XML_TARGET >> $XML_CACHE_LOG
-write_log_error "blue"
-}
-
-xml_check_full () {
-# Check for untranslateable strings, arrays, plurals using untranslateable list
-if [ $(cat $UNTRANSLATEABLE_LIST | grep 'application="'$APK'" file="'$XML_TYPE'"' | wc -l) -gt 0 ]; then
-	cat $UNTRANSLATEABLE_LIST | grep 'folder="all" application="'$APK'" file="'$XML_TYPE'"' | while read all_line; do
-		UNTRANSLATEABLE_STRING=$(echo $all_line | awk '{print $5}' | cut -d'/' -f1)
-		grep -ne ''$UNTRANSLATEABLE_STRING'' $XML_TARGET
-	done >> $XML_CACHE_LOG
-	cat $UNTRANSLATEABLE_LIST | grep 'folder="'$DIR'" application="'$APK'" file="'$XML_TYPE'"' | while read all_line; do
-		UNTRANSLATEABLE_STRING=$(echo $all_line | awk '{print $5}' | cut -d'/' -f1)
-		grep -ne ''$UNTRANSLATEABLE_STRING'' $XML_TARGET
-	done >> $XML_CACHE_LOG
-	if [ "$DIR" != "main" ]; then
-		cat $UNTRANSLATEABLE_LIST | grep 'folder="devices" application="'$APK'" file="'$XML_TYPE'"' | while read all_line; do
-			UNTRANSLATEABLE_STRING=$(echo $all_line | awk '{print $5}' | cut -d'/' -f1)
-			grep -ne ''$UNTRANSLATEABLE_STRING'' $XML_TARGET
-		done >> $XML_CACHE_LOG
-	fi
-fi
-
-# Check for untranslateable strings and arrays due automatically search for @
-case "$XML_TYPE" in 
-	strings.xml) cat $XML_TARGET | grep '@android\|@string\|@color\|@drawable' | cut -d'>' -f1 | cut -d'"' -f2 | while read auto_search_target; do
-				if [ $(cat $AUTO_IGNORELIST | grep 'folder="all" application="'$APK'" file="'$XML_TYPE'" name="'$auto_search_target'"/>' | wc -l) == 0 ]; then
-					grep -ne '"'$auto_search_target'"' $XML_TARGET; continue
-				else
-					continue
-				fi
-				if [ $(cat $AUTO_IGNORELIST | grep 'folder="'$DIR'" application="'$APK'" file="'$XML_TYPE'" name="'$auto_search_target'"/>' | wc -l) == 0 ]; then
-					grep -ne '"'$auto_search_target'"' $XML_TARGET; continue
-				else
-					continue
-				fi
-				if [ "$DIR" != "main" ]; then
-					if [ $(cat $AUTO_IGNORELIST | grep 'folder="devices" application="'$APK'" file="'$XML_TYPE'" name="'$auto_search_target'"/>' | wc -l) == 0 ]; then
-						grep -ne '"'$auto_search_target'"' $XML_TARGET
-					fi
-				fi
-		     done >> $XML_CACHE_LOG;;
-	 arrays.xml) cat $XML_TARGET | grep 'name="' | while read arrays; do
-				ARRAY_TYPE=$(echo $arrays | cut -d' ' -f1 | cut -d'<' -f2)
-				ARRAY_NAME=$(echo $arrays | cut -d'>' -f1 | cut -d'"' -f2)
-				if [ $(arrays_parse $ARRAY_NAME $ARRAY_TYPE $XML_TARGET | grep '@android\|@string\|@color\|@drawable' | wc -l) -gt 0 ]; then
-					if [ $(cat $AUTO_IGNORELIST | grep 'folder="all" application="'$APK'" file="'$XML_TYPE'" name="'$ARRAY_NAME'"' | wc -l) -eq 0 ]; then
-						grep -ne '"'$ARRAY_NAME'"' $XML_TARGET; continue
-					else
-						continue
-					fi
-					if [ $(cat $AUTO_IGNORELIST | grep 'folder="'$DIR'" application="'$APK'" file="'$XML_TYPE'" name="'$ARRAY_NAME'"' | wc -l) -eq 0 ]; then
-						grep -ne '"'$ARRAY_NAME'"' $XML_TARGET; continue
-					else
-						continue
-					fi
-					if [ "$DIR" != "main" ]; then
-						if [ $(cat $AUTO_IGNORELIST | grep 'folder="devices" application="'$APK'" file="'$XML_TYPE'" name="'$ARRAY_NAME'"' | wc -l) -eq 0 ]; then
-							grep -ne '"'$ARRAY_NAME'"' $XML_TARGET
-						fi
-					fi
-				fi
-		     done >> $XML_CACHE_LOG;;
-esac
-write_log_error "purple"
-
-# Count array items
-if [ "$XML_TYPE" == "arrays.xml" ] && [ "$DIR" == "main" ]; then
-	cat $XML_TARGET | grep 'name=' | while read array_count; do
-		ARRAY_NAME=$(echo $array_count | cut -d'>' -f1 | cut -d'"' -f2)
-		if [ $(cat $ARRAY_ITEM_LIST | grep ''$APK'|'$ARRAY_NAME'|' | wc -l) -gt 0 ]; then
-			ARRAY_TYPE=$(echo $array_count | cut -d' ' -f1 | cut -d'<' -f2)
-			DIFF_ARRAY_COUNT=$(cat $ARRAY_ITEM_LIST | grep ''$APK'|'$ARRAY_NAME'|' | cut -d'|' -f3)
-			TARGET_ARRAY_COUNT=$(arrays_count_items $ARRAY_NAME $ARRAY_TYPE $XML_TARGET)
-			if [ "$TARGET_ARRAY_COUNT" != "$DIFF_ARRAY_COUNT" ]; then
-				ARRAY=$(grep -ne '"'$ARRAY_NAME'"' $XML_TARGET)
-				echo "$ARRAY - has $TARGET_ARRAY_COUNT items, should be $DIFF_ARRAY_COUNT items"
-			fi
-		fi
-	done >> $XML_CACHE_LOG
-fi				
-write_log_error "teal"
-write_log_finish
-}
-
-#########################################################################################################
-# XML CHECK LOGGING
-#########################################################################################################
-write_log_error () {
-if [ -s $XML_CACHE_LOG ]; then
-	echo '</script><span class="'$1'"><script class="error" type="text/plain">' >> $XML_LOG_TEMP
-	cat $XML_CACHE_LOG >> $XML_LOG_TEMP
-fi
-rm -f $XML_CACHE_LOG
-}
-
-write_log_finish () {
-if [ -s $XML_LOG_TEMP ]; then
-	if [ "$DEBUG_MODE" == "double" ]; then
-		echo '</script><span class="black"><br>'$XML_TARGET'</span><span class="red"><script class="error" type="text/plain">' >> $XML_LOG_FULL
-		cat $XML_LOG_TEMP >> $XML_LOG_FULL
-	fi
-	echo '</script><span class="black"><br>'$XML_TARGET'</span><span class="red"><script class="error" type="text/plain">' >> $XML_LOG
-	cat $XML_LOG_TEMP >> $XML_LOG
-fi
-rm -f $XML_CACHE_LOG
-}
-
-write_log () {
-cat $XML_CACHE_LOG >> $XML_LOG_TEMP
-rm -f $XML_CACHE_LOG
-}	
-
-#########################################################################################################
-# PULL LANGUAGES
-#########################################################################################################
-pull_lang () {
-if [ "$PULL_FLAG" != "" ]; then
-	if [ $PULL_FLAG == "force" ]; then
-		rm -rf $MAIN_DIR/languages/$LANG_TARGET; sleep 1; sync
-	fi
-fi
-if [ -d $MAIN_DIR/languages/$LANG_TARGET ]; then
-	OLD_GIT=$(grep "url = *" $MAIN_DIR/languages/$LANG_TARGET/.git/config | cut -d' ' -f3)
-	if [ "$LANG_GIT" != "$OLD_GIT" ]; then
-		echo -e "${txtblu}\nNew repository detected, removing old repository...\n$OLD_GIT ---> $LANG_GIT${txtrst}"
-		rm -rf $MAIN_DIR/languages/$LANG_TARGET
-	fi
-fi
-
-echo -e "${txtblu}\nSyncing $LANG_NAME MIUI$LANG_VERSION${txtrst}"
-if [ -e $MAIN_DIR/languages/$LANG_TARGET ]; then
-     	cd $MAIN_DIR/languages/$LANG_TARGET; git pull origin $LANG_BRANCH; cd ../../..
-else
-     	git clone $LANG_GIT  -b $LANG_BRANCH $MAIN_DIR/languages/$LANG_TARGET
-fi
-}
+CACHE_TOOLS=$TOOL_DIR/cache_tools.sh
+CHECK_TOOLS=$TOOL_DIR/check_tools.sh
+LANG_TOOLS=$TOOL_DIR/lang_tools.sh
+LOG_TOOLS=$TOOL_DIR/log_tools.sh
+RES_TOOLS=$TOOL_DIR/resource_tools.sh
 
 #########################################################################################################
 # ARGUMENTS
@@ -497,8 +86,8 @@ if [ $# -gt 0 ]; then
      	if [ $1 == "--help" ]; then
           	show_argument_help
      	elif [ $1 == "--check" ]; then
+		source $ARRAY_TOOLS; source $CACHE_TOOLS; source $CHECK_TOOLS; source $LOG_TOOLS;  source $RES_TOOLS
 		build_cache
-		source $ARRAY_TOOLS; source $SYNC_RES
 		sync_resources
             	DEBUG_MODE=lang
             	case "$2" in
@@ -541,7 +130,8 @@ if [ $# -gt 0 ]; then
            	esac
 		clear_cache			
      	elif [ $1 == "--pull" ]; then
-		source $SYNC_RES; sync_resources
+		source $LANG_TOOLS; source $RES_TOOLS
+		sync_resources
             	case "$2" in
 			all) cat $LANG_XML | grep 'language check=' | grep -v '<language check="false"' | while read all_line; do
 					if [ "$3" != "" ]; then
@@ -585,7 +175,7 @@ if [ $# -gt 0 ]; then
 					rm -rf $found_cache
 				   done;;
                               all) rm -rf $MAIN_DIR/languages; mkdir -p $MAIN_DIR/languages;;
-				*) source $SYNC_RES; sync_resources
+				*) source $LANG_TOOLS; source $RES_TOOLS; sync_resources
 				   if [ "$3" == "" ]; then
 				    	echo -e "${txtred}\nError: Specifiy MIUI version${txtrst}"; exit
 				   fi
@@ -600,7 +190,7 @@ if [ $# -gt 0 ]; then
                  	esac 
             	fi
      	elif [ $1 == "--fix_languages" ]; then
-		source $FIX_LANG; clean_up
+		source $LANG_TOOLS; fix_lang_folder
      	else
             	show_argument_help; exit
      	fi
