@@ -46,14 +46,13 @@ fi
 # VARIABLES / CACHE
 #########################################################################################################
 VERSION=4.0
-LANG_XML=$RES_DIR/languages.xml
 
 # Tools
 ARRAY_TOOLS=$TOOL_DIR/array_tools.sh
 CACHE_TOOLS=$TOOL_DIR/cache_tools.sh
 CHECK_TOOLS=$TOOL_DIR/check_tools.sh
 LANG_TOOLS=$TOOL_DIR/lang_tools.sh
-RES_TOOLS=$TOOL_DIR/resource_tools.sh
+RES_TOOLS=$TOOL_DIR/resource_tools.sh; source $RES_TOOLS
 
 #########################################################################################################
 # ARGUMENTS
@@ -86,8 +85,7 @@ if [ $# -gt 0 ]; then
      	if [ $1 == "--help" ]; then
           	show_argument_help
      	elif [ $1 == "--check" ]; then
-		source $ARRAY_TOOLS; source $CACHE_TOOLS; source $CHECK_TOOLS; source $RES_TOOLS
-		build_cache
+		source $ARRAY_TOOLS; source $CHECK_TOOLS; source $RES_TOOLS
 		sync_resources
             	DEBUG_MODE=lang
             	case "$2" in
@@ -98,30 +96,22 @@ if [ $# -gt 0 ]; then
                              fi; 
 			     LINE_NR=$(cat $LANG_XML | grep 'language check=' | grep -v '<language check="false"' | wc -l)
 			     LAST_URL=$(cat $LANG_XML | grep 'language check=' | grep -v '<language check="false"' | sed -n "$LINE_NR"p | awk '{print $6}' | cut -d'"' -f2)
-			     cat $LANG_XML | grep '<language check=' | grep -v '<language check="false"' | while read all_line; do
-					LANG_CHECK=$(echo $all_line | awk '{print $2}' | cut -d'"' -f2)
-					LANG_VERSION=$(echo $all_line | awk '{print $3}' | cut -d'"' -f2)
-					LANG_ISO=$(echo $all_line | awk '{print $5}' | cut -d'"' -f2)
-				      	LANG_NAME=$(echo $all_line | awk '{print $4}' | cut -d'"' -f2)
-					LANG_URL=$(echo $all_line | awk '{print $6}' | cut -d'"' -f2)
+			     cat $LANGS_ON | while read language; do
+					init_lang $language
 					LANG_TARGET=""$LANG_NAME"_"$LANG_VERSION""
 					UNTRANSLATEABLE_LIST=$RES_DIR/MIUI"$LANG_VERSION"_ignorelist.xml
-					ARRAY_ITEM_LIST=$RES_DIR/MIUI"$LANG_VERSION"_arrays_items.list
+					ARRAY_ITEM_LIST=$RES_DIR/MIUI"$LANG_VERSION"_arrays_items.mxcr
 					AUTO_IGNORELIST=$RES_DIR/MIUI"$LANG_VERSION"_auto_ignorelist.xml
                         		init_xml_check
    			     done;;
 			  *) if [ "$3" == "" ]; then
 				    	echo -e "${txtred}\nError: Specifiy MIUI version${txtrst}"; exit
 			     fi
-			     if [ "`cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"'| wc -l`" -gt 0 ]; then
-					LANG_CHECK=$(cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"' | awk '{print $2}' | cut -d'"' -f2)
-					LANG_VERSION=$(cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"' | awk '{print $3}' | cut -d'"' -f2)
-					LANG_ISO=$(cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"' | awk '{print $5}' | cut -d'"' -f2)
-				      	LANG_NAME=$(cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"' | awk '{print $4}' | cut -d'"' -f2)
-					LANG_URL=$(cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"' | awk '{print $6}' | cut -d'"' -f2)
+			     if [ "`cat $LANGS_ALL | grep ''$2' '$3''| wc -l`" -gt 0 ]; then
+					init_lang $(cat $LANGS_ALL | grep ''$2' '$3'')
 					LANG_TARGET=""$LANG_NAME"_"$LANG_VERSION""
 					UNTRANSLATEABLE_LIST=$RES_DIR/MIUI"$LANG_VERSION"_ignorelist.xml
-					ARRAY_ITEM_LIST=$RES_DIR/MIUI"$LANG_VERSION"_arrays_items.list
+					ARRAY_ITEM_LIST=$RES_DIR/MIUI"$LANG_VERSION"_arrays_items.mxcr
 					AUTO_IGNORELIST=$RES_DIR/MIUI"$LANG_VERSION"_auto_ignorelist.xml
                                  	init_xml_check
                              else
@@ -130,8 +120,8 @@ if [ $# -gt 0 ]; then
            	esac
 		clear_cache			
      	elif [ $1 == "--pull" ]; then
-		source $LANG_TOOLS; source $RES_TOOLS
-		sync_resources
+		source $RES_TOOLS
+		sync_resources; sync_languages
             	case "$2" in
 			all) cat $LANG_XML | grep 'language check=' | grep -v '<language check="false"' | while read all_line; do
 					if [ "$3" != "" ]; then

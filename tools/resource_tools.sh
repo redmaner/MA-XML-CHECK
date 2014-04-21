@@ -9,6 +9,11 @@ RES_BRANCH="4.0-dev"
 RES_COUNT=$RES_DIR/sync_count
 RES_INTERVAL=16
 
+# Resource variables
+LANG_XML=$RES_DIR/languages.xml
+LANGS_ALL=$RES_DIR/languages_all.mxcr
+LANGS_ON=$RES_DIR/languages_enabled.mxcr
+
 # Sync required resources (languages.xml, ignorelists etc.)
 sync_resources () {
 echo -e "${txtblu}\nSyncing resources${txtrst}"
@@ -46,6 +51,7 @@ if [ -e $RES_COUNT ]; then
 else
 	echo "1" > $RES_COUNT
 fi
+check_mxcr
 }
 
 build_resources () {
@@ -69,13 +75,62 @@ else
 	git clone git@github.com:Redmaner/MIUI-XML-DEV.git -b MIUIv5 $RES_DIR/MIUIv5-XML-DEV
 fi
 
-arrays_count_items_directory $RES_DIR/MIUIv6-XML-DEV/Dev/main MIUIv6_arrays_items.list
-arrays_count_items_directory $RES_DIR/MIUIv5-XML-DEV/Dev/main MIUIv5_arrays_items.list
+arrays_count_items_directory $RES_DIR/MIUIv6-XML-DEV/Dev/main $RES_DIR/MIUIv6_arrays_items.mxcr
+arrays_count_items_directory $RES_DIR/MIUIv5-XML-DEV/Dev/main $RES_DIR/MIUIv5_arrays_items.mxcr
+}
 
-echo -e "${txtblu}\nPushing changes${txtrst}"
-cd $RES_DIR
-git add MIUIv6_arrays_items.list MIUIv5_arrays_items.list
-git commit -m "MA-XML-CHECK: Update array items"
-git push origin $RES_BRANCH
-cd $MAIN_DIR
+check_mxcr () {
+if [ ! -e $RES_DIR/resources.md5 ]; then
+	sync_mxcr; create_md5sum_signature "$RES_DIR/resources.md5"
+else
+	create_md5sum_signature "$RES_DIR/resources.md5.diff"
+	diff $RES_DIR/resources.md5 $RES_DIR/resources.md5.diff > $RES_DIR/resources.result
+	if [ -s $RES_DIR/resources.result ]; then
+		sync_mxcr; create_md5sum_signature "$RES_DIR/resources.md5"
+	fi
+fi
+}
+
+create_md5sum_signature () {
+SIG_FILE=$1
+md5sum $LANG_XML >> $SIG_FILE
+md5sum $RES_DIR/MIUIv5_auto_ignorelist.xml >> $SIG_FILE
+md5sum $RES_DIR/MIUIv5_ignorelist.xml >> $SIG_FILE
+md5sum $RES_DIR/MIUIv6_auto_ignorelist.xml >> $SIG_FILE
+md5sum $RES_DIR/MIUIv6_ignorelist.xml >> $SIG_FILE
+}
+
+sync_mxcr () {
+# Parse languages.xml to mxcr
+rm -f $RES_DIR/languages_all.mxcr $RES_DIR/languages_enabled.mxcr
+cat $LANG_XML | grep 'language check=' | while read language; do
+	LANG_CHECK=$(echo $language | awk '{print $2}' | cut -d'"' -f2)
+	LANG_VERSION=$(echo $language | awk '{print $3}' | cut -d'"' -f2)
+	LANG_NAME=$(echo $language | awk '{print $4}' | cut -d'"' -f2)
+	LANG_ISO=$(echo $language | awk '{print $5}' | cut -d'"' -f2)
+	LANG_URL=$(echo $language | awk '{print $6}' | cut -d'"' -f2) 
+	LANG_GIT=$(echo $language | awk '{print $7}' | cut -d'"' -f2)
+	LANG_BRANCH=$(echo $language | awk '{print $8}' | cut -d'"' -f2)
+	echo ''$LANG_NAME' '$LANG_VERSION' '$LANG_ISO' '$LANG_CHECK' '$LANG_URL' '$LANG_GIT' '$LANG_BRANCH'' 
+done > $LANGS_ALL
+cat $LANG_XML | grep 'language check=' | grep -v '<language check="false"' | while read language; do
+	LANG_CHECK=$(echo $language | awk '{print $2}' | cut -d'"' -f2)
+	LANG_VERSION=$(echo $language | awk '{print $3}' | cut -d'"' -f2)
+	LANG_NAME=$(echo $language | awk '{print $4}' | cut -d'"' -f2)
+	LANG_ISO=$(echo $language | awk '{print $5}' | cut -d'"' -f2)
+	LANG_URL=$(echo $language | awk '{print $6}' | cut -d'"' -f2) 
+	LANG_GIT=$(echo $language | awk '{print $7}' | cut -d'"' -f2)
+	LANG_BRANCH=$(echo $language | awk '{print $8}' | cut -d'"' -f2)
+	echo ''$LANG_NAME' '$LANG_VERSION' '$LANG_ISO' '$LANG_CHECK' '$LANG_URL' '$LANG_GIT' '$LANG_BRANCH''
+done > $LANGS_ON
+}
+
+init_lang () {
+LANG_NAME=$1
+LANG_VERSION=$2
+LANG_ISO=$3
+LANG_CHECK=$4
+LANG_URL=$5
+LANG_GIT=$6
+LANG_BRANCH=$7
 }
