@@ -24,11 +24,13 @@ if [ -d /home/translators.xiaomi.eu ]; then
      	MAIN_DIR=/home/translators.xiaomi.eu/scripts
      	LOG_DIR=/home/translators.xiaomi.eu/public_html
 	RES_DIR=/home/translators.xiaomi.eu/scripts/resources
+	TOOL_DIR=/home/translators.xiaomi.eu/scripts/tools
 	SERVER=yes
 else
      	MAIN_DIR=$PWD
      	LOG_DIR=$PWD/logs
 	RES_DIR=$PWD/resources
+	TOOL_DIR=$PWD/tools
 	SERVER=no
 fi
 
@@ -45,11 +47,12 @@ fi
 # VARIABLES / CACHE
 #########################################################################################################
 VERSION=4.0
-RESOURCES_GIT="git@github.com:Redmaner/MA-XML-CHECK-RESOURCES.git"
-RESOURCES_BRANCH="4.0-dev"
-RESOURCES_SYNC_COUNT=$RES_DIR/sync_count
+
+# Tools
 LANG_XML=$RES_DIR/languages.xml
-ARRAY_TOOLS=$RES_DIR/array_tools.sh
+ARRAY_TOOLS=$TOOL_DIR/array_tools.sh
+FIX_LANG=$TOOL_DIR/fix_lang_folder.sh
+SYNC_RES=$TOOL_DIR/sync_resources.sh
 
 build_cache () {
 DATE=$(date +"%m-%d-%Y-%H-%M-%S")
@@ -296,7 +299,6 @@ if [ -e "$XML_TARGET" ]; then
 fi
 }
 
-
 #########################################################################################################
 # XML CHECK
 #########################################################################################################
@@ -410,6 +412,7 @@ fi
 write_log_error "teal"
 write_log_finish
 }
+
 #########################################################################################################
 # XML CHECK LOGGING
 #########################################################################################################
@@ -437,6 +440,7 @@ write_log () {
 cat $XML_CACHE_LOG >> $XML_LOG_TEMP
 rm -f $XML_CACHE_LOG
 }	
+
 #########################################################################################################
 # PULL LANGUAGES
 #########################################################################################################
@@ -460,58 +464,6 @@ if [ -e $MAIN_DIR/languages/$LANG_TARGET ]; then
 else
      	git clone $LANG_GIT  -b $LANG_BRANCH $MAIN_DIR/languages/$LANG_TARGET
 fi
-}
-
-# Sync required resources (languages.xml, ignorelists etc.)
-sync_resources () {
-echo -e "${txtblu}\nSyncing resources${txtrst}"
-if [ "$RESOURCES_GIT" != "" ]; then
-	if [ -d $RES_DIR/.git ]; then
-		OLD_GIT=$(grep "url = *" $RES_DIR/.git/config | cut -d' ' -f3)
-		if [ "$RESOURCES_GIT" != "$OLD_GIT" ]; then
-			echo -e "${txtblu}\nNew resources repository detected, removing old repository...\n$OLD_GIT ---> $RESOURCES_GIT${txtrst}"
-			rm -rf $RES_DIR
-		fi
-	fi
-	if [ -d $RES_DIR/.git ]; then
-		OLD_BRANCH=$(grep 'branch "' $RES_DIR/.git/config | cut -d'"' -f2 | cut -d'[' -f2 | cut -d']' -f1)
-		if [ "$RESOURCES_BRANCH" != "$OLD_BRANCH" ]; then
-			echo -e "${txtblu}\nNew resources branch detected, removing old repository...\n$OLD_BRANCH ---> $RESOURCES_BRANCH${txtrst}"
-			rm -rf $RES_DIR
-		fi
-	fi
-	if [ -d $RES_DIR ]; then
-		cd $RES_DIR
-		git pull origin $RESOURCES_BRANCH
-		cd $MAIN_DIR
-	else
-		git clone $RESOURCES_GIT -b $RESOURCES_BRANCH $RES_DIR
-	fi
-fi
-source $ARRAY_TOOLS
-if [ -e $RESOURCES_SYNC_COUNT ]; then
-	RES_SYNCS=$(expr $(cat $RESOURCES_SYNC_COUNT) + 1)
-	if [ "$RES_SYNCS" == "16" ]; then
-		bash $RES_DIR/sync_resources.sh "$RESOURCES_BRANCH"
-		RES_SYNCS=1
-	fi
-	echo "$RES_SYNCS" > $RESOURCES_SYNC_COUNT
-else
-	echo "1" > $RESOURCES_SYNC_COUNT
-fi
-}
-
-# Fix old languages format (trigger with --fix_languages)
-clean_up () {
-sync_resources
-cat $LANG_XML | grep '<language enabled=' | while read all_line; do
-	CHANGE_VERSION=$(echo $all_line | awk '{print $3}' | cut -d'"' -f2)
-	CHANGE_NAME=$(echo $all_line | awk '{print $4}' | cut -d'"' -f2)
-	CHANGE_ISO=$(echo $all_line | awk '{print $5}' | cut -d'"' -f2) 
-	if [ -d $MAIN_DIR/languages/$CHANGE_ISO ]; then
-		mv $MAIN_DIR/languages/$CHANGE_ISO $MAIN_DIR/languages/"$CHANGE_NAME"_"$CHANGE_VERSION"
-	fi
-done
 }
 
 #########################################################################################################
@@ -546,6 +498,7 @@ if [ $# -gt 0 ]; then
           	show_argument_help
      	elif [ $1 == "--check" ]; then
 		build_cache
+		source $ARRAY_TOOLS; source $SYNC_RES
 		sync_resources
             	DEBUG_MODE=lang
             	case "$2" in
@@ -588,7 +541,7 @@ if [ $# -gt 0 ]; then
            	esac
 		clear_cache			
      	elif [ $1 == "--pull" ]; then
-		sync_resources
+		source $SYNC_RES; sync_resources
             	case "$2" in
 			all) cat $LANG_XML | grep 'language check=' | grep -v '<language check="false"' | while read all_line; do
 					if [ "$3" != "" ]; then
@@ -632,7 +585,7 @@ if [ $# -gt 0 ]; then
 					rm -rf $found_cache
 				   done;;
                               all) rm -rf $MAIN_DIR/languages; mkdir -p $MAIN_DIR/languages;;
-				*) sync_resources
+				*) source $SYNC_RES; sync_resources
 				   if [ "$3" == "" ]; then
 				    	echo -e "${txtred}\nError: Specifiy MIUI version${txtrst}"; exit
 				   fi
@@ -646,29 +599,8 @@ if [ $# -gt 0 ]; then
 			           fi;;
                  	esac 
             	fi
-	elif [ $1 == "--server" ]; then
-		build_cache
-		sync_resources
-            	DEBUG_MODE=double
-		LINE_NR=$(cat $LANG_XML | grep '<language check=' | grep -v '<language check="false"' | wc -l)
-		LAST_URL=$(cat $LANG_XML | grep '<language check=' | grep -v '<language check="false"' | sed -n "$LINE_NR"p | awk '{print $6}' | cut -d'"' -f2)
-		cat $LANG_XML | grep '<language check=' | grep -v '<language check="false"' | while read all_line; do
-			LANG_CHECK=$(echo $all_line | awk '{print $2}' | cut -d'"' -f2)
-			LANG_VERSION=$(echo $all_line | awk '{print $3}' | cut -d'"' -f2)
-			LANG_ISO=$(echo $all_line | awk '{print $5}' | cut -d'"' -f2)
-			LANG_NAME=$(echo $all_line | awk '{print $4}' | cut -d'"' -f2)
-			LANG_URL=$(echo $all_line | awk '{print $6}' | cut -d'"' -f2)
-			LANG_GIT=$(echo $all_line | awk '{print $7}' | cut -d'"' -f2)
-			LANG_BRANCH=$(echo $all_line | awk '{print $8}' | cut -d'"' -f2)
-			LANG_TARGET=""$LANG_NAME"_"$LANG_VERSION""
-			UNTRANSLATEABLE_LIST=$RES_DIR/MIUI"$LANG_VERSION"_ignorelist.xml
-			ARRAY_ITEM_LIST=$RES_DIR/MIUI"$LANG_VERSION"_arrays_items.list
-			AUTO_IGNORELIST=$RES_DIR/MIUI"$LANG_VERSION"_auto_ignorelist.xml
-                        pull_lang 
-                        init_xml_check
-   		done
      	elif [ $1 == "--fix_languages" ]; then
-		clean_up
+		source $FIX_LANG; clean_up
      	else
             	show_argument_help; exit
      	fi
