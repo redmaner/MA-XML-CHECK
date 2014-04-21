@@ -263,6 +263,7 @@ if [ -d $MAIN_DIR/languages/$LANG_TARGET ]; then
 	debug_mode
 	find $MAIN_DIR/languages/$LANG_TARGET -iname "*.apk" | sort | while read apk_target; do
 		APK=$(basename $apk_target)
+		DIR=$(basename $(dirname $apk_target))
 		find $apk_target -iname "arrays.xml*" -o -iname "strings.xml*" -o -iname "plurals.xml*" | while read xml_target; do
 			xml_check "$xml_target"
 		done
@@ -278,7 +279,6 @@ rm -f $XML_CACHE_LOG
 rm -f $XML_LOG_TEMP
 if [ -e "$XML_TARGET" ]; then
 	XML_TYPE=$(basename $XML_TARGET)
-	DIR=$(basename $(dirname $(echo $XML_TARGET | cut -d'.' -f1)))
 
 	# Fix .part files for XML_TYPE
 	if [ $(echo $XML_TYPE | grep ".part" | wc -l) -gt 0 ]; then
@@ -333,45 +333,83 @@ write_log_error "blue"
 xml_check_full () {
 # Check for untranslateable strings, arrays, plurals using untranslateable list
 if [ $(cat $UNTRANSLATEABLE_LIST | grep 'application="'$APK'" file="'$XML_TYPE'"' | wc -l) -gt 0 ]; then
-	cat $UNTRANSLATEABLE_LIST | grep 'application="'$APK'" file="'$XML_TYPE'"' | while read all_line; do
-		UNTRANSLATEABLE_STRING=$(echo $all_line | awk '{print $4}' | cut -d'/' -f1)
+	cat $UNTRANSLATEABLE_LIST | grep 'folder="all" application="'$APK'" file="'$XML_TYPE'"' | while read all_line; do
+		UNTRANSLATEABLE_STRING=$(echo $all_line | awk '{print $5}' | cut -d'/' -f1)
 		grep -ne ''$UNTRANSLATEABLE_STRING'' $XML_TARGET
 	done >> $XML_CACHE_LOG
+	cat $UNTRANSLATEABLE_LIST | grep 'folder="'$DIR'" application="'$APK'" file="'$XML_TYPE'"' | while read all_line; do
+		UNTRANSLATEABLE_STRING=$(echo $all_line | awk '{print $5}' | cut -d'/' -f1)
+		grep -ne ''$UNTRANSLATEABLE_STRING'' $XML_TARGET
+	done >> $XML_CACHE_LOG
+	if [ "$DIR" != "main" ]; then
+		cat $UNTRANSLATEABLE_LIST | grep 'folder="devices" application="'$APK'" file="'$XML_TYPE'"' | while read all_line; do
+			UNTRANSLATEABLE_STRING=$(echo $all_line | awk '{print $5}' | cut -d'/' -f1)
+			grep -ne ''$UNTRANSLATEABLE_STRING'' $XML_TARGET
+		done >> $XML_CACHE_LOG
+	fi
 fi
 
 # Check for untranslateable strings and arrays due automatically search for @
 case "$XML_TYPE" in 
-	strings.xml) grep -ne '@android\|@string\|@color\|@drawable' $XML_TARGET >> $XML_CACHE_LOG;;
+	strings.xml) cat $XML_TARGET | grep '@android\|@string\|@color\|@drawable' | cut -d'>' -f1 | cut -d'"' -f2 | while read auto_search_target; do
+				if [ $(cat $AUTO_IGNORELIST | grep 'folder="all" application="'$APK'" file="'$XML_TYPE'" name="'$auto_search_target'"/>' | wc -l) == 0 ]; then
+					grep -ne '"'$auto_search_target'"' $XML_TARGET; continue
+				else
+					continue
+				fi
+				if [ $(cat $AUTO_IGNORELIST | grep 'folder="'$DIR'" application="'$APK'" file="'$XML_TYPE'" name="'$auto_search_target'"/>' | wc -l) == 0 ]; then
+					grep -ne '"'$auto_search_target'"' $XML_TARGET; continue
+				else
+					continue
+				fi
+				if [ "$DIR" != "main" ]; then
+					if [ $(cat $AUTO_IGNORELIST | grep 'folder="devices" application="'$APK'" file="'$XML_TYPE'" name="'$auto_search_target'"/>' | wc -l) == 0 ]; then
+						grep -ne '"'$auto_search_target'"' $XML_TARGET
+					fi
+				fi
+		     done >> $XML_CACHE_LOG;;
 	 arrays.xml) cat $XML_TARGET | grep 'name="' | while read arrays; do
 				ARRAY_TYPE=$(echo $arrays | cut -d' ' -f1 | cut -d'<' -f2)
 				ARRAY_NAME=$(echo $arrays | cut -d'>' -f1 | cut -d'"' -f2)
 				if [ $(arrays_parse $ARRAY_NAME $ARRAY_TYPE $XML_TARGET | grep '@android\|@string\|@color\|@drawable' | wc -l) -gt 0 ]; then
-					grep -ne ''$ARRAY_NAME'' $XML_TARGET 
+					if [ $(cat $AUTO_IGNORELIST | grep 'folder="all" application="'$APK'" file="'$XML_TYPE'" name="'$ARRAY_NAME'"' | wc -l) -eq 0 ]; then
+						grep -ne '"'$ARRAY_NAME'"' $XML_TARGET; continue
+					else
+						continue
+					fi
+					if [ $(cat $AUTO_IGNORELIST | grep 'folder="'$DIR'" application="'$APK'" file="'$XML_TYPE'" name="'$ARRAY_NAME'"' | wc -l) -eq 0 ]; then
+						grep -ne '"'$ARRAY_NAME'"' $XML_TARGET; continue
+					else
+						continue
+					fi
+					if [ "$DIR" != "main" ]; then
+						if [ $(cat $AUTO_IGNORELIST | grep 'folder="devices" application="'$APK'" file="'$XML_TYPE'" name="'$ARRAY_NAME'"' | wc -l) -eq 0 ]; then
+							grep -ne '"'$ARRAY_NAME'"' $XML_TARGET
+						fi
+					fi
 				fi
-		      done >> $XML_CACHE_LOG;;
+		     done >> $XML_CACHE_LOG;;
 esac
 write_log_error "purple"
 
 # Count array items
-if [ "$XML_TYPE" == "arrays.xml" ]; then
+if [ "$XML_TYPE" == "arrays.xml" ] && [ "$DIR" == "main" ]; then
 	cat $XML_TARGET | grep 'name=' | while read array_count; do
 		ARRAY_NAME=$(echo $array_count | cut -d'>' -f1 | cut -d'"' -f2)
-		if [ $(cat $ARRAY_ITEM_LIST | grep 'application="'$APK'" name="'$ARRAY_NAME'"' | wc -l) -gt 0 ]; then
+		if [ $(cat $ARRAY_ITEM_LIST | grep ''$APK'|'$ARRAY_NAME'|' | wc -l) -gt 0 ]; then
 			ARRAY_TYPE=$(echo $array_count | cut -d' ' -f1 | cut -d'<' -f2)
-			DIFF_ARRAY_COUNT=$(cat $ARRAY_ITEM_LIST | grep 'application="'$APK'" name="'$ARRAY_NAME'"' | awk '{print $4}' | cut -d'"' -f2 | cut -d'>' -f1)
+			DIFF_ARRAY_COUNT=$(cat $ARRAY_ITEM_LIST | grep ''$APK'|'$ARRAY_NAME'|' | cut -d'|' -f3)
 			TARGET_ARRAY_COUNT=$(arrays_count_items $ARRAY_NAME $ARRAY_TYPE $XML_TARGET)
 			if [ "$TARGET_ARRAY_COUNT" != "$DIFF_ARRAY_COUNT" ]; then
-				ARRAY=$(grep -ne ''$ARRAY_NAME'' $XML_TARGET)
-				echo "$ARRAY - has $TARGET_ARRAY_COUNT items, should be $DIFF_ARRAY_COUNT items" >> $XML_CACHE_LOG
+				ARRAY=$(grep -ne '"'$ARRAY_NAME'"' $XML_TARGET)
+				echo "$ARRAY - has $TARGET_ARRAY_COUNT items, should be $DIFF_ARRAY_COUNT items"
 			fi
 		fi
-	done
+	done >> $XML_CACHE_LOG
 fi				
 write_log_error "teal"
 write_log_finish
 }
-
-
 #########################################################################################################
 # XML CHECK LOGGING
 #########################################################################################################
@@ -399,7 +437,6 @@ write_log () {
 cat $XML_CACHE_LOG >> $XML_LOG_TEMP
 rm -f $XML_CACHE_LOG
 }	
-
 #########################################################################################################
 # PULL LANGUAGES
 #########################################################################################################
@@ -527,7 +564,8 @@ if [ $# -gt 0 ]; then
 					LANG_URL=$(echo $all_line | awk '{print $6}' | cut -d'"' -f2)
 					LANG_TARGET=""$LANG_NAME"_"$LANG_VERSION""
 					UNTRANSLATEABLE_LIST=$RES_DIR/MIUI"$LANG_VERSION"_ignorelist.xml
-					ARRAY_ITEM_LIST=$RES_DIR/MIUI"$LANG_VERSION"_arrays_items.xml
+					ARRAY_ITEM_LIST=$RES_DIR/MIUI"$LANG_VERSION"_arrays_items.list
+					AUTO_IGNORELIST=$RES_DIR/MIUI"$LANG_VERSION"_auto_ignorelist.xml
                         		init_xml_check
    			     done;;
 			  *) if [ "$3" == "" ]; then
@@ -541,7 +579,8 @@ if [ $# -gt 0 ]; then
 					LANG_URL=$(cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"' | awk '{print $6}' | cut -d'"' -f2)
 					LANG_TARGET=""$LANG_NAME"_"$LANG_VERSION""
 					UNTRANSLATEABLE_LIST=$RES_DIR/MIUI"$LANG_VERSION"_ignorelist.xml
-					ARRAY_ITEM_LIST=$RES_DIR/MIUI"$LANG_VERSION"_arrays_items.xml
+					ARRAY_ITEM_LIST=$RES_DIR/MIUI"$LANG_VERSION"_arrays_items.list
+					AUTO_IGNORELIST=$RES_DIR/MIUI"$LANG_VERSION"_auto_ignorelist.xml
                                  	init_xml_check
                              else
 					echo -e "${txtred}\nLanguage not supported or language not specified${txtrst}"; exit
@@ -623,7 +662,8 @@ if [ $# -gt 0 ]; then
 			LANG_BRANCH=$(echo $all_line | awk '{print $8}' | cut -d'"' -f2)
 			LANG_TARGET=""$LANG_NAME"_"$LANG_VERSION""
 			UNTRANSLATEABLE_LIST=$RES_DIR/MIUI"$LANG_VERSION"_ignorelist.xml
-			ARRAY_ITEM_LIST=$RES_DIR/MIUI"$LANG_VERSION"_arrays_items.xml
+			ARRAY_ITEM_LIST=$RES_DIR/MIUI"$LANG_VERSION"_arrays_items.list
+			AUTO_IGNORELIST=$RES_DIR/MIUI"$LANG_VERSION"_auto_ignorelist.xml
                         pull_lang 
                         init_xml_check
    		done
