@@ -32,10 +32,10 @@ if [ -e $LOG_TARGET ]; then
      	LINE_NR=$(wc -l $LOG_TARGET | cut -d' ' -f1)
      	if [ "$(sed -n "$LINE_NR"p $LOG_TARGET)" == '<!-- Start of log --><script type="text/plain">' ]; then 
            	echo '</script></span><span class="green">No errors found in this repository!</span>' >> $LOG_TARGET
-           	echo '</script><span class="header"><br><br>Checked <a href="'$LANG_URL'" title="'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO')" target="_blank">'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO') repository</a> on '$DATE'</span>' >> $LOG_TARGET
+           	echo '</script><span class="header"><br><br>Checked ('$LANG_CHECK')<a href="'$LANG_URL'" title="'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO')" target="_blank">'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO') repository</a> on '$DATE'</span>' >> $LOG_TARGET
            	echo '<!-- Start of log --><script type="text/plain">' >> $LOG_TARGET
      	else
-           	echo '</script></span><span class="header"><br><br>Checked <a href="'$LANG_URL'" title="'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO')" target="_blank">'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO') repository</a> on '$DATE'</span>' >> $LOG_TARGET
+           	echo '</script></span><span class="header"><br><br>Checked ('$LANG_CHECK')<a href="'$LANG_URL'" title="'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO')" target="_blank">'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO') repository</a> on '$DATE'</span>' >> $LOG_TARGET
            	echo '<!-- Start of log --><script type="text/plain">' >> $LOG_TARGET
      	fi
 else
@@ -143,7 +143,7 @@ a:hover {
 		<td height="auto" width="auto"><span class="black">'+' outside of tags</span><td>
 	</tr>
 </table>
-<span class="header"><br>Checked <a href="$LANG_URL" title="$LANG_NAME MIUI$LANG_VERSION ($LANG_ISO)" target="_blank">$LANG_NAME MIUI$LANG_VERSION ($LANG_ISO) repository</a> on $DATE<br></span>
+<span class="header"><br>Checked ($LANG_CHECK)<a href="$LANG_URL" title="$LANG_NAME MIUI$LANG_VERSION ($LANG_ISO)" target="_blank">$LANG_NAME MIUI$LANG_VERSION ($LANG_ISO) repository </a> on $DATE<br></span>
 <!-- Start of log --><script type="text/plain">
 EOF
 }
@@ -214,8 +214,9 @@ if [ -e "$XML_TARGET" ]; then
 	fi
 
 	case "$LANG_CHECK" in
-		normal) xml_check_normal;;
-		  full) xml_check_normal; xml_check_full;;
+		 basic) xml_check_basic; write_log_finish;;
+		normal) xml_check_basic; xml_check_normal; write_log_finish;;
+		  full) xml_check_basic; xml_check_normal; xml_check_full; write_log_finish;;
 	esac
 fi
 }
@@ -223,7 +224,7 @@ fi
 #########################################################################################################
 # XML CHECK
 #########################################################################################################
-xml_check_normal () {
+xml_check_basic () {
 # Check for XML Parser errors
 xmllint --noout $XML_TARGET 2>> $XML_CACHE_LOG
 write_log
@@ -253,7 +254,7 @@ grep -ne "+ * <s" $XML_TARGET >> $XML_CACHE_LOG
 write_log_error "blue"
 }
 
-xml_check_full () {
+xml_check_normal () {
 # Check for untranslateable strings, arrays, plurals using untranslateable list
 if [ $(cat $UNTRANSLATEABLE_LIST | grep ''$APK' '$XML_TYPE' ' | wc -l) -gt 0 ]; then
 	cat $UNTRANSLATEABLE_LIST | grep 'all '$APK' '$XML_TYPE' ' | while read all_line; do
@@ -314,7 +315,9 @@ case "$XML_TYPE" in
 		     done >> $XML_CACHE_LOG;;
 esac
 write_log_error "purple"
+}
 
+xml_check_full () {
 # Count array items
 if [ "$XML_TYPE" == "arrays.xml" ] && [ "$DIR" == "main" ]; then
 	cat $XML_TARGET | grep 'name=' | while read array_count; do
@@ -331,7 +334,6 @@ if [ "$XML_TYPE" == "arrays.xml" ] && [ "$DIR" == "main" ]; then
 	done >> $XML_CACHE_LOG
 fi				
 write_log_error "teal"
-write_log_finish
 }
 
 #########################################################################################################
