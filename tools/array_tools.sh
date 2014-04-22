@@ -39,12 +39,12 @@ if [ -d $TARGET_DIR ]; then
 			cat $array_target | grep "<string-array name=" | while read all_line; do
 				string_array=$(echo $all_line | cut -d'"' -f2 | cut -d'>' -f1)
 				item_count=$(sed -e '/name="'$string_array'"/,/string-array/!d' $array_target | grep '<item>' | wc -l)
-				echo ''$APK'|'$string_array'|'$item_count''
+				echo ''$APK' '$string_array' '$item_count''
 			done >> $ARRAY_COUNT_DIR_LIST
 			cat $array_target | grep "<array name=" | while read all_line; do
 				string_array=$(echo $all_line | cut -d'"' -f2 | cut -d'>' -f1)
 				item_count=$(sed -e '/name="'$string_array'"/,/array/!d' $array_target | grep '<item>' | wc -l)
-				echo ''$APK'|'$string_array'|'$item_count''
+				echo ''$APK' '$string_array' '$item_count''
 			done >> $ARRAY_COUNT_DIR_LIST
 		done
 	done	

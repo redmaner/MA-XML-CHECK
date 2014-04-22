@@ -14,7 +14,9 @@ LANG_XML=$RES_DIR/languages.xml
 LANGS_ALL=$RES_DIR/languages_all.mxcr
 LANGS_ON=$RES_DIR/languages_enabled.mxcr
 
-# Sync required resources (languages.xml, ignorelists etc.)
+#########################################################################################################
+# SYNC RESOURCES
+#########################################################################################################
 sync_resources () {
 echo -e "${txtblu}\nSyncing resources${txtrst}"
 if [ "$RES_GIT" != "" ]; then
@@ -49,6 +51,7 @@ if [ -e $RES_COUNT ]; then
 	fi
 	echo "$RES_SYNCS" > $RES_COUNT
 else
+	build_resources
 	echo "1" > $RES_COUNT
 fi
 check_mxcr
@@ -75,16 +78,20 @@ else
 	git clone git@github.com:Redmaner/MIUI-XML-DEV.git -b MIUIv5 $RES_DIR/MIUIv5-XML-DEV
 fi
 
+source $ARRAY_TOOLS
 arrays_count_items_directory $RES_DIR/MIUIv6-XML-DEV/Dev/main $RES_DIR/MIUIv6_arrays_items.mxcr
 arrays_count_items_directory $RES_DIR/MIUIv5-XML-DEV/Dev/main $RES_DIR/MIUIv5_arrays_items.mxcr
 }
 
+#########################################################################################################
+# MXCR FILES
+#########################################################################################################
 check_mxcr () {
 if [ ! -e $RES_DIR/resources.md5 ]; then
 	sync_mxcr; create_md5sum_signature "$RES_DIR/resources.md5"
 else
-	create_md5sum_signature "$RES_DIR/resources.md5.diff"
-	diff $RES_DIR/resources.md5 $RES_DIR/resources.md5.diff > $RES_DIR/resources.result
+	create_md5sum_signature "$RES_DIR/resources.diff.md5"
+	diff $RES_DIR/resources.md5 $RES_DIR/resources.diff.md5 > $RES_DIR/resources.result
 	if [ -s $RES_DIR/resources.result ]; then
 		sync_mxcr; create_md5sum_signature "$RES_DIR/resources.md5"
 	fi
@@ -101,8 +108,9 @@ md5sum $RES_DIR/MIUIv6_ignorelist.xml >> $SIG_FILE
 }
 
 sync_mxcr () {
+echo -e "${txtblu}\nGenerating MXCR files${txtrst}"
 # Parse languages.xml to mxcr
-rm -f $RES_DIR/languages_all.mxcr $RES_DIR/languages_enabled.mxcr
+rm -f $RES_DIR/languages_all.mxcr $RES_DIR/languages_enabled.mxcr $RES_DIR/MIUIv5_auto_ignorelist.mxcr $RES_DIR/MIUIv5_ignorelist.mxcr $RES_DIR/MIUIv6_auto_ignorelist.mxcr $RES_DIR/MIUIv6_ignorelist.mxcr
 cat $LANG_XML | grep 'language check=' | while read language; do
 	LANG_CHECK=$(echo $language | awk '{print $2}' | cut -d'"' -f2)
 	LANG_VERSION=$(echo $language | awk '{print $3}' | cut -d'"' -f2)
@@ -123,8 +131,29 @@ cat $LANG_XML | grep 'language check=' | grep -v '<language check="false"' | whi
 	LANG_BRANCH=$(echo $language | awk '{print $8}' | cut -d'"' -f2)
 	echo ''$LANG_NAME' '$LANG_VERSION' '$LANG_ISO' '$LANG_CHECK' '$LANG_URL' '$LANG_GIT' '$LANG_BRANCH''
 done > $LANGS_ON
+
+# Parse ignorelists to mxcr
+parse_ignorelist_mxcr "$RES_DIR/MIUIv5_auto_ignorelist.xml" "$RES_DIR/MIUIv5_auto_ignorelist.mxcr"
+parse_ignorelist_mxcr "$RES_DIR/MIUIv5_ignorelist.xml" "$RES_DIR/MIUIv5_ignorelist.mxcr"
+parse_ignorelist_mxcr "$RES_DIR/MIUIv6_auto_ignorelist.xml" "$RES_DIR/MIUIv6_auto_ignorelist.mxcr"
+parse_ignorelist_mxcr "$RES_DIR/MIUIv6_ignorelist.xml" "$RES_DIR/MIUIv6_ignorelist.mxcr"
 }
 
+parse_ignorelist_mxcr () {
+TARGET_FILE=$1
+NEW_FILE=$2
+cat $TARGET_FILE | grep '<item ' | while read ignore_string; do
+	ITEM_FOLDER=$(echo $ignore_string | awk '{print $2}' | cut -d'"' -f2)
+	ITEM_APP=$(echo $ignore_string | awk '{print $3}' | cut -d'"' -f2)
+	ITEM_FILE=$(echo $ignore_string | awk '{print $4}' | cut -d'"' -f2)
+	ITEM_NAME=$(echo $ignore_string | awk '{print $5}' | cut -d'"' -f2)
+	echo ''$ITEM_FOLDER' '$ITEM_APP' '$ITEM_FILE' '$ITEM_NAME''
+done > $NEW_FILE
+}
+
+#########################################################################################################
+# READ MXCR FILES
+#########################################################################################################
 init_lang () {
 LANG_NAME=$1
 LANG_VERSION=$2
@@ -133,4 +162,15 @@ LANG_CHECK=$4
 LANG_URL=$5
 LANG_GIT=$6
 LANG_BRANCH=$7
+LANG_TARGET=""$LANG_NAME"_"$LANG_VERSION""
+UNTRANSLATEABLE_LIST=$RES_DIR/MIUI"$LANG_VERSION"_ignorelist.xml
+ARRAY_ITEM_LIST=$RES_DIR/MIUI"$LANG_VERSION"_arrays_items.mxcr
+AUTO_IGNORELIST=$RES_DIR/MIUI"$LANG_VERSION"_auto_ignorelist.xml
+}
+
+init_ignorelist () {
+ITEM_FOLDER=$1
+ITEM_APP=$2
+ITEM_FILE=$3
+ITEM_NAME=$4
 }

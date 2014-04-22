@@ -85,8 +85,7 @@ if [ $# -gt 0 ]; then
      	if [ $1 == "--help" ]; then
           	show_argument_help
      	elif [ $1 == "--check" ]; then
-		source $ARRAY_TOOLS; source $CHECK_TOOLS; source $RES_TOOLS
-		sync_resources
+		source $ARRAY_TOOLS; source $CHECK_TOOLS; sync_resources
             	DEBUG_MODE=lang
             	case "$2" in
 		  	all) if [ "$3" == "full" ]; then
@@ -97,62 +96,41 @@ if [ $# -gt 0 ]; then
 			     LINE_NR=$(cat $LANG_XML | grep 'language check=' | grep -v '<language check="false"' | wc -l)
 			     LAST_URL=$(cat $LANG_XML | grep 'language check=' | grep -v '<language check="false"' | sed -n "$LINE_NR"p | awk '{print $6}' | cut -d'"' -f2)
 			     cat $LANGS_ON | while read language; do
-					init_lang $language
-					LANG_TARGET=""$LANG_NAME"_"$LANG_VERSION""
-					UNTRANSLATEABLE_LIST=$RES_DIR/MIUI"$LANG_VERSION"_ignorelist.xml
-					ARRAY_ITEM_LIST=$RES_DIR/MIUI"$LANG_VERSION"_arrays_items.mxcr
-					AUTO_IGNORELIST=$RES_DIR/MIUI"$LANG_VERSION"_auto_ignorelist.xml
-                        		init_xml_check
+					init_lang $language; init_xml_check
    			     done;;
 			  *) if [ "$3" == "" ]; then
 				    	echo -e "${txtred}\nError: Specifiy MIUI version${txtrst}"; exit
 			     fi
 			     if [ "`cat $LANGS_ALL | grep ''$2' '$3''| wc -l`" -gt 0 ]; then
-					init_lang $(cat $LANGS_ALL | grep ''$2' '$3'')
-					LANG_TARGET=""$LANG_NAME"_"$LANG_VERSION""
-					UNTRANSLATEABLE_LIST=$RES_DIR/MIUI"$LANG_VERSION"_ignorelist.xml
-					ARRAY_ITEM_LIST=$RES_DIR/MIUI"$LANG_VERSION"_arrays_items.mxcr
-					AUTO_IGNORELIST=$RES_DIR/MIUI"$LANG_VERSION"_auto_ignorelist.xml
-                                 	init_xml_check
+					init_lang $(cat $LANGS_ALL | grep ''$2' '$3''); init_xml_check
                              else
 					echo -e "${txtred}\nLanguage not supported or language not specified${txtrst}"; exit
 			     fi;;
            	esac
 		clear_cache			
      	elif [ $1 == "--pull" ]; then
-		source $RES_TOOLS
-		sync_resources; sync_languages
+		source $LANG_TOOLS; sync_resources
             	case "$2" in
-			all) cat $LANG_XML | grep 'language check=' | grep -v '<language check="false"' | while read all_line; do
+			all) cat $LANGS_ON | while read language; do
 					if [ "$3" != "" ]; then
    						if [ $3 == "force" ]; then
 							PULL_FLAG="force"
 						fi
 					fi
-					LANG_VERSION=$(echo $all_line | awk '{print $3}' | cut -d'"' -f2)
-					LANG_NAME=$(echo $all_line | awk '{print $4}' | cut -d'"' -f2)
-					LANG_GIT=$(echo $all_line | awk '{print $7}' | cut -d'"' -f2)
-					LANG_BRANCH=$(echo $all_line | awk '{print $8}' | cut -d'"' -f2)
-					LANG_TARGET=""$LANG_NAME"_"$LANG_VERSION""
-                        		pull_lang
+					init_lang $language; pull_lang
    			     done;;
 			  *) if [ "$3" == "" ]; then
 				    	echo -e "${txtred}\nError: Specifiy MIUI version${txtrst}"; exit
 			     elif [ "$3" == "force" ]; then
 					echo -e "${txtred}\nError: Specifiy MIUI version before force flag${txtrst}"; exit
 			     fi
-			     if [ "`cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"' | wc -l`" -gt 0 ]; then
+			     if [ "`cat $LANGS_ALL | grep ''$2' '$3''| wc -l`" -gt 0 ]; then
 					if [ "$4" != "" ]; then
    						if [ $4 = "force" ]; then
 							PULL_FLAG="force"
 						fi
 					fi
-					LANG_VERSION=$(cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"' | awk '{print $3}' | cut -d'"' -f2)
-					LANG_NAME=$(cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"' | awk '{print $4}' | cut -d'"' -f2)
-					LANG_GIT=$(cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"'| awk '{print $7}' | cut -d'"' -f2)
-					LANG_BRANCH=$(cat $LANG_XML | grep 'name="'$2'"' | grep 'miui="'$3'"'| awk '{print $8}' | cut -d'"' -f2)
-					LANG_TARGET=""$LANG_NAME"_"$LANG_VERSION""
-                        		pull_lang 
+					init_lang $(cat $LANGS_ALL | grep ''$2' '$3''); pull_lang 
                              else
 					echo -e "${txtred}\nLanguage not supported or language not specified${txtrst}"; exit
 			     fi;;
@@ -165,14 +143,12 @@ if [ $# -gt 0 ]; then
 					rm -rf $found_cache
 				   done;;
                               all) rm -rf $MAIN_DIR/languages; mkdir -p $MAIN_DIR/languages;;
-				*) source $LANG_TOOLS; source $RES_TOOLS; sync_resources
+				*) source $LANG_TOOLS; sync_resources
 				   if [ "$3" == "" ]; then
 				    	echo -e "${txtred}\nError: Specifiy MIUI version${txtrst}"; exit
 				   fi
-				   if [ "`cat $LANG_XML | grep 'name="'$2'"' | 'miui="'$3'"' | wc -l`" -gt 0 ]; then
-						LANG_VERSION=$(echo $all_line | awk '{print $3}' | cut -d'"' -f2)
-						LANG_NAME=$(echo $all_line | awk '{print $4}' | cut -d'"' -f2)
-						LANG_TARGET=""$LANG_NAME"_"$LANG_VERSION""
+				   if [ "`cat $LANGS_ALL | grep ''$2' '$3''| wc -l`" -gt 0 ]; then
+						init_lang $(cat $LANGS_ALL | grep ''$2' '$3'')
                         			rm -rf $MAIN_DIR/languages/$LANG_TARGET 
                              	   else
 						echo -e "${txtred}\nLanguage not supported or language not specified${txtrst}"; exit
