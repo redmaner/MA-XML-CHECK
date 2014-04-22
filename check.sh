@@ -106,8 +106,7 @@ if [ $# -gt 0 ]; then
                              else
 					echo -e "${txtred}\nLanguage not supported or language not specified${txtrst}"; exit
 			     fi;;
-           	esac
-		clear_cache			
+           	esac		
      	elif [ $1 == "--pull" ]; then
 		source $LANG_TOOLS; sync_resources
             	case "$2" in
