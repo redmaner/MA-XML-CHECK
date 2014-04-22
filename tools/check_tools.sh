@@ -255,19 +255,19 @@ write_log_error "blue"
 
 xml_check_full () {
 # Check for untranslateable strings, arrays, plurals using untranslateable list
-if [ $(cat $UNTRANSLATEABLE_LIST | grep 'application="'$APK'" file="'$XML_TYPE'"' | wc -l) -gt 0 ]; then
-	cat $UNTRANSLATEABLE_LIST | grep 'folder="all" application="'$APK'" file="'$XML_TYPE'"' | while read all_line; do
-		UNTRANSLATEABLE_STRING=$(echo $all_line | awk '{print $5}' | cut -d'/' -f1)
-		grep -ne ''$UNTRANSLATEABLE_STRING'' $XML_TARGET
+if [ $(cat $UNTRANSLATEABLE_LIST | grep ''$APK' '$XML_TYPE' ' | wc -l) -gt 0 ]; then
+	cat $UNTRANSLATEABLE_LIST | grep 'all '$APK' '$XML_TYPE' ' | while read all_line; do
+		init_ignorelist $(cat $UNTRANSLATEABLE_LIST | grep "$all_line")
+		grep -ne '"'$ITEM_NAME'"' $XML_TARGET
 	done >> $XML_CACHE_LOG
-	cat $UNTRANSLATEABLE_LIST | grep 'folder="'$DIR'" application="'$APK'" file="'$XML_TYPE'"' | while read all_line; do
-		UNTRANSLATEABLE_STRING=$(echo $all_line | awk '{print $5}' | cut -d'/' -f1)
-		grep -ne ''$UNTRANSLATEABLE_STRING'' $XML_TARGET
+	cat $UNTRANSLATEABLE_LIST | grep ''$DIR' '$APK' '$XML_TYPE' ' | while read all_line; do
+		init_ignorelist $(cat $UNTRANSLATEABLE_LIST | grep "$all_line")
+		grep -ne '"'$ITEM_NAME'"' $XML_TARGET
 	done >> $XML_CACHE_LOG
 	if [ "$DIR" != "main" ]; then
-		cat $UNTRANSLATEABLE_LIST | grep 'folder="devices" application="'$APK'" file="'$XML_TYPE'"' | while read all_line; do
-			UNTRANSLATEABLE_STRING=$(echo $all_line | awk '{print $5}' | cut -d'/' -f1)
-			grep -ne ''$UNTRANSLATEABLE_STRING'' $XML_TARGET
+		cat $UNTRANSLATEABLE_LIST | grep 'devices '$APK' '$XML_TYPE' ' | while read all_line; do
+			init_ignorelist $(cat $UNTRANSLATEABLE_LIST | grep "$all_line")
+			grep -ne '"'$ITEM_NAME'"' $XML_TARGET
 		done >> $XML_CACHE_LOG
 	fi
 fi
@@ -319,9 +319,9 @@ write_log_error "purple"
 if [ "$XML_TYPE" == "arrays.xml" ] && [ "$DIR" == "main" ]; then
 	cat $XML_TARGET | grep 'name=' | while read array_count; do
 		ARRAY_NAME=$(echo $array_count | cut -d'>' -f1 | cut -d'"' -f2)
-		if [ $(cat $ARRAY_ITEM_LIST | grep ''$APK'|'$ARRAY_NAME'|' | wc -l) -gt 0 ]; then
+		if [ $(cat $ARRAY_ITEM_LIST | grep ''$APK' '$ARRAY_NAME' ' | wc -l) -gt 0 ]; then
 			ARRAY_TYPE=$(echo $array_count | cut -d' ' -f1 | cut -d'<' -f2)
-			DIFF_ARRAY_COUNT=$(cat $ARRAY_ITEM_LIST | grep ''$APK'|'$ARRAY_NAME'|' | cut -d'|' -f3)
+			init_array_count $(cat $ARRAY_ITEM_LIST | grep ''$APK' '$ARRAY_NAME' ')
 			TARGET_ARRAY_COUNT=$(arrays_count_items $ARRAY_NAME $ARRAY_TYPE $XML_TARGET)
 			if [ "$TARGET_ARRAY_COUNT" != "$DIFF_ARRAY_COUNT" ]; then
 				ARRAY=$(grep -ne '"'$ARRAY_NAME'"' $XML_TARGET)

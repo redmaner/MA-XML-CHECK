@@ -100,6 +100,7 @@ fi
 
 create_md5sum_signature () {
 SIG_FILE=$1
+rm -f $SIG_FILE
 md5sum $LANG_XML >> $SIG_FILE
 md5sum $RES_DIR/MIUIv5_auto_ignorelist.xml >> $SIG_FILE
 md5sum $RES_DIR/MIUIv5_ignorelist.xml >> $SIG_FILE
@@ -133,9 +134,7 @@ cat $LANG_XML | grep 'language check=' | grep -v '<language check="false"' | whi
 done > $LANGS_ON
 
 # Parse ignorelists to mxcr
-parse_ignorelist_mxcr "$RES_DIR/MIUIv5_auto_ignorelist.xml" "$RES_DIR/MIUIv5_auto_ignorelist.mxcr"
 parse_ignorelist_mxcr "$RES_DIR/MIUIv5_ignorelist.xml" "$RES_DIR/MIUIv5_ignorelist.mxcr"
-parse_ignorelist_mxcr "$RES_DIR/MIUIv6_auto_ignorelist.xml" "$RES_DIR/MIUIv6_auto_ignorelist.mxcr"
 parse_ignorelist_mxcr "$RES_DIR/MIUIv6_ignorelist.xml" "$RES_DIR/MIUIv6_ignorelist.mxcr"
 }
 
@@ -147,7 +146,7 @@ cat $TARGET_FILE | grep '<item ' | while read ignore_string; do
 	ITEM_APP=$(echo $ignore_string | awk '{print $3}' | cut -d'"' -f2)
 	ITEM_FILE=$(echo $ignore_string | awk '{print $4}' | cut -d'"' -f2)
 	ITEM_NAME=$(echo $ignore_string | awk '{print $5}' | cut -d'"' -f2)
-	echo ''$ITEM_FOLDER' '$ITEM_APP' '$ITEM_FILE' '$ITEM_NAME''
+	echo ''$ITEM_FOLDER' '$ITEM_APP' '$ITEM_FILE' '$ITEM_NAME' '
 done > $NEW_FILE
 }
 
@@ -163,7 +162,7 @@ LANG_URL=$5
 LANG_GIT=$6
 LANG_BRANCH=$7
 LANG_TARGET=""$LANG_NAME"_"$LANG_VERSION""
-UNTRANSLATEABLE_LIST=$RES_DIR/MIUI"$LANG_VERSION"_ignorelist.xml
+UNTRANSLATEABLE_LIST=$RES_DIR/MIUI"$LANG_VERSION"_ignorelist.mxcr
 ARRAY_ITEM_LIST=$RES_DIR/MIUI"$LANG_VERSION"_arrays_items.mxcr
 AUTO_IGNORELIST=$RES_DIR/MIUI"$LANG_VERSION"_auto_ignorelist.xml
 }
@@ -173,4 +172,8 @@ ITEM_FOLDER=$1
 ITEM_APP=$2
 ITEM_FILE=$3
 ITEM_NAME=$4
+}
+
+init_array_count () {
+DIFF_ARRAY_COUNT=$3
 }
