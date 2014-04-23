@@ -46,18 +46,18 @@ fi
 if [ -e $RES_COUNT ]; then
 	RES_SYNCS=$(expr $(cat $RES_COUNT) + 1)
 	if [ "$RES_SYNCS" == "$RES_INTERVAL" ]; then
-		build_resources
+		sync_arrays
 		RES_SYNCS=1
 	fi
 	echo "$RES_SYNCS" > $RES_COUNT
 else
-	build_resources
+	sync_arrays
 	echo "1" > $RES_COUNT
 fi
 check_mxcr
 }
 
-build_resources () {
+sync_arrays () {
 # Pull MIUI-XML-DEV repository, MIUIv6 branch
 echo -e "${txtblu}\nSyncing MIUI-XML-DEV, MIUIv6${txtrst}"
 if [ -d $RES_DIR/MIUIv6-XML-DEV ]; then
