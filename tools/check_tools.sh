@@ -15,11 +15,11 @@ XML_LOG_TEMP=$CACHE/XML_LOG_TEMP
 # Define logs
 debug_mode () {
 case "$DEBUG_MODE" in
-   full) XML_LOG=$CACHE/XML_LOG_FULL;;
- double) XML_LOG_FULL=$CACHE/XML_CHECK_FULL
+   full) XML_LOG=$CACHE/XML_LOG_FULL.html;;
+ double) XML_LOG_FULL=$CACHE/XML_CHECK_FULL.html
        	 LOG_TARGET=$XML_LOG_FULL; update_log
-       	 XML_LOG=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO;;
-      *) XML_LOG=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO;;
+       	 XML_LOG=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html;;
+      *) XML_LOG=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html;;
 esac
 LOG_TARGET=$XML_LOG; update_log
 }
@@ -158,22 +158,21 @@ case "$DEBUG_MODE" in
           	cp $XML_LOG $LOG_DIR/XML_CHECK_FULL.html
           	echo -e "${txtgrn}All languages checked, log at logs/XML_CHECK_FULL.html${txtrst}"
      	  fi;;
-  double) rm -f $LOG_DIR/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
-     	  cp $XML_LOG $LOG_DIR/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
-    	  echo -e "${txtgrn}$LANG_NAME ($LANG_ISO) checked, log at logs/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html${txtrst}"
+  double) echo -e "${txtgrn}$LANG_NAME ($LANG_ISO) checked${txtrst}"
      	  if [ "$LANG_URL" == "$LAST_URL" ]; then
           	LINE_NR=$(wc -l $XML_LOG_FULL | cut -d' ' -f1)
           	if [ "$(sed -n "$LINE_NR"p $XML_LOG_FULL)" == '<!-- Start of log --><script type="text/plain">' ]; then
                		echo '</script><span class="green">No errors found in this repository!</span>' >> $XML_LOG_FULL
           	fi
-          	cp $XML_LOG_FULL $LOG_DIR/XML_CHECK_FULL.html
-          	echo -e "${txtgrn}All languages checked, log at logs/XML_CHECK_FULL.html${txtrst}"
+		find $CACHE -iname "XML_*.html" | sort | while read complete_log; do
+			cp $complete_log $LOG_DIR
+		done
+          	echo -e "${txtgrn}All languages checked, logs at $LOG_DIR${txtrst}"
      	  fi;;
        *) rm -f $LOG_DIR/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
      	  cp $XML_LOG $LOG_DIR/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
      	  echo -e "${txtgrn}$LANG_NAME ($LANG_ISO) checked, log at logs/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html${txtrst}";;
 esac
-chmod 777 $LOG_DIR/XML_*.html
 }
 
 #########################################################################################################
