@@ -5,7 +5,7 @@
 
 # Variables
 RES_GIT="git@github.com:Redmaner/MA-XML-CHECK-RESOURCES.git"
-RES_BRANCH="4.0-dev"
+RES_BRANCH="master"
 RES_COUNT=$RES_DIR/sync_count
 RES_INTERVAL=16
 
@@ -163,7 +163,6 @@ LANG_BRANCH=$7
 LANG_TARGET=""$LANG_NAME"_"$LANG_VERSION""
 UNTRANSLATEABLE_LIST=$RES_DIR/MIUI"$LANG_VERSION"_ignorelist.mxcr
 ARRAY_ITEM_LIST=$RES_DIR/MIUI"$LANG_VERSION"_arrays_items.mxcr
-AUTO_IGNORELIST=$RES_DIR/MIUI"$LANG_VERSION"_auto_ignorelist.xml
 }
 
 init_ignorelist () {

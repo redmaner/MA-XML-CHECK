@@ -160,6 +160,7 @@ if [ $# -gt 0 ]; then
 	elif [ $1 == "--resources" ]; then
             	if [ "$2" != " " ]; then
                  	case "$2" in
+					sync) sync_resources;;
                         	      resync) rm -rf $RES_DIR; sync_resources;;
 				count_arrays) sync_arrays;;
 				 create_mxcr) sync_arrays; sync_mxcr;;
