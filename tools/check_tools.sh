@@ -4,7 +4,6 @@
 # The license can be found at http://creativecommons.org/licenses/by-nc-sa/4.0/
 
 # Variables
-source $CACHE_TOOLS; build_cache
 XML_TARGET_STRIPPED=$CACHE/xml.target.stripped
 APOSTROPHE_RESULT=$CACHE/xml.apostrophe.result
 XML_CACHE_LOG=$CACHE/XML_CACHE_LOG
@@ -194,7 +193,6 @@ if [ -d $MAIN_DIR/languages/$LANG_TARGET ]; then
 	done
 	check_log
 fi
-clear_cache
 }
 
 xml_check () {

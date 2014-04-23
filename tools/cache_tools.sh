@@ -4,8 +4,6 @@
 # The license can be found at http://creativecommons.org/licenses/by-nc-sa/4.0/
 
 build_cache () {
-DATE=$(date +"%m-%d-%Y-%H-%M-%S")
-CACHE="$MAIN_DIR/.cache-$DATE"
 if [ -d $CACHE ]; then
 	case "$SERVER" in
 		yes) rm -rf $CACHE; mkdir $CACHE;;

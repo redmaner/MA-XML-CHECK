@@ -46,6 +46,8 @@ fi
 # VARIABLES / CACHE
 #########################################################################################################
 VERSION=4.0
+DATE=$(date +"%m-%d-%Y-%H-%M-%S")
+CACHE="$MAIN_DIR/.cache-$DATE"
 
 # Tools
 ARRAY_TOOLS=$TOOL_DIR/array_tools.sh
@@ -85,7 +87,7 @@ if [ $# -gt 0 ]; then
      	if [ $1 == "--help" ]; then
           	show_argument_help
      	elif [ $1 == "--check" ]; then
-		source $ARRAY_TOOLS; source $CHECK_TOOLS; sync_resources
+		source $ARRAY_TOOLS; source $CACHE_TOOLS; source $CHECK_TOOLS; sync_resources; build_cache
             	DEBUG_MODE=lang
             	case "$2" in
 		  	all) if [ "$3" == "full" ]; then
@@ -107,6 +109,7 @@ if [ $# -gt 0 ]; then
 					echo -e "${txtred}\nLanguage not supported or language not specified${txtrst}"; exit
 			     fi;;
            	esac		
+		clear_cache
      	elif [ $1 == "--pull" ]; then
 		source $LANG_TOOLS; sync_resources
             	case "$2" in
