@@ -5,7 +5,7 @@
 
 # Variables
 RES_GIT="git@github.com:Redmaner/MA-XML-CHECK-RESOURCES.git"
-RES_BRANCH="master"
+RES_BRANCH="4.0-dev"
 RES_COUNT=$RES_DIR/sync_count
 RES_INTERVAL=16
 
