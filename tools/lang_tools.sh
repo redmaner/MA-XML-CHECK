@@ -3,10 +3,6 @@
 # This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International license
 # The license can be found at http://creativecommons.org/licenses/by-nc-sa/4.0/
 
-# Variables
-COUNT=0
-MAX_COUNT=$((4*24*7)) 
-
 #########################################################################################################
 # PULL LANGUAGES
 #########################################################################################################
@@ -16,6 +12,8 @@ if [ "$PULL_FLAG" != "" ]; then
 		rm -rf $MAIN_DIR/languages/$LANG_TARGET; sleep 1; sync
 	fi
 fi
+
+# Check for new repository ssh
 if [ -d $MAIN_DIR/languages/$LANG_TARGET ]; then
 	OLD_GIT=$(grep "url = *" $MAIN_DIR/languages/$LANG_TARGET/.git/config | cut -d' ' -f3)
 	if [ "$LANG_GIT" != "$OLD_GIT" ]; then
@@ -25,10 +23,18 @@ if [ -d $MAIN_DIR/languages/$LANG_TARGET ]; then
 fi
 
 echo -e "${txtblu}\nSyncing $LANG_NAME MIUI$LANG_VERSION${txtrst}"
+# Check status of previous sync
+if [ -e $MAIN_DIR/languages/logs/$LANG_TARGET.log ]; then
+	if [ $(cat $MAIN_DIR/languages/logs/$LANG_TARGET.log | grep 'error: ' | wc -l) -gt 0 ]; then
+		echo -e "${txtred}\nPrevious sync had an error, cleaning repository${txtrst}"
+		rm -rf $MAIN_DIR/languages/$LANG_TARGET
+	fi
+fi
+
 if [ -e $MAIN_DIR/languages/$LANG_TARGET ]; then
      	cd $MAIN_DIR/languages/$LANG_TARGET; git pull origin $LANG_BRANCH 2> $MAIN_DIR/languages/logs/$LANG_TARGET.log; cd ../../..
 else
-     	git clone $LANG_GIT  -b $LANG_BRANCH $MAIN_DIR/languages/$LANG_TARGET 2> $CACHE/languages/logs/$LANG_TARGET.log
+     	git clone $LANG_GIT  -b $LANG_BRANCH $MAIN_DIR/languages/$LANG_TARGET 2> $MAIN_DIR/languages/logs/$LANG_TARGET.log
 fi
 }
 
