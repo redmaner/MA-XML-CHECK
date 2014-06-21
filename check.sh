@@ -34,8 +34,8 @@ else
 	SERVER=no
 fi
 
-if [ ! -e $MAIN_DIR/languages ]; then
-	mkdir -p $MAIN_DIR/languages
+if [ ! -e $MAIN_DIR/languages/logs ]; then
+	mkdir -p $MAIN_DIR/languages/logs
 fi
 
 if [ ! -e $LOGDIR ]; then
