@@ -63,7 +63,7 @@ check_mxcr
 
 sync_arrays () {
 # Pull XML-Compare repository, MIUIv6 TABLET branch
-echo -e "${txtblu}\nSyncing MIUI-XML-DEV, MIUIv6 TABLET${txtrst}"
+echo -e "${txtblu}\nSyncing XML-Compare, MIUIv6 TABLET${txtrst}"
 if [ -d $RES_DIR/MIUIv6-TABLET-XML-DEV ]; then
 	cd $RES_DIR/MIUIv6-TABLET-XML-DEV
 	git pull origin master
@@ -73,7 +73,7 @@ else
 fi
 
 # Pull XML-Compare repository, MIUIv5 branch
-echo -e "${txtblu}\nSyncing MIUI-XML-DEV, MIUIv5${txtrst}"
+echo -e "${txtblu}\nSyncing XML-Compare, MIUIv5${txtrst}"
 if [ -d $RES_DIR/MIUIv5-XML-DEV ]; then
 	cd $RES_DIR/MIUIv5-XML-DEV
 	git pull origin MIUIv5
@@ -83,7 +83,7 @@ else
 fi
 
 source $ARRAY_TOOLS
-arrays_count_items_directory $RES_DIR/MIUIv6-TABLET-XML-DEV/mocha $RES_DIR/MIUIv6_TABLET_arrays_items.mxcr
+arrays_count_items_directory $RES_DIR/MIUIv6-TABLET-XML-DEV/mocha $RES_DIR/MIUIv6-Tablet_arrays_items.mxcr
 arrays_count_items_directory $RES_DIR/MIUIv5-XML-DEV/cancro $RES_DIR/MIUIv5_arrays_items.mxcr
 }
 
@@ -108,8 +108,8 @@ rm -f $SIG_FILE
 md5sum $LANG_XML >> $SIG_FILE
 md5sum $RES_DIR/MIUIv5_auto_ignorelist.xml >> $SIG_FILE
 md5sum $RES_DIR/MIUIv5_ignorelist.xml >> $SIG_FILE
-md5sum $RES_DIR/MIUIv6_auto_ignorelist.xml >> $SIG_FILE
-md5sum $RES_DIR/MIUIv6_ignorelist.xml >> $SIG_FILE
+md5sum $RES_DIR/MIUIv6-Tablet_auto_ignorelist.xml >> $SIG_FILE
+md5sum $RES_DIR/MIUIv6-Tablet_ignorelist.xml >> $SIG_FILE
 }
 
 sync_mxcr () {
