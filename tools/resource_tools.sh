@@ -115,7 +115,7 @@ md5sum $RES_DIR/MIUIv6_ignorelist.xml >> $SIG_FILE
 sync_mxcr () {
 echo -e "${txtblu}\nGenerating MXCR files${txtrst}"
 # Parse languages.xml to mxcr
-rm -f $RES_DIR/languages_all.mxcr $RES_DIR/languages_enabled.mxcr $RES_DIR/MIUIv5_auto_ignorelist.mxcr $RES_DIR/MIUIv5_ignorelist.mxcr $RES_DIR/MIUIv6_auto_ignorelist.mxcr $RES_DIR/MIUIv6_ignorelist.mxcr
+rm -f $RES_DIR/languages_all.mxcr $RES_DIR/languages_enabled.mxcr $RES_DIR/MIUIv5_auto_ignorelist.mxcr $RES_DIR/MIUIv5_ignorelist.mxcr $RES_DIR/MIUIv6-Tablet_auto_ignorelist.mxcr $RES_DIR/MIUIv6-Tablet_ignorelist.mxcr
 cat $LANG_XML | grep 'language check=' | while read language; do
 	LANG_VERSION=$(echo $language | awk '{print $3}' | cut -d'"' -f2)
 	LANG_NAME=$(echo $language | awk '{print $4}' | cut -d'"' -f2)
@@ -138,7 +138,7 @@ done > $LANGS_ON
 
 # Parse ignorelists to mxcr
 parse_ignorelist_mxcr "$RES_DIR/MIUIv5_ignorelist.xml" "$RES_DIR/MIUIv5_ignorelist.mxcr"
-parse_ignorelist_mxcr "$RES_DIR/MIUIv6_ignorelist.xml" "$RES_DIR/MIUIv6_ignorelist.mxcr"
+parse_ignorelist_mxcr "$RES_DIR/MIUIv6-Tablet_ignorelist.xml" "$RES_DIR/MIUIv6-Tablet_ignorelist.mxcr"
 }
 
 parse_ignorelist_mxcr () {
