@@ -22,19 +22,12 @@ if [ -d $MAIN_DIR/languages/$LANG_TARGET ]; then
 	fi
 fi
 
+# Pull language
 echo -e "${txtblu}\nSyncing $LANG_NAME MIUI$LANG_VERSION${txtrst}"
-# Check status of previous sync
-if [ -e $MAIN_DIR/languages/logs/$LANG_TARGET.log ]; then
-	if [ $(cat $MAIN_DIR/languages/logs/$LANG_TARGET.log | grep 'error: ' | wc -l) -gt 0 ]; then
-		echo -e "${txtred}\nPrevious sync had an error, cleaning repository${txtrst}"
-		rm -rf $MAIN_DIR/languages/$LANG_TARGET
-	fi
-fi
-
 if [ -e $MAIN_DIR/languages/$LANG_TARGET ]; then
-     	cd $MAIN_DIR/languages/$LANG_TARGET; git pull origin $LANG_BRANCH 2> $MAIN_DIR/languages/logs/$LANG_TARGET.log; cd ../../..
+     	cd $MAIN_DIR/languages/$LANG_TARGET; git pull origin $LANG_BRANCH; cd ../../..
 else
-     	git clone $LANG_GIT  -b $LANG_BRANCH $MAIN_DIR/languages/$LANG_TARGET 2> $MAIN_DIR/languages/logs/$LANG_TARGET.log
+     	git clone $LANG_GIT  -b $LANG_BRANCH $MAIN_DIR/languages/$LANG_TARGET
 fi
 }
 
