@@ -164,6 +164,7 @@ case "$DEBUG_MODE" in
           	if [ "$(sed -n "$LINE_NR"p $XML_LOG_FULL)" == '<!-- Start of log --><script type="text/plain">' ]; then
                		echo '</script><span class="green">No errors found in this repository!</span>' >> $XML_LOG_FULL
           	fi
+		rm -f $LOG_DIR/XML_*.html
 		find $CACHE -iname "XML_*.html" | sort | while read complete_log; do
 			cp $complete_log $LOG_DIR
 		done
