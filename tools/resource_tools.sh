@@ -106,6 +106,8 @@ create_md5sum_signature () {
 SIG_FILE=$1
 rm -f $SIG_FILE
 md5sum $LANG_XML >> $SIG_FILE
+md5sum $RES_DIR/MIUI6_auto_ignorelist.xml >> $SIG_FILE
+md5sum $RES_DIR/MIUI6_ignorelist.xml >> $SIG_FILE
 md5sum $RES_DIR/MIUIv5_auto_ignorelist.xml >> $SIG_FILE
 md5sum $RES_DIR/MIUIv5_ignorelist.xml >> $SIG_FILE
 md5sum $RES_DIR/MIUIv6-Tablet_auto_ignorelist.xml >> $SIG_FILE
@@ -137,6 +139,7 @@ cat $LANG_XML | grep 'language check=' | grep -v '<language check="false"' | whi
 done > $LANGS_ON
 
 # Parse ignorelists to mxcr
+parse_ignorelist_mxcr "$RES_DIR/MIUI6_ignorelist.xml" "$RES_DIR/MIUI6_ignorelist.mxcr"
 parse_ignorelist_mxcr "$RES_DIR/MIUIv5_ignorelist.xml" "$RES_DIR/MIUIv5_ignorelist.mxcr"
 parse_ignorelist_mxcr "$RES_DIR/MIUIv6-Tablet_ignorelist.xml" "$RES_DIR/MIUIv6-Tablet_ignorelist.mxcr"
 }
