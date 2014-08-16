@@ -76,7 +76,7 @@ fi
 echo -e "${txtblu}\nSyncing XML-Compare, MIUIv5${txtrst}"
 if [ -d $RES_DIR/MIUIv5-XML-DEV ]; then
 	cd $RES_DIR/MIUIv5-XML-DEV
-	git pull origin MIUIv5
+	git pull origin master
 	cd $MAIN_DIR
 else
 	git clone git@github.com:Acid-miuipolskapl/v5-XML-Compare.git -b master $RES_DIR/MIUIv5-XML-DEV
