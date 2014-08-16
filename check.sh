@@ -24,13 +24,11 @@ if [ -d /home/translators.xiaomi.eu ]; then
      	MAIN_DIR=/home/translators.xiaomi.eu/scripts
      	LOG_DIR=/home/translators.xiaomi.eu/public_html
 	RES_DIR=/home/translators.xiaomi.eu/scripts/resources
-	TOOL_DIR=/home/translators.xiaomi.eu/scripts/tools
 	SERVER=yes
 else
      	MAIN_DIR=$PWD
      	LOG_DIR=$PWD/logs
 	RES_DIR=$PWD/resources
-	TOOL_DIR=$PWD/tools
 	SERVER=no
 fi
 
@@ -45,16 +43,16 @@ fi
 #########################################################################################################
 # VARIABLES / CACHE
 #########################################################################################################
-VERSION=4.1.1
+VERSION=4.2
 DATE=$(date +"%m-%d-%Y-%H-%M-%S")
 CACHE="$MAIN_DIR/.cache-$DATE"
 
-# Tools
-ARRAY_TOOLS=$TOOL_DIR/array_tools.sh
-CACHE_TOOLS=$TOOL_DIR/cache_tools.sh
-CHECK_TOOLS=$TOOL_DIR/check_tools.sh
-LANG_TOOLS=$TOOL_DIR/lang_tools.sh
-RES_TOOLS=$TOOL_DIR/resource_tools.sh; source $RES_TOOLS
+# Scripts
+ARRAY_TOOLS=$MAIN_DIR/array_tools.sh
+RES_TOOLS=$MAIN_DIR/resources.sh
+LANG_TOOLS=$MAIN_DIR/pull_lang.sh
+CHECK_TOOLS=$MAIN_DIR/check_xml.sh
+source $RES_TOOLS
 
 #########################################################################################################
 # ARGUMENTS
@@ -87,7 +85,7 @@ if [ $# -gt 0 ]; then
      	if [ $1 == "--help" ]; then
           	show_argument_help
      	elif [ $1 == "--check" ]; then
-		source $ARRAY_TOOLS; source $CACHE_TOOLS; source $CHECK_TOOLS; sync_resources; build_cache
+		source $ARRAY_TOOLS; source $CHECK_TOOLS; sync_resources; build_cache
             	DEBUG_MODE=lang
             	case "$2" in
 		  	all) if [ "$3" == "full" ]; then
