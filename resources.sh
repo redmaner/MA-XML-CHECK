@@ -6,8 +6,6 @@
 # Variables
 RES_GIT="git@github.com:Redmaner/MA-XML-CHECK-RESOURCES.git"
 RES_BRANCH="master"
-RES_COUNT=$RES_DIR/sync_count
-RES_SERVER_INTERVAL=48
 
 # Resource variables
 LANG_XML=$RES_DIR/languages.xml
@@ -42,49 +40,7 @@ if [ "$RES_GIT" != "" ]; then
 		git clone $RES_GIT -b $RES_BRANCH $RES_DIR
 	fi
 fi
-
-if [ -e $RES_COUNT ]; then
-	if [ $SERVER == "yes" ]; then
-		RES_SYNCS=$(expr $(cat $RES_COUNT) + 1)
-		if [ "$RES_SYNCS" == "$RES_SERVER_INTERVAL" ]; then
-			sync_arrays
-			RES_SYNCS=1
-		fi
-		echo "$RES_SYNCS" > $RES_COUNT
-	else
-		sync_arrays
-	fi
-else
-	sync_arrays
-	echo "1" > $RES_COUNT
-fi
 check_mxcr
-}
-
-sync_arrays () {
-# Pull XML-Compare repository, MIUIv6 TABLET branch
-echo -e "${txtblu}\nSyncing XML-Compare, MIUIv6 TABLET${txtrst}"
-if [ -d $RES_DIR/MIUIv6-TABLET-XML-DEV ]; then
-	cd $RES_DIR/MIUIv6-TABLET-XML-DEV
-	git pull origin master
-	cd $MAIN_DIR
-else
-	git clone git@github.com:Acid-miuipolskapl/Tablet-XML-Compare.git -b master $RES_DIR/MIUIv6-TABLET-XML-DEV
-fi
-
-# Pull XML-Compare repository, MIUIv5 branch
-echo -e "${txtblu}\nSyncing XML-Compare, MIUIv5${txtrst}"
-if [ -d $RES_DIR/MIUIv5-XML-DEV ]; then
-	cd $RES_DIR/MIUIv5-XML-DEV
-	git pull origin master
-	cd $MAIN_DIR
-else
-	git clone git@github.com:Acid-miuipolskapl/v5-XML-Compare.git -b master $RES_DIR/MIUIv5-XML-DEV
-fi
-
-source $ARRAY_TOOLS
-arrays_count_items_directory $RES_DIR/MIUIv6-TABLET-XML-DEV/mocha $RES_DIR/MIUIv6-Tablet_arrays_items.mxcr
-arrays_count_items_directory $RES_DIR/MIUIv5-XML-DEV/cancro $RES_DIR/MIUIv5_arrays_items.mxcr
 }
 
 #########################################################################################################

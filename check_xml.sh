@@ -112,9 +112,6 @@ script {
 .purple {
 	color: #6633FF;
 }
-.teal { 
-	color: #008080;
-}
 table {
         background-color: #ffffff;
         border-collapse: collapse;
@@ -163,10 +160,6 @@ a:hover {
 	<tr>
 		<td height="auto" width="120px"><span class="purple">Purple text</span></td>
 		<td height="auto" width="auto"><span class="black">Untranslateable string, array or plural - Has to be removed from xml!</span><td>
-	</tr>
-	<tr>
-		<td height="auto" width="120px"><span class="teal">Teal text</span></td>
-		<td height="auto" width="auto"><span class="black">Incorrect amount of items in array</span><td>
 	</tr>
 	<tr>
 		<td height="auto" width="120px"><span class="blue">Blue text</span></td>
@@ -246,7 +239,6 @@ if [ -e "$XML_TARGET" ]; then
 	case "$LANG_CHECK" in
 		 basic) xml_check_basic; write_log_finish;;
 		normal) xml_check_basic; xml_check_normal; write_log_finish;;
-		  full) xml_check_basic; xml_check_normal; xml_check_full; write_log_finish;;
 	esac
 fi
 }
