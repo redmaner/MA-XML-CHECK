@@ -336,6 +336,7 @@ case "$XML_TYPE" in
 				fi
 		     done >> $XML_CACHE_LOG;;
 esac
+write_log_error "purple"
 }
 
 xml_check_full () {
