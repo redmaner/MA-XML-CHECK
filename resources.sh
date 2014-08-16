@@ -66,14 +66,12 @@ md5sum $RES_DIR/MIUI6_auto_ignorelist.xml >> $SIG_FILE
 md5sum $RES_DIR/MIUI6_ignorelist.xml >> $SIG_FILE
 md5sum $RES_DIR/MIUIv5_auto_ignorelist.xml >> $SIG_FILE
 md5sum $RES_DIR/MIUIv5_ignorelist.xml >> $SIG_FILE
-md5sum $RES_DIR/MIUIv6-Tablet_auto_ignorelist.xml >> $SIG_FILE
-md5sum $RES_DIR/MIUIv6-Tablet_ignorelist.xml >> $SIG_FILE
 }
 
 sync_mxcr () {
 echo -e "${txtblu}\nGenerating MXCR files${txtrst}"
 # Parse languages.xml to mxcr
-rm -f $RES_DIR/languages_all.mxcr $RES_DIR/languages_enabled.mxcr $RES_DIR/MIUIv5_auto_ignorelist.mxcr $RES_DIR/MIUIv5_ignorelist.mxcr $RES_DIR/MIUIv6-Tablet_auto_ignorelist.mxcr $RES_DIR/MIUIv6-Tablet_ignorelist.mxcr
+rm -f $RES_DIR/languages_all.mxcr $RES_DIR/languages_enabled.mxcr $RES_DIR/MIUIv5_auto_ignorelist.mxcr $RES_DIR/MIUIv5_ignorelist.mxcr $RES_DIR/MIUI6_auto_ignorelist.mxcr $RES_DIR/MIUI6_ignorelist.mxcr
 cat $LANG_XML | grep 'language check=' | while read language; do
 	LANG_VERSION=$(echo $language | awk '{print $3}' | cut -d'"' -f2)
 	LANG_NAME=$(echo $language | awk '{print $4}' | cut -d'"' -f2)
@@ -81,7 +79,7 @@ cat $LANG_XML | grep 'language check=' | while read language; do
 	LANG_URL=$(echo $language | awk '{print $6}' | cut -d'"' -f2) 
 	LANG_GIT=$(echo $language | awk '{print $7}' | cut -d'"' -f2)
 	LANG_BRANCH=$(echo $language | awk '{print $8}' | cut -d'"' -f2)
-	echo ''$LANG_NAME' '$LANG_VERSION' '$LANG_ISO' full '$LANG_URL' '$LANG_GIT' '$LANG_BRANCH'' 
+	echo ''$LANG_NAME' '$LANG_VERSION' '$LANG_ISO' normal '$LANG_URL' '$LANG_GIT' '$LANG_BRANCH'' 
 done > $LANGS_ALL
 cat $LANG_XML | grep 'language check=' | grep -v '<language check="false"' | while read language; do
 	LANG_CHECK=$(echo $language | awk '{print $2}' | cut -d'"' -f2)
@@ -97,7 +95,6 @@ done > $LANGS_ON
 # Parse ignorelists to mxcr
 parse_ignorelist_mxcr "$RES_DIR/MIUI6_ignorelist.xml" "$RES_DIR/MIUI6_ignorelist.mxcr"
 parse_ignorelist_mxcr "$RES_DIR/MIUIv5_ignorelist.xml" "$RES_DIR/MIUIv5_ignorelist.mxcr"
-parse_ignorelist_mxcr "$RES_DIR/MIUIv6-Tablet_ignorelist.xml" "$RES_DIR/MIUIv6-Tablet_ignorelist.mxcr"
 }
 
 parse_ignorelist_mxcr () {
