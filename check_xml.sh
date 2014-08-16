@@ -294,10 +294,7 @@ if [ $(cat $IGNORELIST | grep ''$APK' '$XML_TYPE' ' | wc -l) -gt 0 ]; then
 		done >> $XML_CACHE_LOG
 	fi
 fi
-write_log_error "purple"
-}
 
-xml_check_supah () {
 # Check for untranslateable strings and arrays due automatically search for @
 case "$XML_TYPE" in 
 	strings.xml) cat $XML_TARGET | grep '@android\|@string\|@color\|@drawable' | cut -d'>' -f1 | cut -d'"' -f2 | while read auto_search_target; do
