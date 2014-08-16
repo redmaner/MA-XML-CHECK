@@ -208,10 +208,10 @@ if [ -d $MAIN_DIR/languages/$LANG_TARGET ]; then
 	echo -e "${txtblu}\nChecking $LANG_NAME MIUI$LANG_VERSION ($LANG_ISO)${txtrst}"
    	rm -f $APK_TARGETS
 	debug_mode
-	find $MAIN_DIR/languages/$LANG_TARGET -iname "*.apk" | sort | while read apk_target; do
+	for apk_target in $(find $MAIN_DIR/languages/$LANG_TARGET -iname "*.apk" | sort); do
 		APK=$(basename $apk_target)
 		DIR=$(basename $(dirname $apk_target))
-		find $apk_target -iname "arrays.xml*" -o -iname "strings.xml*" -o -iname "plurals.xml*" | while read xml_target; do
+		for xml_target in $(find $apk_target -iname "arrays.xml*" -o -iname "strings.xml*" -o -iname "plurals.xml*"); do
 			xml_check "$xml_target"
 		done
 	done
@@ -277,24 +277,27 @@ write_log_error "blue"
 }
 
 xml_check_normal () {
-# Check for untranslateable strings, arrays, plurals using untranslateable list
-if [ $(cat $UNTRANSLATEABLE_LIST | grep ''$APK' '$XML_TYPE' ' | wc -l) -gt 0 ]; then
-	cat $UNTRANSLATEABLE_LIST | grep 'all '$APK' '$XML_TYPE' ' | while read all_line; do
-		init_ignorelist $(cat $UNTRANSLATEABLE_LIST | grep "$all_line")
+# Check for untranslateable strings, arrays, plurals using ignorelist
+if [ $(cat $IGNORELIST | grep ''$APK' '$XML_TYPE' ' | wc -l) -gt 0 ]; then
+	cat $IGNORELIST | grep 'all '$APK' '$XML_TYPE' ' | while read all_line; do
+		init_ignorelist $(cat $IGNORELIST | grep "$all_line")
 		grep -ne '"'$ITEM_NAME'"' $XML_TARGET
 	done >> $XML_CACHE_LOG
-	cat $UNTRANSLATEABLE_LIST | grep ''$DIR' '$APK' '$XML_TYPE' ' | while read all_line; do
-		init_ignorelist $(cat $UNTRANSLATEABLE_LIST | grep "$all_line")
+	cat $IGNORELIST | grep ''$DIR' '$APK' '$XML_TYPE' ' | while read all_line; do
+		init_ignorelist $(cat $IGNORELIST | grep "$all_line")
 		grep -ne '"'$ITEM_NAME'"' $XML_TARGET
 	done >> $XML_CACHE_LOG
 	if [ "$DIR" != "main" ]; then
-		cat $UNTRANSLATEABLE_LIST | grep 'devices '$APK' '$XML_TYPE' ' | while read all_line; do
-			init_ignorelist $(cat $UNTRANSLATEABLE_LIST | grep "$all_line")
+		cat $IGNORELIST | grep 'devices '$APK' '$XML_TYPE' ' | while read all_line; do
+			init_ignorelist $(cat $IGNORELIST| grep "$all_line")
 			grep -ne '"'$ITEM_NAME'"' $XML_TARGET
 		done >> $XML_CACHE_LOG
 	fi
 fi
+write_log_error "purple"
+}
 
+xml_check_supah () {
 # Check for untranslateable strings and arrays due automatically search for @
 case "$XML_TYPE" in 
 	strings.xml) cat $XML_TARGET | grep '@android\|@string\|@color\|@drawable' | cut -d'>' -f1 | cut -d'"' -f2 | while read auto_search_target; do
@@ -336,7 +339,6 @@ case "$XML_TYPE" in
 				fi
 		     done >> $XML_CACHE_LOG;;
 esac
-write_log_error "purple"
 }
 
 xml_check_full () {
