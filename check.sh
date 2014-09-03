@@ -23,27 +23,21 @@ esac
 if [ -d /home/translators.xiaomi.eu ]; then
      	MAIN_DIR=/home/translators.xiaomi.eu/scripts
      	LOG_DIR=/home/translators.xiaomi.eu/public_html
-	RES_DIR=/home/translators.xiaomi.eu/scripts/resources
-	SERVER=yes
 else
      	MAIN_DIR=$PWD
      	LOG_DIR=$PWD/logs
-	RES_DIR=$PWD/resources
-	SERVER=no
 fi
 
-if [ ! -e $MAIN_DIR/languages/logs ]; then
-	mkdir -p $MAIN_DIR/languages/logs
-fi
+RES_DIR=$MAIN_DIR/resources
+LANG_DIR=$MAIN_DIR/languages
 
-if [ ! -e $LOGDIR ]; then
-	mkdir -p $LOGDIR
-fi
+mkdir -p $LANG_DIR
+mkdir -p $LOG_DIR
 
 #########################################################################################################
 # VARIABLES / CACHE
 #########################################################################################################
-VERSION=4.2
+VERSION=4.3
 DATE=$(date +"%m-%d-%Y-%H-%M-%S")
 CACHE="$MAIN_DIR/.cache-$DATE"
 
@@ -88,9 +82,7 @@ if [ $# -gt 0 ]; then
 		source $ARRAY_TOOLS; source $CHECK_TOOLS; sync_resources; build_cache
             	DEBUG_MODE=lang
             	case "$2" in
-		  	all) if [ "$3" == "full" ]; then
-                                 DEBUG_MODE=full
-                             elif [ "$3" == "double" ]; then
+		  	all) if [ "$3" == "double" ]; then
                                	 DEBUG_MODE=double
                              fi; 
 			     LINE_NR=$(cat $LANG_XML | grep 'language check=' | grep -v '<language check="false"' | wc -l)
@@ -160,12 +152,8 @@ if [ $# -gt 0 ]; then
                  	case "$2" in
 					sync) sync_resources;;
                         	      resync) rm -rf $RES_DIR; sync_resources;;
-				count_arrays) sync_arrays;;
-				 create_mxcr) sync_arrays; sync_mxcr;;
                  	esac 
             	fi
-     	elif [ $1 == "--fix_languages" ]; then
-		source $LANG_TOOLS; fix_lang_folder
      	else
             	show_argument_help; exit
      	fi

@@ -46,11 +46,13 @@ rm -f $XML_CACHE_LOG
 # Define logs
 debug_mode () {
 case "$DEBUG_MODE" in
-   full) XML_LOG=$CACHE/XML_LOG_FULL.html;;
- double) XML_LOG_FULL=$CACHE/XML_CHECK_FULL.html
-       	 LOG_TARGET=$XML_LOG_FULL; update_log
-       	 XML_LOG=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html;;
-      *) XML_LOG=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html;;
+ 	double) 
+	XML_LOG_FULL=$CACHE/XML_CHECK_FULL.html
+	LOG_TARGET=$XML_LOG_FULL; update_log
+       	XML_LOG=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html;;
+
+      	*) 
+	XML_LOG=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html;;
 esac
 LOG_TARGET=$XML_LOG; update_log
 }
@@ -177,14 +179,10 @@ if [ "$(sed -n "$LINE_NR"p $XML_LOG)" == '<!-- Start of log --><script type="tex
      	echo '</script><span class="green">No errors found in this repository!</span>' >> $XML_LOG
 fi
 case "$DEBUG_MODE" in
-    full) if [ "$LANG_URL" == "$LAST_URL" ]; then
-          	rm -f $LOG_DIR/XML_CHECK_FULL.html
-          	cp $XML_LOG $LOG_DIR/XML_CHECK_FULL.html
-          	echo -e "${txtgrn}All languages checked, log at logs/XML_CHECK_FULL.html${txtrst}"
-     	  fi;;
-  double) echo -e "${txtgrn}$LANG_NAME ($LANG_ISO) checked${txtrst}"
-     	  if [ "$LANG_URL" == "$LAST_URL" ]; then
-          	LINE_NR=$(wc -l $XML_LOG_FULL | cut -d' ' -f1)
+  	double) 
+	echo -e "${txtgrn}$LANG_NAME ($LANG_ISO) checked${txtrst}"
+     	if [ "$LANG_URL" == "$LAST_URL" ]; then
+        	LINE_NR=$(wc -l $XML_LOG_FULL | cut -d' ' -f1)
           	if [ "$(sed -n "$LINE_NR"p $XML_LOG_FULL)" == '<!-- Start of log --><script type="text/plain">' ]; then
                		echo '</script><span class="green">No errors found in this repository!</span>' >> $XML_LOG_FULL
           	fi
@@ -193,10 +191,12 @@ case "$DEBUG_MODE" in
 			cp $complete_log $LOG_DIR
 		done
           	echo -e "${txtgrn}All languages checked, logs at $LOG_DIR${txtrst}"
-     	  fi;;
-       *) rm -f $LOG_DIR/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
-     	  cp $XML_LOG $LOG_DIR/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
-     	  echo -e "${txtgrn}$LANG_NAME ($LANG_ISO) checked, log at logs/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html${txtrst}";;
+    	fi;;
+
+       *) 
+	rm -f $LOG_DIR/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html 
+	cp $XML_LOG $LOG_DIR/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
+	echo -e "${txtgrn}$LANG_NAME ($LANG_ISO) checked, log at logs/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html${txtrst}";;
 esac
 }
 
@@ -204,11 +204,11 @@ esac
 # START XML CHECK
 #########################################################################################################
 init_xml_check () {
-if [ -d $MAIN_DIR/languages/$LANG_TARGET ]; then
+if [ -d $LANG_DIR/$LANG_TARGET ]; then
 	echo -e "${txtblu}\nChecking $LANG_NAME MIUI$LANG_VERSION ($LANG_ISO)${txtrst}"
    	rm -f $APK_TARGETS
 	debug_mode
-	for apk_target in $(find $MAIN_DIR/languages/$LANG_TARGET -iname "*.apk" | sort); do
+	for apk_target in $(find $LANG_DIR/$LANG_TARGET -iname "*.apk" | sort); do
 		APK=$(basename $apk_target)
 		DIR=$(basename $(dirname $apk_target))
 		for xml_target in $(find $apk_target -iname "arrays.xml*" -o -iname "strings.xml*" -o -iname "plurals.xml*"); do
