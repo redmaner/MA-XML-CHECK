@@ -48,19 +48,23 @@ debug_mode () {
 case "$DEBUG_MODE" in
  	double) 
 	XML_LOG_FULL=$CACHE/XML_CHECK_FULL.html
-	LOG_TARGET=$XML_LOG_FULL; update_log
-       	XML_LOG=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html;;
+	XML_LOG_FULL_NH=$CACHE/XML_CHECK_FULL-no_header
+	update_log "$XML_LOG_FULL_NH"
+	XML_LOG=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
+      	XML_LOG_NH=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO-no_header;;
 
       	*) 
-	XML_LOG=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html;;
+	XML_LOG=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
+      	XML_LOG_NH=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO-no_header;;
 esac
-LOG_TARGET=$XML_LOG; update_log
+update_log "$XML_LOG_NH"
 }
 
 # Update log if log exsists (full/double debug mode) else create log
 update_log () {
+LOG_TARGET=$1
 DATE=$(date +"%m-%d-%Y %H:%M:%S")
-if [ -e $LOG_TARGET ]; then
+if [ -s $LOG_TARGET ]; then
      	LINE_NR=$(wc -l $LOG_TARGET | cut -d' ' -f1)
      	if [ "$(sed -n "$LINE_NR"p $LOG_TARGET)" == '<!-- Start of log --><script type="text/plain">' ]; then 
            	echo '</script></span><span class="green">No errors found in this repository!</span>' >> $LOG_TARGET
@@ -71,12 +75,14 @@ if [ -e $LOG_TARGET ]; then
            	echo '<!-- Start of log --><script type="text/plain">' >> $LOG_TARGET
      	fi
 else
-	create_log
+	echo '</script></span><span class="header"><br><br>Checked ('$LANG_CHECK') <a href="'$LANG_URL'" title="'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO')" target="_blank">'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO') repository</a> on '$DATE'</span>' >> $LOG_TARGET
+        echo '<!-- Start of log --><script type="text/plain">' >> $LOG_TARGET
 fi
 }
 
 create_log () {
-cat >> $LOG_TARGET << EOF
+LOG=$1
+cat >> $LOG << EOF
 <!DOCTYPE html>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
 <html>
@@ -149,27 +155,25 @@ a:hover {
 	</tr>
 	<tr>
 		<td height="auto" width="120px"><span class="red">Red text</span></td>
-		<td height="auto" width="auto"><span class="black">Parser error</span><td>
-	</tr>
+		<td height="auto" width="auto"><span class="black">Parser error [Found in $COUNT_RED file(s)]</span></td><td>
+	</td></tr>
 	<tr>
 		<td height="auto" width="120px"><span class="orange">Orange text</span></td>
-		<td height="auto" width="auto"><span class="black">Double strings</span><td>
-	</tr>
+		<td height="auto" width="auto"><span class="black">Double strings [Found in $COUNT_ORANGE file(s)]</span></td><td>
+	</td></tr>
 	<tr>
 		<td height="auto" width="120px"><span class="brown">Brown text</span></td>
-		<td height="auto" width="auto"><span class="black">Apostrophe syntax error</span><td>
-	</tr>
+		<td height="auto" width="auto"><span class="black">Apostrophe syntax error  [Found in $COUNT_BROWN file(s)]</span></td><td>
+	</td></tr>
 	<tr>
 		<td height="auto" width="120px"><span class="pink">Pink text</span></td>
-		<td height="auto" width="auto"><span class="black">Untranslateable string, array or plural - Has to be removed from xml!</span><td>
-	</tr>
+		<td height="auto" width="auto"><span class="black">Untranslateable string, array or plural - Has to be removed from xml!  [Found in $COUNT_PINK file(s)]</span></td><td>
+	</td></tr>
 	<tr>
 		<td height="auto" width="120px"><span class="blue">Blue text</span></td>
-		<td height="auto" width="auto"><span class="black">'+' outside of tags</span><td>
-	</tr>
+		<td height="auto" width="auto"><span class="black">'+' outside of tags  [Found in $COUNT_BLUE file(s)]</span></td><td>
+	</td></tr>
 </table>
-<span class="header"><br>Checked ($LANG_CHECK) <a href="$LANG_URL" title="$LANG_NAME MIUI$LANG_VERSION ($LANG_ISO)" target="_blank">$LANG_NAME MIUI$LANG_VERSION ($LANG_ISO) repository </a> on $DATE<br></span>
-<!-- Start of log --><script type="text/plain">
 EOF
 }
 
@@ -182,6 +186,7 @@ case "$DEBUG_MODE" in
   	double) 
 	echo -e "${txtgrn}$LANG_NAME ($LANG_ISO) checked${txtrst}"
      	if [ "$LANG_URL" == "$LAST_URL" ]; then
+		write_final_log "$XML_LOG_FULL_NH" "$XML_LOG_FULL"
         	LINE_NR=$(wc -l $XML_LOG_FULL | cut -d' ' -f1)
           	if [ "$(sed -n "$LINE_NR"p $XML_LOG_FULL)" == '<!-- Start of log --><script type="text/plain">' ]; then
                		echo '</script><span class="green">No errors found in this repository!</span>' >> $XML_LOG_FULL
@@ -215,6 +220,7 @@ if [ -d $LANG_DIR/$LANG_TARGET ]; then
 			xml_check "$xml_target"
 		done
 	done
+	write_final_log "$XML_LOG_NH" "$XML_LOG"
 	check_log
 fi
 }
@@ -249,7 +255,7 @@ fi
 xml_check_basic () {
 # Check for XML Parser errors
 xmllint --noout $XML_TARGET 2>> $XML_CACHE_LOG
-write_log
+write_log_error "red"
 
 # Check for doubles
 if [ "$XML_TYPE" == "strings.xml" ]; then	
@@ -379,16 +385,26 @@ rm -f $XML_CACHE_LOG
 write_log_finish () {
 if [ -s $XML_LOG_TEMP ]; then
 	if [ "$DEBUG_MODE" == "double" ]; then
-		echo '</script><span class="black"><br>'$XML_TARGET'</span><span class="red"><script class="error" type="text/plain">' >> $XML_LOG_FULL
-		cat $XML_LOG_TEMP >> $XML_LOG_FULL
+		echo '</script><span class="black"><br>'$XML_TARGET'</span><span><script class="error" type="text/plain">' >> $XML_LOG_FULL_NH
+		cat $XML_LOG_TEMP >> $XML_LOG_FULL_NH
 	fi
-	echo '</script><span class="black"><br>'$XML_TARGET'</span><span class="red"><script class="error" type="text/plain">' >> $XML_LOG
-	cat $XML_LOG_TEMP >> $XML_LOG
+	echo '</script><span class="black"><br>'$XML_TARGET'</span><span><script class="error" type="text/plain">' >> $XML_LOG_NH
+	cat $XML_LOG_TEMP >> $XML_LOG_NH
 fi
 rm -f $XML_CACHE_LOG
 }
 
-write_log () {
-cat $XML_CACHE_LOG >> $XML_LOG_TEMP
-rm -f $XML_CACHE_LOG
+write_final_log () {
+LOG_NH=$1
+LOG_NEW=$2
+
+COUNT_RED=$(grep 'class="red"' $LOG_NH | wc -l)
+COUNT_ORANGE=$(grep 'class="orange"' $LOG_NH | wc -l)
+COUNT_BROWN=$(grep 'class="brown"' $LOG_NH | wc -l)
+COUNT_PINK=$(grep 'class="pink"' $LOG_NH | wc -l)
+COUNT_BLUE=$(grep 'class="blue"' $LOG_NH | wc -l)
+
+create_log "$LOG_NEW"
+cat $LOG_NH >> $LOG_NEW
+rm -f $LOG_NH
 }
