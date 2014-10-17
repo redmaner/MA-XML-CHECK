@@ -106,7 +106,7 @@ script {
   	color: #0000ff;
 }
 .orange {
-  	color: #CC6633;
+  	color: #FF6633;
 }
 .brown {
   	color: #660000;
