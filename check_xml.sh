@@ -112,7 +112,7 @@ script {
   	color: #660000;
 }
 .purple {
-	color: #6633FF;
+	color: #99CC00;
 }
 table {
         background-color: #ffffff;
@@ -160,7 +160,7 @@ a:hover {
 		<td height="auto" width="auto"><span class="black">Apostrophe syntax error</span><td>
 	</tr>
 	<tr>
-		<td height="auto" width="120px"><span class="purple">Purple text</span></td>
+		<td height="auto" width="120px"><span class="purple">Light green text</span></td>
 		<td height="auto" width="auto"><span class="black">Untranslateable string, array or plural - Has to be removed from xml!</span><td>
 	</tr>
 	<tr>

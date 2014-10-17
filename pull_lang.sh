@@ -14,7 +14,7 @@ if [ "$PULL_FLAG" != "" ]; then
 fi
 
 # Check for new repository ssh
-if [ -d $LANG_DIR ]; then
+if [ -d $LANG_DIR/$LANG_TARGET ]; then
 	OLD_GIT=$(grep "url = *" $LANG_DIR/$LANG_TARGET/.git/config | cut -d' ' -f3)
 	if [ "$LANG_GIT" != "$OLD_GIT" ]; then
 		echo -e "${txtblu}\nNew repository detected, removing old repository...\n$OLD_GIT ---> $LANG_GIT${txtrst}"
