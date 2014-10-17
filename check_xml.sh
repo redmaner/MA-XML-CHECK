@@ -111,8 +111,8 @@ script {
 .brown {
   	color: #660000;
 }
-.purple {
-	color: #99CC00;
+.pink {
+	color: #FF14B1;
 }
 table {
         background-color: #ffffff;
@@ -160,7 +160,7 @@ a:hover {
 		<td height="auto" width="auto"><span class="black">Apostrophe syntax error</span><td>
 	</tr>
 	<tr>
-		<td height="auto" width="120px"><span class="purple">Light green text</span></td>
+		<td height="auto" width="120px"><span class="pink">Pink text</span></td>
 		<td height="auto" width="auto"><span class="black">Untranslateable string, array or plural - Has to be removed from xml!</span><td>
 	</tr>
 	<tr>
@@ -343,7 +343,7 @@ case "$XML_TYPE" in
 				fi
 		     done >> $XML_CACHE_LOG;;
 esac
-write_log_error "purple"
+write_log_error "pink"
 }
 
 xml_check_full () {
