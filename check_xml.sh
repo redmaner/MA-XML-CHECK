@@ -260,14 +260,21 @@ if [ "$XML_TYPE" == "strings.xml" ]; then
 fi
 	
 # Check for apostrophe errors
-grep "<string" $XML_TARGET > $XML_TARGET_STRIPPED
-grep -v '>"' $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT
+case "$XML_TYPE" in
+	strings.xml)
+	grep "<string" $XML_TARGET > $XML_TARGET_STRIPPED
+	grep -v '>"' $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT;;
+	*)
+	grep "<item>" $XML_TARGET > $XML_TARGET_STRIPPED
+	grep -v '>"' $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT;;
+esac
+
 if [ -e $APOSTROPHE_RESULT ]; then
-      	grep "'" $APOSTROPHE_RESULT > $XML_TARGET_STRIPPED
-      	grep -v "'\''" $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT
-       	if [ -e $APOSTROPHE_RESULT ]; then
-              	cat $APOSTROPHE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_CACHE_LOG
-       	fi
+	grep "'" $APOSTROPHE_RESULT > $XML_TARGET_STRIPPED
+	grep -v "'\''" $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT
+	if [ -e $APOSTROPHE_RESULT ]; then
+      	      	cat $APOSTROPHE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_CACHE_LOG
+ 	fi
 fi
 write_log_error "brown"
 
