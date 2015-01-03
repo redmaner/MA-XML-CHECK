@@ -34,10 +34,13 @@ LANG_DIR=$MAIN_DIR/languages
 mkdir -p $LANG_DIR
 mkdir -p $LOG_DIR
 
+# Debugging 
+PRESERVE_CACHE=false
+
 #########################################################################################################
 # VARIABLES / CACHE
 #########################################################################################################
-VERSION=4.4
+VERSION=5.0
 DATE=$(date +"%m-%d-%Y-%H-%M-%S")
 CACHE="$MAIN_DIR/.cache-$DATE"
 
@@ -46,6 +49,7 @@ ARRAY_TOOLS=$MAIN_DIR/array_tools.sh
 RES_TOOLS=$MAIN_DIR/resources.sh
 LANG_TOOLS=$MAIN_DIR/pull_lang.sh
 CHECK_TOOLS=$MAIN_DIR/check_xml.sh
+LOG_TOOLS=$MAIN_DIR/create_log.sh
 source $RES_TOOLS
 
 #########################################################################################################
@@ -79,7 +83,7 @@ if [ $# -gt 0 ]; then
      	if [ $1 == "--help" ]; then
           	show_argument_help
      	elif [ $1 == "--check" ]; then
-		source $ARRAY_TOOLS; source $CHECK_TOOLS; sync_resources; build_cache
+		source $ARRAY_TOOLS; source $CHECK_TOOLS; source $LOG_TOOLS; sync_resources; build_cache; echo
             	DEBUG_MODE=lang
             	case "$2" in
 		  	all) if [ "$3" == "double" ]; then
@@ -88,18 +92,21 @@ if [ $# -gt 0 ]; then
 			     LINE_NR=$(cat $LANG_XML | grep 'language check=' | grep -v '<language check="false"' | wc -l)
 			     LAST_URL=$(cat $LANG_XML | grep 'language check=' | grep -v '<language check="false"' | sed -n "$LINE_NR"p | awk '{print $6}' | cut -d'"' -f2)
 			     cat $LANGS_ON | while read language; do
-					init_lang $language; init_xml_check
+					init_lang $language; init_xml_check; 
    			     done;;
 			  *) if [ "$3" == "" ]; then
 				    	echo -e "${txtred}\nError: Specifiy MIUI version${txtrst}"; exit
 			     fi
 			     if [ "`cat $LANGS_ALL | grep ''$2' '$3''| wc -l`" -gt 0 ]; then
-					init_lang $(cat $LANGS_ALL | grep ''$2' '$3''); init_xml_check
+					init_lang $(cat $LANGS_ALL | grep ''$2' '$3''); init_xml_check; 
                              else
 					echo -e "${txtred}\nLanguage not supported or language not specified${txtrst}"; exit
 			     fi;;
-           	esac		
-		clear_cache
+           	esac	
+		make_logs	
+		if [ $PRESERVE_CACHE == false ]; then
+			clear_cache
+		fi
      	elif [ $1 == "--pull" ]; then
 		source $LANG_TOOLS; sync_resources
             	case "$2" in
