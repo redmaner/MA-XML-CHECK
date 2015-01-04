@@ -38,7 +38,6 @@ XML_LOG_TEMP=$FILE_CACHE/XML_LOG_TEMP
 #########################################################################################################
 init_xml_check () {
 if [ -d $LANG_DIR/$LANG_TARGET ]; then
-	sleep 5
 	echo -e "${txtblu}Checking $LANG_NAME MIUI$LANG_VERSION ($LANG_ISO)${txtrst}"
 	mkdir -p $CACHE/$LANG_TARGET.cached
 	echo "$LANG_NAME" > $CACHE/$LANG_TARGET.cached/lang_name
