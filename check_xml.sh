@@ -38,6 +38,7 @@ XML_LOG_TEMP=$FILE_CACHE/XML_LOG_TEMP
 #########################################################################################################
 init_xml_check () {
 if [ -d $LANG_DIR/$LANG_TARGET ]; then
+	sleep 5
 	echo -e "${txtblu}Checking $LANG_NAME MIUI$LANG_VERSION ($LANG_ISO)${txtrst}"
 	mkdir -p $CACHE/$LANG_TARGET.cached
 	echo "$LANG_NAME" > $CACHE/$LANG_TARGET.cached/lang_name
@@ -48,9 +49,10 @@ if [ -d $LANG_DIR/$LANG_TARGET ]; then
 		APK=$(basename $apk_target)
 		DIR=$(basename $(dirname $apk_target))
 		for xml_target in $(find $apk_target -iname "arrays.xml*" -o -iname "strings.xml*" -o -iname "plurals.xml*"); do
-			xml_check "$xml_target"
+			xml_check "$xml_target" &
 		done
 	done
+	wait
 fi
 }
 
@@ -60,7 +62,8 @@ XML_TARGET=$1
 if [ -e "$XML_TARGET" ]; then
 	XML_TYPE=$(basename $XML_TARGET)
 
-	FILE_CACHE=$CACHE/$LANG_TARGET.cached/$DIR-$APK-$XML_TYPE
+	VALUES=$(basename $(dirname $XML_TARGET))
+	FILE_CACHE=$CACHE/$LANG_TARGET.cached/$DIR-$APK-$VALUES-$XML_TYPE
 	mkdir -p $FILE_CACHE
 	assign_vars
 	echo "$XML_TARGET" > $FILE_CACHE/XML_TARGET
@@ -75,8 +78,20 @@ if [ -e "$XML_TARGET" ]; then
 	fi
 
 	case "$LANG_CHECK" in
-		 basic) xml_check_basic;;
-		normal) xml_check_basic; xml_check_normal;;
+		basic) 
+		xml_check_parser &
+		xml_check_doubles &
+		xml_check_apostrophe &
+		xml_check_plus &
+		wait;;
+
+		normal) 
+		xml_check_parser &
+		xml_check_doubles &
+		xml_check_apostrophe &
+		xml_check_plus &
+		xml_check_untranslateable &
+		wait;;
 	esac
 fi
 }
@@ -84,12 +99,14 @@ fi
 #########################################################################################################
 # XML CHECK
 #########################################################################################################
-xml_check_basic () {
+xml_check_parser () {
 # Check for XML Parser errors
 XML_LOG_PARSER=$FILE_CACHE/PARSER.log
 xmllint --noout $XML_TARGET 2>> $XML_LOG_PARSER
 write_log_error "red" "$XML_LOG_PARSER"
+}
 
+xml_check_doubles () {
 # Check for doubles
 XML_LOG_DOUBLES=$FILE_CACHE/DOUBLES.log
 if [ "$XML_TYPE" == "strings.xml" ]; then	
@@ -98,7 +115,9 @@ if [ "$XML_TYPE" == "strings.xml" ]; then
 	done
 	write_log_error "orange" "$XML_LOG_DOUBLES"
 fi
+}
 	
+xml_check_apostrophe () {
 # Check for apostrophe errors
 case "$XML_TYPE" in
 	strings.xml)
@@ -118,14 +137,16 @@ if [ -e $APOSTROPHE_RESULT ]; then
  	fi
 fi
 write_log_error "brown" "$XML_LOG_APOSTROPHE"
+}
 
+xml_check_plus () {
 # Check for '+' at the beginning of a line, outside <string>
 XML_LOG_PLUS=$FILE_CACHE/PLUS.log
 grep -ne "+ * <s" $XML_TARGET >> $XML_LOG_PLUS
 write_log_error "blue" "$XML_LOG_PLUS"
 }
 
-xml_check_normal () {
+xml_check_untranslateable () {
 # Check for untranslateable strings, arrays, plurals using ignorelist
 XML_LOG_UNTRANSLATEABLE=$FILE_CACHE/UNTRANSLATEABLE.log
 if [ $(cat $IGNORELIST | grep ''$APK' '$XML_TYPE' ' | wc -l) -gt 0 ]; then
