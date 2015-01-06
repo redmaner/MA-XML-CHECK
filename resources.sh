@@ -64,8 +64,10 @@ rm -f $SIG_FILE
 md5sum $LANG_XML >> $SIG_FILE
 md5sum $RES_DIR/MIUI6_auto_ignorelist.xml >> $SIG_FILE
 md5sum $RES_DIR/MIUI6_ignorelist.xml >> $SIG_FILE
-md5sum $RES_DIR/MIUIv5_auto_ignorelist.xml >> $SIG_FILE
-md5sum $RES_DIR/MIUIv5_ignorelist.xml >> $SIG_FILE
+if [ "$MIUIV5" == "true" ]; then
+	md5sum $RES_DIR/MIUIv5_auto_ignorelist.xml >> $SIG_FILE
+	md5sum $RES_DIR/MIUIv5_ignorelist.xml >> $SIG_FILE
+fi
 }
 
 sync_mxcr () {
@@ -94,7 +96,9 @@ done > $LANGS_ON
 
 # Parse ignorelists to mxcr
 parse_ignorelist_mxcr "$RES_DIR/MIUI6_ignorelist.xml" "$RES_DIR/MIUI6_ignorelist.mxcr"
-parse_ignorelist_mxcr "$RES_DIR/MIUIv5_ignorelist.xml" "$RES_DIR/MIUIv5_ignorelist.mxcr"
+if [ "$MIUIV5" == "true" ]; then
+	parse_ignorelist_mxcr "$RES_DIR/MIUIv5_ignorelist.xml" "$RES_DIR/MIUIv5_ignorelist.mxcr"
+fi
 }
 
 parse_ignorelist_mxcr () {

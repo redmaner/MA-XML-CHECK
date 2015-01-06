@@ -23,9 +23,11 @@ esac
 if [ -d /home/translators.xiaomi.eu ]; then
      	MAIN_DIR=/home/translators.xiaomi.eu/scripts
      	LOG_DIR=/home/translators.xiaomi.eu/public_html
+	MIUIV5=false
 else
      	MAIN_DIR=$PWD
      	LOG_DIR=$PWD/logs
+	MIUIV5=true
 fi
 
 RES_DIR=$MAIN_DIR/resources
