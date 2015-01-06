@@ -81,6 +81,7 @@ if [ -e "$XML_TARGET" ]; then
 		xml_check_parser &
 		xml_check_doubles &
 		xml_check_apostrophe &
+		xml_check_values &
 		xml_check_plus &
 		wait;;
 
@@ -88,6 +89,7 @@ if [ -e "$XML_TARGET" ]; then
 		xml_check_parser &
 		xml_check_doubles &
 		xml_check_apostrophe &
+		xml_check_values &
 		xml_check_plus &
 		xml_check_untranslateable &
 		wait;;
@@ -136,6 +138,16 @@ if [ -e $APOSTROPHE_RESULT ]; then
  	fi
 fi
 write_log_error "brown" "$XML_LOG_APOSTROPHE"
+}
+
+xml_check_values () {
+# Check if values folder is correct
+XML_LOG_VALUES=$FILE_CACHE/VALUES.log
+VALUES_TARGET_XML=$(basename $(dirname $XML_TARGET))
+if [ "$VALUES_TARGET_XML" == 'values' ]; then
+	echo "Wrong values folder, should be values-$LANG_ISO" >> $XML_LOG_VALUES
+fi
+write_log_error "cyan" "$XML_LOG_VALUES"
 }
 
 xml_check_plus () {

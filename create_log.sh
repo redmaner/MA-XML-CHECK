@@ -55,10 +55,16 @@ COUNT_RED=$(grep 'class="red"' $LOG_NH | wc -l)
 COUNT_ORANGE=$(grep 'class="orange"' $LOG_NH | wc -l)
 COUNT_BROWN=$(grep 'class="brown"' $LOG_NH | wc -l)
 COUNT_PINK=$(grep 'class="pink"' $LOG_NH | wc -l)
+COUNT_CYAN=$(grep 'class="cyan"' $LOG_NH | wc -l)
 COUNT_BLUE=$(grep 'class="blue"' $LOG_NH | wc -l)
 
 create_log "$LOG_NEW"
 cat $LOG_NH >> $LOG_NEW
+cat >> $LOG_NEW << EOF
+</script>
+</body>
+</html>
+EOF
 rm -f $LOG_NH
 }
 	
@@ -101,6 +107,9 @@ script {
 }
 .pink {
 	color: #FF14B1;
+}
+.cyan {
+	color: #0099FF;
 }
 table {
         background-color: #ffffff;
@@ -150,6 +159,10 @@ a:hover {
 	<tr>
 		<td height="auto" width="120px"><span class="pink">Pink text</span></td>
 		<td height="auto" width="auto"><span class="black">Untranslateable string, array or plural - Has to be removed from xml!  [Found in $COUNT_PINK file(s)]</span></td><td>
+	</td></tr>
+	<tr>
+		<td height="auto" width="120px"><span class="cyan">Cyan text</span></td>
+		<td height="auto" width="auto"><span class="black">Wrong values folder  [Found in $COUNT_CYAN file(s)]</span></td><td>
 	</td></tr>
 	<tr>
 		<td height="auto" width="120px"><span class="blue">Blue text</span></td>
