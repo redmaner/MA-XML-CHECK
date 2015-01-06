@@ -7,20 +7,7 @@
 # CACHING
 #########################################################################################################
 build_cache () {
-if [ -d $CACHE ]; then
-	case "$SERVER" in
-		yes) rm -rf $CACHE; mkdir $CACHE;;
-		 no) echo -e "${txtred}ERROR:${TXTRST} $CACHE already exsists\nDo you want to remove the cache? This can interrupt a current check!"
-	    	     echo -en "(y,n): "; read cache_remove_awnser
-		     if [ $cache_remove_awnser == "y" ]; then
-				rm -rf $CACHE; mkdir $CACHE
-		     else
-				exit
-		     fi;;
-	esac
-else
-	rm -rf $CACHE; mkdir $CACHE
-fi
+rm -rf $CACHE; mkdir $CACHE
 }
 
 clear_cache () {
