@@ -1,4 +1,4 @@
-Copyright (c) 2013 - 2014, Redmaner<br>
+Copyright (c) 2013 - 2015, Redmaner<br>
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International license<br>
 The license can be found at http://creativecommons.org/licenses/by-nc-sa/4.0/<br>
 
