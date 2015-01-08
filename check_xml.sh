@@ -149,7 +149,8 @@ write_log_error "blue" "$XML_LOG_PLUS"
 xml_check_variables () {
 # Check invalid variable formatting e.g. % s instead of %s
 XML_LOG_VARIABLES=$FILE_CACHE/variables.log
-grep -ne '(% d)\| 1 $ s \| % s \| % 1 $ s \| % 2 $ s \| % 3 $ s \| % 4 $ s \| % 5 $ s \| % d \| % 1 $ d \| % 2 $ d \| % 3 $ d \| % 4 $ d \| % 5 $ d ' $XML_TARGET >> $XML_LOG_VARIABLES
+grep -ne ' 1 $ s \| % s \| % 1 $ s \| % 2 $ s \| % 3 $ s \| % 4 $ s \| % 5 $ s \| % d \| % 1 $ d \| % 2 $ d \| % 3 $ d \| % 4 $ d \| % 5 $ d ' $XML_TARGET >> $XML_LOG_VARIABLES
+grep -ne '(1 $ s)\|(% s)\|(% 1 $ s)\|(% 2 $ s)\|( % 3 $ s)\|(% 4 $ s)\|(% 5 $ s)\|(% d)\|(% 1 $ d)\|(% 2 $ d)\|(% 3 $ d)\|(% 4 $ d)\|(% 5 $ d)' $XML_TARGET >> $XML_LOG_VARIABLES
 write_log_error "grey" "$XML_LOG_VARIABLES"
 }
 
