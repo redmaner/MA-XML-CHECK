@@ -57,6 +57,7 @@ COUNT_BROWN=$(grep 'class="brown"' $LOG_NH | wc -l)
 COUNT_PINK=$(grep 'class="pink"' $LOG_NH | wc -l)
 COUNT_CYAN=$(grep 'class="cyan"' $LOG_NH | wc -l)
 COUNT_BLUE=$(grep 'class="blue"' $LOG_NH | wc -l)
+COUNT_GREY=$(grep 'class="grey"' $LOG_NH | wc -l)
 
 create_log "$LOG_NEW"
 cat $LOG_NH >> $LOG_NEW
@@ -110,6 +111,9 @@ script {
 }
 .cyan {
 	color: #0099FF;
+}
+.grey {
+	color: #464646;
 }
 table {
         background-color: #ffffff;
@@ -167,6 +171,10 @@ a:hover {
 	<tr>
 		<td height="auto" width="120px"><span class="blue">Blue text</span></td>
 		<td height="auto" width="auto"><span class="black">'+' outside of tags  [Found in $COUNT_BLUE file(s)]</span></td><td>
+	</td></tr>
+	<tr>
+		<td height="auto" width="120px"><span class="grey">Grey text</span></td>
+		<td height="auto" width="auto"><span class="black">Invalid variable formatting  [Found in $COUNT_GREY file(s)]</span></td><td>
 	</td></tr>
 </table>
 EOF

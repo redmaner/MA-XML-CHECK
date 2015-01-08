@@ -70,6 +70,7 @@ if [ -e "$XML_TARGET" ]; then
 		xml_check_apostrophe &
 		xml_check_values &
 		xml_check_plus &
+		xml_check_variables &
 		wait;;
 
 		normal) 
@@ -78,6 +79,7 @@ if [ -e "$XML_TARGET" ]; then
 		xml_check_apostrophe &
 		xml_check_values &
 		xml_check_plus &
+		xml_check_variables &
 		xml_check_untranslateable &
 		wait;;
 	esac
@@ -142,6 +144,13 @@ xml_check_plus () {
 XML_LOG_PLUS=$FILE_CACHE/PLUS.log
 grep -ne "+ * <s" $XML_TARGET >> $XML_LOG_PLUS
 write_log_error "blue" "$XML_LOG_PLUS"
+}
+
+xml_check_variables () {
+# Check invalid variable formatting e.g. % s instead of %s
+XML_LOG_VARIABLES=$FILE_CACHE/variables.log
+grep -ne '1 $ s\|% s\|% 1 $ s\|% 2 $ s\|% 3 $ s\|% 4 $ s\|% 5 $ s\|% d\|% 1 $ d\|% 2 $ d\|% 3 $ d\|% 4 $ d\|% 5 $ d' $XML_TARGET >> $XML_LOG_VARIABLES
+write_log_error "grey" "$XML_LOG_VARIABLES"
 }
 
 xml_check_untranslateable () {
