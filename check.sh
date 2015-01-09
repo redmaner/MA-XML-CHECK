@@ -99,8 +99,8 @@ if [ $# -gt 0 ]; then
 			  *) if [ "$3" == "" ]; then
 				    	echo -e "${txtred}\nError: Specifiy MIUI version${txtrst}"; exit
 			     fi
-			     if [ "`cat $LANGS_ALL | grep ''$2' '$3''| wc -l`" -gt 0 ]; then
-					init_lang $(cat $LANGS_ALL | grep ''$2' '$3''); init_xml_check; 
+			     if [ "`cat $LANGS_ALL | grep ''$3' '$2''| wc -l`" -gt 0 ]; then
+					init_lang $(cat $LANGS_ALL | grep ''$3' '$2''); init_xml_check; 
                              else
 					echo -e "${txtred}\nLanguage not supported or language not specified${txtrst}"; exit
 			     fi;;
@@ -125,13 +125,13 @@ if [ $# -gt 0 ]; then
 			     elif [ "$3" == "force" ]; then
 					echo -e "${txtred}\nError: Specifiy MIUI version before force flag${txtrst}"; exit
 			     fi
-			     if [ "`cat $LANGS_ALL | grep ''$2' '$3''| wc -l`" -gt 0 ]; then
+			     if [ "`cat $LANGS_ALL | grep ''$3' '$2''| wc -l`" -gt 0 ]; then
 					if [ "$4" != "" ]; then
    						if [ $4 = "force" ]; then
 							PULL_FLAG="force"
 						fi
 					fi
-					init_lang $(cat $LANGS_ALL | grep ''$2' '$3''); pull_lang 
+					init_lang $(cat $LANGS_ALL | grep ''$3' '$2''); pull_lang 
                              else
 					echo -e "${txtred}\nLanguage not supported or language not specified${txtrst}"; exit
 			     fi;;
@@ -148,8 +148,8 @@ if [ $# -gt 0 ]; then
 				   if [ "$3" == "" ]; then
 				    	echo -e "${txtred}\nError: Specifiy MIUI version${txtrst}"; exit
 				   fi
-				   if [ "`cat $LANGS_ALL | grep ''$2' '$3''| wc -l`" -gt 0 ]; then
-						init_lang $(cat $LANGS_ALL | grep ''$2' '$3'')
+				   if [ "`cat $LANGS_ALL | grep ''$3' '$2''| wc -l`" -gt 0 ]; then
+						init_lang $(cat $LANGS_ALL | grep ''$3' '$2'')
                         			rm -rf $MAIN_DIR/languages/$LANG_TARGET 
                              	   else
 						echo -e "${txtred}\nLanguage not supported or language not specified${txtrst}"; exit

@@ -5,7 +5,7 @@
 
 make_logs () {
 for cached_check in $(find $CACHE -iname "*.cached" | sort); do
-	init_lang $(cat $LANGS_ON | grep ''$(cat $cached_check/lang_name)' '$(cat $cached_check/lang_version)'');
+	init_lang $(cat $LANGS_ON | grep ''$(cat $cached_check/lang_version)' '$(cat $cached_check/lang_name)'');
 	if [ "$DEBUG_MODE" == "double" ]; then
 		XML_LOG_FULL=$CACHE/XML_CHECK_FULL.html
 		XML_LOG_FULL_NH=$CACHE/XML_CHECK_FULL-no_header 

@@ -81,7 +81,7 @@ cat $LANG_XML | grep 'language check=' | while read language; do
 	LANG_URL=$(echo $language | awk '{print $6}' | cut -d'"' -f2) 
 	LANG_GIT=$(echo $language | awk '{print $7}' | cut -d'"' -f2)
 	LANG_BRANCH=$(echo $language | awk '{print $8}' | cut -d'"' -f2)
-	echo ''$LANG_NAME' '$LANG_VERSION' '$LANG_ISO' normal '$LANG_URL' '$LANG_GIT' '$LANG_BRANCH'' 
+	echo ''$LANG_VERSION' '$LANG_NAME' '$LANG_ISO' normal '$LANG_URL' '$LANG_GIT' '$LANG_BRANCH'' 
 done > $LANGS_ALL
 cat $LANG_XML | grep 'language check=' | grep -v '<language check="false"' | while read language; do
 	LANG_CHECK=$(echo $language | awk '{print $2}' | cut -d'"' -f2)
@@ -91,7 +91,7 @@ cat $LANG_XML | grep 'language check=' | grep -v '<language check="false"' | whi
 	LANG_URL=$(echo $language | awk '{print $6}' | cut -d'"' -f2) 
 	LANG_GIT=$(echo $language | awk '{print $7}' | cut -d'"' -f2)
 	LANG_BRANCH=$(echo $language | awk '{print $8}' | cut -d'"' -f2)
-	echo ''$LANG_NAME' '$LANG_VERSION' '$LANG_ISO' '$LANG_CHECK' '$LANG_URL' '$LANG_GIT' '$LANG_BRANCH''
+	echo ''$LANG_VERSION' '$LANG_NAME' '$LANG_ISO' '$LANG_CHECK' '$LANG_URL' '$LANG_GIT' '$LANG_BRANCH''
 done > $LANGS_ON
 
 # Parse ignorelists to mxcr
@@ -117,8 +117,8 @@ done > $NEW_FILE
 # READ MXCR FILES
 #########################################################################################################
 init_lang () {
-LANG_NAME=$1
-LANG_VERSION=$2
+LANG_VERSION=$1
+LANG_NAME=$2
 LANG_ISO=$3
 LANG_CHECK=$4
 LANG_URL=$5
