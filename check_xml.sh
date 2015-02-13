@@ -99,12 +99,25 @@ write_log_error "red" "$XML_LOG_PARSER"
 xml_check_doubles () {
 # Check for doubles
 XML_LOG_DOUBLES=$FILE_CACHE/DOUBLES.log
-if [ "$XML_TYPE" == "strings.xml" ]; then	
+case "$XML_TYPE" in
+	strings.xml)	
 	cat $XML_TARGET | grep '<string name=' | cut -d'>' -f1 | cut -d'<' -f2 | sort | uniq --repeated | while read double; do
 		grep -ne "$double" $XML_TARGET >> $XML_LOG_DOUBLES
 	done
-	write_log_error "orange" "$XML_LOG_DOUBLES"
-fi
+	write_log_error "orange" "$XML_LOG_DOUBLES";;
+
+	arrays.xml)
+	cat $XML_TARGET | grep 'string-array name=' | cut -d'>' -f1 | cut -d'<' -f2 | sort | uniq --repeated | while read double; do
+		grep -ne "$double" $XML_TARGET >> $XML_LOG_DOUBLES
+	done
+	write_log_error "orange" "$XML_LOG_DOUBLES";;
+
+	plurals.xml)
+	cat $XML_TARGET | grep '<plurals name=' | cut -d'>' -f1 | cut -d'<' -f2 | sort | uniq --repeated | while read double; do
+		grep -ne "$double" $XML_TARGET >> $XML_LOG_DOUBLES
+	done
+	write_log_error "orange" "$XML_LOG_DOUBLES";;
+esac
 }
 	
 xml_check_apostrophe () {
