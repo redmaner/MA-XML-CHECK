@@ -107,7 +107,7 @@ case "$XML_TYPE" in
 	write_log_error "orange" "$XML_LOG_DOUBLES";;
 
 	arrays.xml)
-	cat $XML_TARGET | grep 'string-array name=' | cut -d'>' -f1 | cut -d'<' -f2 | sort | uniq --repeated | while read double; do
+	cat $XML_TARGET | grep '<array\|<string-array\|<integer-array' | cut -d'>' -f1 | cut -d'<' -f2 | sort | uniq --repeated | while read double; do
 		grep -ne "$double" $XML_TARGET >> $XML_LOG_DOUBLES
 	done
 	write_log_error "orange" "$XML_LOG_DOUBLES";;
@@ -189,7 +189,7 @@ fi
 
 # Check for untranslateable strings and arrays due automatically search for @
 case "$XML_TYPE" in 
-	strings.xml) cat $XML_TARGET | grep '@android\|@string\|@color\|@drawable' | cut -d'>' -f1 | cut -d'"' -f2 | while read auto_search_target; do
+	strings.xml) cat $XML_TARGET | grep '@android\|@string\|@color\|@drawable\|@null\|@string\|@array' | cut -d'>' -f1 | cut -d'"' -f2 | while read auto_search_target; do
 				if [ $(cat $AUTO_IGNORELIST | grep 'folder="all" application="'$APK'" file="'$XML_TYPE'" name="'$auto_search_target'"/>' | wc -l) == 0 ]; then
 					grep -ne '"'$auto_search_target'"' $XML_TARGET; continue
 				else
@@ -209,7 +209,7 @@ case "$XML_TYPE" in
 	 arrays.xml) cat $XML_TARGET | grep 'name="' | while read arrays; do
 				ARRAY_TYPE=$(echo $arrays | cut -d' ' -f1 | cut -d'<' -f2)
 				ARRAY_NAME=$(echo $arrays | cut -d'>' -f1 | cut -d'"' -f2)
-				if [ $(arrays_parse $ARRAY_NAME $ARRAY_TYPE $XML_TARGET | grep '@android\|@string\|@color\|@drawable' | wc -l) -gt 0 ]; then
+				if [ $(arrays_parse $ARRAY_NAME $ARRAY_TYPE $XML_TARGET | grep '@android\|@string\|@color\|@drawable\|@null\|@string\|@array' | wc -l) -gt 0 ]; then
 					if [ $(cat $AUTO_IGNORELIST | grep 'folder="all" application="'$APK'" file="'$XML_TYPE'" name="'$ARRAY_NAME'"' | wc -l) -eq 0 ]; then
 						grep -ne '"'$ARRAY_NAME'"' $XML_TARGET; continue
 					else
