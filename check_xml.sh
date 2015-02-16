@@ -82,6 +82,14 @@ if [ -e "$XML_TARGET" ]; then
 		xml_check_variables &
 		xml_check_untranslateable &
 		wait;;
+
+		other)
+		xml_check_parser &
+		xml_check_doubles &
+		xml_check_apostrophe &
+		xml_check_plus &
+		xml_check_variables &
+		wait;;
 	esac
 fi
 }
