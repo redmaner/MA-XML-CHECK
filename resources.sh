@@ -64,6 +64,9 @@ rm -f $SIG_FILE
 md5sum $LANG_XML >> $SIG_FILE
 md5sum $RES_DIR/MIUI6_auto_ignorelist.xml >> $SIG_FILE
 md5sum $RES_DIR/MIUI6_ignorelist.xml >> $SIG_FILE
+if [ -e $RES_DIR/local_languages.xml ]; then
+	md5sum $RES_DIR/local_languages.xml >> $SIG_FILE
+fi
 if [ "$MIUIV5" == "true" ]; then
 	md5sum $RES_DIR/MIUIv5_auto_ignorelist.xml >> $SIG_FILE
 	md5sum $RES_DIR/MIUIv5_ignorelist.xml >> $SIG_FILE
@@ -93,6 +96,19 @@ cat $LANG_XML | grep 'language check=' | grep -v '<language check="false"' | whi
 	LANG_BRANCH=$(echo $language | awk '{print $8}' | cut -d'"' -f2)
 	echo ''$LANG_VERSION' '$LANG_NAME' '$LANG_ISO' '$LANG_CHECK' '$LANG_URL' '$LANG_GIT' '$LANG_BRANCH''
 done > $LANGS_ON
+
+# Parse local_languages.xml to mxcr if exsists
+if [ -e $RES_DIR/local_languages.xml ]; then
+	cat $RES_DIR/local_languages.xml | grep 'language check=' | while read language; do
+		LANG_VERSION=$(echo $language | awk '{print $3}' | cut -d'"' -f2)
+		LANG_NAME=$(echo $language | awk '{print $4}' | cut -d'"' -f2)
+		LANG_ISO=$(echo $language | awk '{print $5}' | cut -d'"' -f2)
+		LANG_URL=$(echo $language | awk '{print $6}' | cut -d'"' -f2) 
+		LANG_GIT=$(echo $language | awk '{print $7}' | cut -d'"' -f2)
+		LANG_BRANCH=$(echo $language | awk '{print $8}' | cut -d'"' -f2)
+		echo ''$LANG_VERSION' '$LANG_NAME' '$LANG_ISO' normal '$LANG_URL' '$LANG_GIT' '$LANG_BRANCH'' 
+	done >> $LANGS_ALL
+fi
 
 # Parse ignorelists to mxcr
 parse_ignorelist_mxcr "$RES_DIR/MIUI6_ignorelist.xml" "$RES_DIR/MIUI6_ignorelist.mxcr"
