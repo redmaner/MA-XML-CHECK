@@ -23,15 +23,18 @@ esac
 if [ -d /home/translators.xiaomi.eu ]; then
      	MAIN_DIR=/home/translators.xiaomi.eu/scripts
      	LOG_DIR=/home/translators.xiaomi.eu/public_html
-	MIUIV5=false
+		MIUIV5=false
+		REMOTE=true
 else
      	MAIN_DIR=$PWD
      	LOG_DIR=$PWD/logs
-	MIUIV5=true
+		MIUIV5=true
+		REMOTE=true
 fi
 
 RES_DIR=$MAIN_DIR/resources
 LANG_DIR=$MAIN_DIR/languages
+REMOTE_DIR=$MAIN_DIR/remote
 
 mkdir -p $LANG_DIR
 mkdir -p $LOG_DIR
@@ -42,7 +45,7 @@ PRESERVE_CACHE=false
 #########################################################################################################
 # VARIABLES / CACHE
 #########################################################################################################
-VERSION=5.0
+VERSION=5.1
 DATE=$(date +"%m-%d-%Y-%H-%M-%S")
 CACHE="$MAIN_DIR/.cache-$DATE"
 
@@ -52,7 +55,12 @@ RES_TOOLS=$MAIN_DIR/resources.sh
 LANG_TOOLS=$MAIN_DIR/pull_lang.sh
 CHECK_TOOLS=$MAIN_DIR/check_xml.sh
 LOG_TOOLS=$MAIN_DIR/create_log.sh
-source $RES_TOOLS
+REMOTE_TOOLS=$MAIN_DIR/remote.sh
+source $RES_TOOLS; source $REMOTE_TOOLS
+
+# Remote 
+#sync_remote
+check_system_remote
 
 #########################################################################################################
 # ARGUMENTS
@@ -84,11 +92,15 @@ exit
 if [ $# -gt 0 ]; then
      	if [ $1 == "--help" ]; then
           	show_argument_help
+
+		# Check Languages
      	elif [ $1 == "--check" ]; then
-		source $ARRAY_TOOLS; source $CHECK_TOOLS; source $LOG_TOOLS; sync_resources; build_cache; echo
-            	DEBUG_MODE=lang
-            	case "$2" in
-		  	all) if [ "$3" == "double" ]; then
+			source $ARRAY_TOOLS; source $CHECK_TOOLS; source $LOG_TOOLS; sync_resources; build_cache; echo
+            DEBUG_MODE=lang
+            case "$2" in
+
+		  		all) 
+				if [ "$3" == "double" ]; then
                                	 DEBUG_MODE=double
                              fi; 
 			     LINE_NR=$(cat $LANG_XML | grep 'language check=' | grep -v '<language check="false"' | wc -l)
@@ -96,76 +108,103 @@ if [ $# -gt 0 ]; then
 			     cat $LANGS_ON | while read language; do
 					init_lang $language; init_xml_check; 
    			     done;;
-			  *) if [ "$3" == "" ]; then
+
+			  	*) 
+				if [ "$3" == "" ]; then
 				    	echo -e "${txtred}\nError: Specifiy MIUI version${txtrst}"; exit
-			     fi
-			     if [ "`cat $LANGS_ALL | grep ''$3' '$2''| wc -l`" -gt 0 ]; then
+			    fi
+			    if [ "`cat $LANGS_ALL | grep ''$3' '$2''| wc -l`" -gt 0 ]; then
 					init_lang $(cat $LANGS_ALL | grep ''$3' '$2''); init_xml_check; 
-                             else
+                else
 					echo -e "${txtred}\nLanguage not supported or language not specified${txtrst}"; exit
-			     fi;;
+			    fi;;
            	esac	
 		make_logs	
 		if [ $PRESERVE_CACHE == false ]; then
 			clear_cache
 		fi
+
+		# Pull languages
      	elif [ $1 == "--pull" ]; then
 		source $LANG_TOOLS; sync_resources
-            	case "$2" in
-			all) cat $LANGS_ON | while read language; do
-					if [ "$3" != "" ]; then
-   						if [ $3 == "force" ]; then
-							PULL_FLAG="force"
-						fi
+            case "$2" in
+
+			all) 
+			cat $LANGS_ON | while read language; do
+				if [ "$3" != "" ]; then
+   					if [ $3 == "force" ]; then
+						PULL_FLAG="force"
 					fi
-					init_lang $language; pull_lang
-   			     done;;
-			  *) if [ "$3" == "" ]; then
-				    	echo -e "${txtred}\nError: Specifiy MIUI version${txtrst}"; exit
-			     elif [ "$3" == "force" ]; then
-					echo -e "${txtred}\nError: Specifiy MIUI version before force flag${txtrst}"; exit
-			     fi
-			     if [ "`cat $LANGS_ALL | grep ''$3' '$2''| wc -l`" -gt 0 ]; then
-					if [ "$4" != "" ]; then
-   						if [ $4 = "force" ]; then
-							PULL_FLAG="force"
-						fi
+				fi
+				init_lang $language; check_language_remote; pull_lang
+   			done;;
+
+			*) 
+			if [ "$3" == "" ]; then
+				echo -e "${txtred}\nError: Specifiy MIUI version${txtrst}"; exit
+			elif [ "$3" == "force" ]; then
+				echo -e "${txtred}\nError: Specifiy MIUI version before force flag${txtrst}"; exit
+			fi
+			if [ "`cat $LANGS_ALL | grep ''$3' '$2''| wc -l`" -gt 0 ]; then
+				if [ "$4" != "" ]; then
+   					if [ $4 = "force" ]; then
+						PULL_FLAG="force"
 					fi
-					init_lang $(cat $LANGS_ALL | grep ''$3' '$2''); pull_lang 
-                             else
-					echo -e "${txtred}\nLanguage not supported or language not specified${txtrst}"; exit
-			     fi;;
-           	esac
+				fi
+				init_lang $(cat $LANGS_ALL | grep ''$3' '$2''); check_language_remote; pull_lang 
+            else
+				echo -e "${txtred}\nLanguage not supported or language not specified${txtrst}"; exit
+			fi;;
+        esac
+
+		# Remove stuff
      	elif [ $1 == "--remove" ]; then
-            	if [ "$2" != " " ]; then
-                 	case "$2" in
-                             logs) rm -f $LOG_DIR/XML_*.html;;
-			    cache) ls -a | grep ".cache" | while read found_cache; do
-					rm -rf $found_cache
-				   done;;
-                              all) rm -rf $MAIN_DIR/languages; mkdir -p $MAIN_DIR/languages;;
-				*) source $LANG_TOOLS; sync_resources
-				   if [ "$3" == "" ]; then
+            if [ "$2" != " " ]; then
+                 case "$2" in
+                 	logs) 
+					rm -f $LOG_DIR/XML_*.html;;
+
+			    	cache) 
+					ls -a | grep ".cache" | while read found_cache; do
+						rm -rf $found_cache
+				   	done;;
+                              
+					all) 
+					rm -rf $MAIN_DIR/languages; mkdir -p $MAIN_DIR/languages;;
+
+					*) 
+					source $LANG_TOOLS; sync_resources
+				   	if [ "$3" == "" ]; then
 				    	echo -e "${txtred}\nError: Specifiy MIUI version${txtrst}"; exit
-				   fi
-				   if [ "`cat $LANGS_ALL | grep ''$3' '$2''| wc -l`" -gt 0 ]; then
+				   	fi
+				   	if [ "`cat $LANGS_ALL | grep ''$3' '$2''| wc -l`" -gt 0 ]; then
 						init_lang $(cat $LANGS_ALL | grep ''$3' '$2'')
-                        			rm -rf $MAIN_DIR/languages/$LANG_TARGET 
-                             	   else
+                        	rm -rf $MAIN_DIR/languages/$LANG_TARGET 
+                    else
 						echo -e "${txtred}\nLanguage not supported or language not specified${txtrst}"; exit
-			           fi;;
-                 	esac 
-            	fi
+			        fi;;
+                 esac 
+            fi
+
+	# Resources
 	elif [ $1 == "--resources" ]; then
-            	if [ "$2" != " " ]; then
-                 	case "$2" in
-					sync) sync_resources;;
-                        	      resync) rm -rf $RES_DIR; sync_resources;;
-                 	esac 
-            	fi
-     	else
-            	show_argument_help; exit
-     	fi
+    	if [ "$2" != " " ]; then
+        	case "$2" in
+				sync) 
+				sync_resources;;
+                
+				resync) 
+				rm -rf $RES_DIR; sync_resources;;
+            esac 
+        fi
+
+	# Remote
+	elif [ $1 == "--remote" ]; then
+		# Do nothing
+		exit
+	else
+        show_argument_help; exit
+    fi
 else
-     	show_argument_help; exit
+     show_argument_help; exit
 fi
