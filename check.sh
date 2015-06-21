@@ -29,7 +29,7 @@ else
      	MAIN_DIR=$PWD
      	LOG_DIR=$PWD/logs
 		MIUIV5=true
-		REMOTE=true
+		REMOTE=false
 fi
 
 RES_DIR=$MAIN_DIR/resources
