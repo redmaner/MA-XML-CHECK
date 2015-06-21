@@ -59,7 +59,7 @@ REMOTE_TOOLS=$MAIN_DIR/remote.sh
 source $RES_TOOLS; source $REMOTE_TOOLS
 
 # Remote 
-#sync_remote
+sync_remote
 check_system_remote
 
 #########################################################################################################
@@ -200,7 +200,13 @@ if [ $# -gt 0 ]; then
 
 	# Remote
 	elif [ $1 == "--remote" ]; then
-		# Do nothing
+    	if [ "$2" != " " ]; then
+        	case "$2" in
+               
+				resync) 
+				rm -rf $REMOTE_DIR; sync_remote;;
+            esac 
+        fi
 		exit
 	else
         show_argument_help; exit
