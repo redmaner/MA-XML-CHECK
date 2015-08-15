@@ -71,7 +71,7 @@ fi
 
 check_language_remote () {
 if [ "$REMOTE" == true ]; then
-	if [ $(cat $LANGUAGE_CONF | grep ''$LANG_TARGET'' | cut -d'=' -f2) == "wipe" ]; then
+	if [ "$(cat $LANGUAGE_CONF | grep ''$LANG_TARGET'' | cut -d'=' -f2)" == "wipe" ]; then
 		rm -rf $LANG_DIR/$LANG_TARGET
 		remote_update $LANGUAGE_CONF "$LANG_TARGET" "wipe" "ok"
 		remote_log "Wiped $LANG_NAME MIUI$LANG_VERSION" "true" "true"
