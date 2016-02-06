@@ -38,8 +38,13 @@ if [ -d $LANG_DIR/$LANG_TARGET ]; then
 			xml_check "$xml_target" &
 		done
 	done
-	wait
 fi
+}
+
+max_proces() {
+while [ $(jobs | wc -l) -gt $MAX_JOBS ]; do
+	sleep 1;
+done
 }
 
 xml_check () {
@@ -65,31 +70,28 @@ if [ -e "$XML_TARGET" ]; then
 
 	case "$LANG_CHECK" in
 		basic) 
-		xml_check_parser &
-		xml_check_doubles &
-		xml_check_apostrophe &
-		xml_check_values &
-		xml_check_plus &
-		xml_check_variables &
-		wait;;
+		max_proces; xml_check_parser &
+		max_proces; xml_check_doubles &
+		max_proces; xml_check_apostrophe &
+		max_proces; xml_check_values &
+		max_proces; xml_check_plus &
+		max_proces; xml_check_variables &;;
 
 		normal) 
-		xml_check_parser &
-		xml_check_doubles &
-		xml_check_apostrophe &
-		xml_check_values &
-		xml_check_plus &
-		xml_check_variables &
-		xml_check_untranslateable &
-		wait;;
+		max_proces; xml_check_parser &
+		max_proces; xml_check_doubles &
+		max_proces; xml_check_apostrophe &
+		max_proces; xml_check_values &
+		max_proces; xml_check_plus &
+		max_proces; xml_check_variables &
+		max_proces; xml_check_untranslateable &;;
 
 		other)
-		xml_check_parser &
-		xml_check_doubles &
-		xml_check_apostrophe &
-		xml_check_plus &
-		xml_check_variables &
-		wait;;
+		max_proces; xml_check_parser &
+		max_proces; xml_check_doubles &
+		max_proces; xml_check_apostrophe &
+		max_proces; xml_check_plus &
+		max_proces; xml_check_variables &;;
 	esac
 fi
 }

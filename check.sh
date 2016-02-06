@@ -25,11 +25,13 @@ if [ -d /home/translators.xiaomi.eu ]; then
      	LOG_DIR=/home/translators.xiaomi.eu/public_html
 		MIUIV5=false
 		REMOTE=true
+		MAX_JOBS=64
 else
      	MAIN_DIR=$PWD
      	LOG_DIR=$PWD/logs
 		MIUIV5=true
 		REMOTE=false
+		MAX_JOBS=32
 fi
 
 RES_DIR=$MAIN_DIR/resources
@@ -40,12 +42,12 @@ mkdir -p $LANG_DIR
 mkdir -p $LOG_DIR
 
 # Debugging 
-PRESERVE_CACHE=false
+PRESERVE_CACHE=true
 
 #########################################################################################################
 # VARIABLES / CACHE
 #########################################################################################################
-VERSION=5.1
+VERSION=16
 DATE=$(date +"%m-%d-%Y-%H-%M-%S")
 CACHE="$MAIN_DIR/.cache-$DATE"
 
@@ -101,8 +103,8 @@ if [ $# -gt 0 ]; then
 
 		  		all) 
 				if [ "$3" == "double" ]; then
-                               	 DEBUG_MODE=double
-                             fi; 
+                     DEBUG_MODE=double
+                fi; 
 			     LINE_NR=$(cat $LANG_XML | grep 'language check=' | grep -v '<language check="false"' | wc -l)
 			     LAST_URL=$(cat $LANG_XML | grep 'language check=' | grep -v '<language check="false"' | sed -n "$LINE_NR"p | awk '{print $6}' | cut -d'"' -f2)
 			     cat $LANGS_ON | while read language; do
@@ -118,8 +120,8 @@ if [ $# -gt 0 ]; then
                 else
 					echo -e "${txtred}\nLanguage not supported or language not specified${txtrst}"; exit
 			    fi;;
-           	esac	
-		make_logs	
+           	esac
+		wait; sync; make_logs	
 		if [ $PRESERVE_CACHE == false ]; then
 			clear_cache
 		fi
