@@ -4,6 +4,10 @@
 # The license can be found at http://creativecommons.org/licenses/by-nc-sa/4.0/
 
 make_logs () {
+if [ $INDEX_LOGS == "true" ]; then
+	create_index
+fi
+
 for cached_check in $(find $CACHE -iname "*.cached" | sort); do
 	init_lang $(cat $LANGS_ALL | grep ''$(cat $cached_check/lang_version)' '$(cat $cached_check/lang_name)'');
 	if [ "$DEBUG_MODE" == "double" ]; then
@@ -11,7 +15,7 @@ for cached_check in $(find $CACHE -iname "*.cached" | sort); do
 		XML_LOG_FULL_NH=$CACHE/XML_CHECK_FULL-no_header 
 	fi
 	XML_LOG=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
-      	XML_LOG_NH=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO-no_header
+    XML_LOG_NH=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO-no_header
 
 	echo '</script></span><span class="header"><br><br>Checked ('$LANG_CHECK') <a href="'$LANG_URL'" title="'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO')" target="_blank">'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO') repository</a> on '$(cat $cached_check/datestamp)'</span>' >> $XML_LOG_NH
         echo '<!-- Start of log --><script type="text/plain">' >> $XML_LOG_NH
@@ -43,8 +47,17 @@ for cached_check in $(find $CACHE -iname "*.cached" | sort); do
 		cp $XML_LOG $LOG_DIR
 		echo -e "${txtgrn}$LANG_NAME ($LANG_ISO) checked, log at logs/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html${txtrst}"
 	fi
-	
+
+	if [ $INDEX_LOGS == "true" ]; then
+		echo '<a href="'$INDEX_LOG_HREF'/XML_MIUI'$LANG_VERSION'-'$LANG_NAME'-'$LANG_ISO'.html" title="'$LANG_NAME' MIUI'$LANG_VERSION'">MIUI'$LANG_VERSION' '$LANG_NAME' ('$LANG_ISO')</a><br>' >> $LOG_DIR/index.html.bak
+	fi
+
 done
+
+if [ $INDEX_LOGS == "true" ]; then
+	echo '</body></html>' >> $LOG_DIR/index.html.bak
+	mv $LOG_DIR/index.html.bak $LOG_DIR/index.html
+fi
 }
 
 write_final_log () {
@@ -141,7 +154,7 @@ a:hover {
 }
 </style></head>
 <body>
-<a href="http://xiaomi.eu" title="xiaomi.eu Forums - Unofficial International MIUI / Xiaomi Phone Support"><img src="http://xiaomi.eu/community/styles/xiaomi/xenforo/xiaomi-europe-logo.png"></a>
+<a href="http://translators.xiaomi.eu" title="xiaomi.eu Translators home"><img src="http://xiaomi.eu/community/styles/xiaomi/xenforo/xiaomi-europe-logo.png"></a>
 <br><br>
 <table border="0" cellpadding="0" cellspacing="0">
 	<tr>
@@ -180,3 +193,44 @@ a:hover {
 EOF
 }
 
+create_index () {
+cat > $LOG_DIR/index.html.bak << EOF
+<!DOCTYPE html>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<html>
+<head>
+<style>
+body {
+	margin: 0px 35px;
+}
+script {
+  	display: block;
+  	padding: auto;
+}
+.header {
+  	font-weight: bold;
+	font-size: 150%;
+  	color: #ec6e00;
+}
+a, a:active, a:visited {
+        color: #000000;
+        text-decoration: none;
+        }
+
+a:hover {
+        color: #ec6e00;
+        text-decoration: underline;
+        }
+
+.error {
+  	white-space: pre;
+  	margin-top: -10px;
+}
+</style></head>
+<body>
+<a href="http://xiaomi.eu" title="xiaomi.eu Forums - Unofficial International MIUI / Xiaomi Support"><img src="http://xiaomi.eu/community/styles/xiaomi/xenforo/xiaomi-europe-logo.png"></a>
+<br><br>
+<span class="header">LOGS</span><br><br>
+<a href="$INDEX_LOG_HREF/XML_CHECK_FULL.html" title="Universal log">Universal log</a><br>
+EOF
+}

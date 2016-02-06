@@ -26,12 +26,16 @@ if [ -d /home/translators.xiaomi.eu ]; then
 		MIUIV5=false
 		REMOTE=true
 		MAX_JOBS=64
+		INDEX_LOGS=true
+		INDEX_LOG_HREF="http://translators.xiaomi.eu"
 else
      	MAIN_DIR=$PWD
      	LOG_DIR=$PWD/logs
 		MIUIV5=true
 		REMOTE=false
 		MAX_JOBS=32
+		INDEX_LOGS=false
+		INDEX_LOG_HREF="file://$LOG_DIR"
 fi
 
 RES_DIR=$MAIN_DIR/resources
