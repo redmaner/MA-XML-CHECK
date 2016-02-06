@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2013 - 2015, Redmaner
+# Copyright (c) 2013 - 2016, Redmaner
 # This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International license
 # The license can be found at http://creativecommons.org/licenses/by-nc-sa/4.0/
 
@@ -46,7 +46,7 @@ mkdir -p $LANG_DIR
 mkdir -p $LOG_DIR
 
 # Debugging 
-PRESERVE_CACHE=true
+PRESERVE_CACHE=false
 
 #########################################################################################################
 # VARIABLES / CACHE
@@ -125,7 +125,7 @@ if [ $# -gt 0 ]; then
 					echo -e "${txtred}\nLanguage not supported or language not specified${txtrst}"; exit
 			    fi;;
            	esac
-		wait; sync; make_logs	
+		wait; sync; sleep 5; make_logs	
 		if [ $PRESERVE_CACHE == false ]; then
 			clear_cache
 		fi

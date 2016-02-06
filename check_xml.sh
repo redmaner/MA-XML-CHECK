@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2013 - 2015, Redmaner
+# Copyright (c) 2013 - 2016, Redmaner
 # This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International license
 # The license can be found at http://creativecommons.org/licenses/by-nc-sa/4.0/
 
@@ -11,13 +11,8 @@ rm -rf $CACHE; mkdir $CACHE
 }
 
 clear_cache () {
+wait
 rm -rf $CACHE
-}
-
-assign_vars () {
-XML_TARGET_STRIPPED=$FILE_CACHE/xml.target.stripped
-APOSTROPHE_RESULT=$FILE_CACHE/xml.apostrophe.result
-XML_LOG_TEMP=$FILE_CACHE/XML_LOG_TEMP
 }
 
 #########################################################################################################
@@ -39,6 +34,7 @@ if [ -d $LANG_DIR/$LANG_TARGET ]; then
 		done
 	done
 fi
+wait
 }
 
 max_proces() {
@@ -56,14 +52,14 @@ if [ -e "$XML_TARGET" ]; then
 	VALUES=$(basename $(dirname $XML_TARGET))
 	FILE_CACHE=$CACHE/$LANG_TARGET.cached/$DIR-$APK-$VALUES-$XML_TYPE
 	mkdir -p $FILE_CACHE
-	assign_vars
+	XML_LOG_TEMP=$FILE_CACHE/XML_LOG_TEMP
 	echo "$XML_TARGET" > $FILE_CACHE/XML_TARGET
 
 	# Fix .part files for XML_TYPE
 	if [ $(echo $XML_TYPE | grep ".part" | wc -l) -gt 0 ]; then
 		case "$XML_TYPE" in
-		     	strings.xml.part) XML_TYPE="strings.xml";;
-			 arrays.xml.part) XML_TYPE="arrays.xml";;
+		   	strings.xml.part) XML_TYPE="strings.xml";;
+			arrays.xml.part) XML_TYPE="arrays.xml";;
 			plurals.xml.part) XML_TYPE="plurals.xml";;
 		esac
 	fi
@@ -132,23 +128,18 @@ esac
 	
 xml_check_apostrophe () {
 # Check for apostrophe errors
+XML_LOG_APOSTROPHE=$FILE_CACHE/APOSTROPHE.log
 case "$XML_TYPE" in
 	strings.xml)
-	grep "<string" $XML_TARGET > $XML_TARGET_STRIPPED
-	grep -v '>"' $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT;;
+	
+	grep "'" $XML_TARGET | grep '<string' | grep -v '>"' | grep -v "'\''" | while read apostrophe; do
+		grep -ne "$apostrophe" $XML_TARGET >> $XML_LOG_APOSTROPHE
+	done;;
 	*)
-	grep "<item>" $XML_TARGET > $XML_TARGET_STRIPPED
-	grep -v '>"' $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT;;
+	grep "'" $XML_TARGET | grep '<item' | grep -v '>"' | grep -v "'\''" | while read apostrophe; do
+		grep -ne "$apostrophe" $XML_TARGET >> $XML_LOG_APOSTROPHE
+	done;;
 esac
-
-if [ -e $APOSTROPHE_RESULT ]; then
-	grep "'" $APOSTROPHE_RESULT > $XML_TARGET_STRIPPED
-	grep -v "'\''" $XML_TARGET_STRIPPED > $APOSTROPHE_RESULT
-	if [ -e $APOSTROPHE_RESULT ]; then
-		XML_LOG_APOSTROPHE=$FILE_CACHE/APOSTROPHE.log
-      	      	cat $APOSTROPHE_RESULT | while read all_line; do grep -ne "$all_line" $XML_TARGET; done >> $XML_LOG_APOSTROPHE
- 	fi
-fi
 write_log_error "brown" "$XML_LOG_APOSTROPHE"
 }
 
