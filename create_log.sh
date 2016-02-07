@@ -210,10 +210,6 @@ cat > $LOG_DIR/index.html.bak << EOF
 body {
 	margin: 0px 35px;
 }
-script {
-  	display: block;
-  	padding: auto;
-}
 .header {
   	font-weight: bold;
 	font-size: 150%;
@@ -241,10 +237,15 @@ a:hover {
         text-decoration: underline;
         }
 
-.error {
-  	white-space: pre;
-  	margin-top: -10px;
-}
+table {
+        background-color: #ffffff;
+        border-collapse: collapse;
+        border-top: 0px solid #ffffff;
+        border-bottom: 0px solid #ffffff;
+        border-left: 0px solid #ffffff;
+        border-right: 0px solid #ffffff;
+        text-align: left;
+        }
 </style></head>
 <body>
 <a href="http://xiaomi.eu" title="xiaomi.eu Forums - Unofficial International MIUI / Xiaomi Support"><img  width="20%" height="20%" src="http://xiaomi.eu/community/styles/xiaomi/xenforo/xiaomi-europe-logo.png"></a>
@@ -264,7 +265,7 @@ add_to_index() {
 cat >> $LOG_DIR/index.html.bak << EOF
 	<tr>
 		<td height="auto" width="7%"><span class="black">MIUI$LANG_VERSION</span></td>
-		<td height="auto" width="23%"><span class="black"><a href="$INDEX_LOG_HREF/XML_MIUI'$LANG_VERSION-$LANG_NAME-$LANG_ISO.html" title="$LANG_NAME MIUI$LANG_VERSION">$LANG_NAME ($LANG_ISO)</a></span></td>
+		<td height="auto" width="23%"><span class="black"><a href="$INDEX_LOG_HREF/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html" title="$LANG_NAME MIUI$LANG_VERSION">$LANG_NAME ($LANG_ISO)</a></span></td>
 		<td height="auto" width="auto"><span class="$1">$2</span></td>
 	</tr>
 EOF
