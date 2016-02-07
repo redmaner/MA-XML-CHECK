@@ -51,11 +51,37 @@ for cached_check in $(find $CACHE -iname "*.cached" | sort); do
 	if [ $INDEX_LOGS == "true" ]; then
 		INDEX_LOG_TARGET=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
 		if [ $(grep 'No errors found in this repository!' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
-			add_to_index "green" "No errors found"
-		elif [ $(grep '"><script' $INDEX_LOG_TARGET | wc -l) -eq  $(grep 'class="pink"><script' $INDEX_LOG_TARGET | wc -l) ]; then
-			add_to_index "pink" "Has untranslateables"
+			add_to_index "No errors found" "" "" "" "" "" "" ""
 		else
-			add_to_index "red" "Has errors"
+			INDEX_RED=""
+			INDEX_ORANGE=""
+			INDEX_BROWN=""
+			INDEX_PINK=""
+			INDEX_CYAN=""
+			INDEX_BLUE=""
+			INDEX_GREY=""
+			if [ $(grep 'class="red"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
+				INDEX_RED="Has parser error(s) | "
+			fi
+			if [ $(grep 'class="orange"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
+				INDEX_ORANGE="Has doubles | "
+			fi
+			if [ $(grep 'class="brown"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
+				INDEX_BROWN="Has apostrophe error(s) | "
+			fi
+			if [ $(grep 'class="pink"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
+				INDEX_PINK="Has untranslateable(s) | "
+			fi
+			if [ $(grep 'class="cyan"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
+				INDEX_CYAN="Has wrong value folder(s) | "
+			fi
+			if [ $(grep 'class="blue"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
+				INDEX_BLUE="Has + error(s) | "
+			fi
+			if [ $(grep 'class="grey"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
+				INDEX_GREY="Has variable error(s)"
+			fi
+			add_to_index "" "$INDEX_RED" "$INDEX_ORANGE" "$INDEX_BROWN" "$INDEX_PINK" "$INDEX_CYAN" "$INDEX_BLUE" "$INDEX_GREY"
 		fi
 	fi
 
@@ -215,17 +241,32 @@ body {
 	font-size: 150%;
   	color: #ec6e00;
 }
-.green {
-  	color: #006633;
-}
 .black {
   	color: #000000;
+}
+.green {
+  	color: #006633;
 }
 .red {
   	color: #ff0000;
 }
+.blue {
+  	color: #0000ff;
+}
+.orange {
+  	color: #FF6633;
+}
+.brown {
+  	color: #660000;
+}
 .pink {
 	color: #FF14B1;
+}
+.cyan {
+	color: #0099FF;
+}
+.grey {
+	color: #464646;
 }
 a, a:active, a:visited {
         color: #000000;
@@ -266,7 +307,7 @@ cat >> $LOG_DIR/index.html.bak << EOF
 	<tr>
 		<td height="auto" width="7%"><span class="black">MIUI$LANG_VERSION</span></td>
 		<td height="auto" width="23%"><span class="black"><a href="$INDEX_LOG_HREF/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html" title="$LANG_NAME MIUI$LANG_VERSION">$LANG_NAME ($LANG_ISO)</a></span></td>
-		<td height="auto" width="auto"><span class="$1">$2</span></td>
+		<td height="auto" width="auto"><span class="green">$1</span><span class="red">$2</span><span class="orange">$3</span><span class="brown">$4</span><span class="pink">$5</span><span class="cyan">$6</span><span class="blue">$7</span><span class="grey">$8</span></td>
 	</tr>
 EOF
 }
