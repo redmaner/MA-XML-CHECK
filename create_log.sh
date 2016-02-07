@@ -49,7 +49,14 @@ for cached_check in $(find $CACHE -iname "*.cached" | sort); do
 	fi
 
 	if [ $INDEX_LOGS == "true" ]; then
-		echo '<a href="'$INDEX_LOG_HREF'/XML_MIUI'$LANG_VERSION'-'$LANG_NAME'-'$LANG_ISO'.html" title="'$LANG_NAME' MIUI'$LANG_VERSION'">MIUI'$LANG_VERSION' '$LANG_NAME' ('$LANG_ISO')</a><br>' >> $LOG_DIR/index.html.bak
+		INDEX_LOG_TARGET=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
+		if [ $(grep 'No errors found in this repository!' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
+			add_to_index "green" "No errors found"
+		elif [ $(grep '"><script' $INDEX_LOG_TARGET | wc -l) -eq  $(grep 'class="pink"><script' $INDEX_LOG_TARGET | wc -l) ]; then
+			add_to_index "pink" "Has untranslateables"
+		else
+			add_to_index "red" "Has errors"
+		fi
 	fi
 
 done
@@ -154,41 +161,41 @@ a:hover {
 }
 </style></head>
 <body>
-<a href="http://translators.xiaomi.eu" title="xiaomi.eu Translators home"><img src="http://xiaomi.eu/community/styles/xiaomi/xenforo/xiaomi-europe-logo.png"></a>
+<a href="http://translators.xiaomi.eu" title="xiaomi.eu Translators home"><img width="20%" height="20%" src="http://xiaomi.eu/community/styles/xiaomi/xenforo/xiaomi-europe-logo.png"></a>
 <br><br>
 <table border="0" cellpadding="0" cellspacing="0">
 	<tr>
-		<td height="auto" width="120px"><span class="green">Green text</span></td>
-		<td height="auto" width="auto"><span class="black">No errors found</span><td>
+		<td height="auto" width="17%"><span class="green">Green text</span></td>
+		<td height="auto" width="auto"><span class="black">No errors found</span></td>
 	</tr>
 	<tr>
-		<td height="auto" width="120px"><span class="red">Red text</span></td>
-		<td height="auto" width="auto"><span class="black">Parser error [Found in $COUNT_RED file(s)]</span></td><td>
-	</td></tr>
+		<td height="auto" width="17%"><span class="red">Red text</span></td>
+		<td height="auto" width="auto"><span class="black">Parser error [Found in $COUNT_RED file(s)]</span></td>
+	</tr>
 	<tr>
-		<td height="auto" width="120px"><span class="orange">Orange text</span></td>
-		<td height="auto" width="auto"><span class="black">Double strings [Found in $COUNT_ORANGE file(s)]</span></td><td>
-	</td></tr>
+		<td height="auto" width='17%"><span class="orange">Orange text</span></td>
+		<td height="auto" width="auto"><span class="black">Double strings [Found in $COUNT_ORANGE file(s)]</span></td>
+	</tr>
 	<tr>
-		<td height="auto" width="120px"><span class="brown">Brown text</span></td>
-		<td height="auto" width="auto"><span class="black">Apostrophe syntax error  [Found in $COUNT_BROWN file(s)]</span></td><td>
-	</td></tr>
+		<td height="auto" width="17%"><span class="brown">Brown text</span></td>
+		<td height="auto" width="auto"><span class="black">Apostrophe syntax error  [Found in $COUNT_BROWN file(s)]</span></td>
+	</tr>
 	<tr>
-		<td height="auto" width="120px"><span class="pink">Pink text</span></td>
-		<td height="auto" width="auto"><span class="black">Untranslateable string, array or plural - Has to be removed from xml!  [Found in $COUNT_PINK file(s)]</span></td><td>
-	</td></tr>
+		<td height="auto" width="17%"><span class="pink">Pink text</span></td>
+		<td height="auto" width="auto"><span class="black">Untranslateable string, array or plural - Has to be removed from xml!  [Found in $COUNT_PINK file(s)]</span></td>
+	</tr>
 	<tr>
-		<td height="auto" width="120px"><span class="cyan">Cyan text</span></td>
-		<td height="auto" width="auto"><span class="black">Wrong values folder  [Found in $COUNT_CYAN file(s)]</span></td><td>
-	</td></tr>
+		<td height="auto" width="17%"><span class="cyan">Cyan text</span></td>
+		<td height="auto" width="auto"><span class="black">Wrong values folder  [Found in $COUNT_CYAN file(s)]</span></td>
+	</tr>
 	<tr>
-		<td height="auto" width="120px"><span class="blue">Blue text</span></td>
-		<td height="auto" width="auto"><span class="black">'+' outside of tags  [Found in $COUNT_BLUE file(s)]</span></td><td>
-	</td></tr>
+		<td height="auto" width="17%"><span class="blue">Blue text</span></td>
+		<td height="auto" width="auto"><span class="black">'+' outside of tags  [Found in $COUNT_BLUE file(s)]</span></td>
+	</tr>
 	<tr>
-		<td height="auto" width="120px"><span class="grey">Grey text</span></td>
-		<td height="auto" width="auto"><span class="black">Invalid variable formatting  [Found in $COUNT_GREY file(s)]</span></td><td>
-	</td></tr>
+		<td height="auto" width="17%"><span class="grey">Grey text</span></td>
+		<td height="auto" width="auto"><span class="black">Invalid variable formatting  [Found in $COUNT_GREY file(s)]</span></td>
+	</tr>
 </table>
 EOF
 }
@@ -212,6 +219,18 @@ script {
 	font-size: 150%;
   	color: #ec6e00;
 }
+.green {
+  	color: #006633;
+}
+.black {
+  	color: #000000;
+}
+.red {
+  	color: #ff0000;
+}
+.pink {
+	color: #FF14B1;
+}
 a, a:active, a:visited {
         color: #000000;
         text-decoration: none;
@@ -228,9 +247,25 @@ a:hover {
 }
 </style></head>
 <body>
-<a href="http://xiaomi.eu" title="xiaomi.eu Forums - Unofficial International MIUI / Xiaomi Support"><img src="http://xiaomi.eu/community/styles/xiaomi/xenforo/xiaomi-europe-logo.png"></a>
+<a href="http://xiaomi.eu" title="xiaomi.eu Forums - Unofficial International MIUI / Xiaomi Support"><img  width="20%" height="20%" src="http://xiaomi.eu/community/styles/xiaomi/xenforo/xiaomi-europe-logo.png"></a>
 <br><br>
 <span class="header">LOGS</span><br><br>
-<a href="$INDEX_LOG_HREF/XML_CHECK_FULL.html" title="Universal log">Universal log</a><br>
+<a href="$INDEX_LOG_HREF/XML_CHECK_FULL.html" title="Universal log"><b>Universal log</b></a><br><br>
+<table border="0" cellpadding="0" cellspacing="0">
+	<tr>
+		<td height="auto" width="7%"><span class="black"><b>Version</b></span></td>
+		<td height="auto" width="23%"><span class="black"><b>Language repository</b></span></td>
+		<td height="auto" width="auto"><span class=black"><b>Status</b></span></td>
+	</tr>
+EOF
+}
+
+add_to_index() {
+cat >> $LOG_DIR/index.html.bak << EOF
+	<tr>
+		<td height="auto" width="7%"><span class="black">MIUI$LANG_VERSION</span></td>
+		<td height="auto" width="23%"><span class="black"><a href="$INDEX_LOG_HREF/XML_MIUI'$LANG_VERSION-$LANG_NAME-$LANG_ISO.html" title="$LANG_NAME MIUI$LANG_VERSION">$LANG_NAME ($LANG_ISO)</a></span></td>
+		<td height="auto" width="auto"><span class="$1">$2</span></td>
+	</tr>
 EOF
 }
