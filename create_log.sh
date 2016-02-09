@@ -20,6 +20,7 @@ for cached_check in $(find $CACHE -iname "*.cached" | sort); do
 	if [ -f $cached_check/prev_log ]; then
 		XML_LOG_NH=$cached_check/prev_log
 	else
+		cp $cached_check/datestamp $DATA_DIR/$LANG_TARGET/datestamp
 		echo '</script></span><span class="header"><br><br>Checked ('$LANG_CHECK') <a href="'$LANG_URL'" title="'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO')" target="_blank">'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO') repository</a> on '$(cat $cached_check/datestamp)'</span>' >> $XML_LOG_NH
         	echo '<!-- Start of log --><script type="text/plain">' >> $XML_LOG_NH
 
@@ -301,16 +302,19 @@ table {
 	<tr>
 		<td height="auto" width="7%"><span class="black"><b>Version</b></span></td>
 		<td height="auto" width="23%"><span class="black"><b>Language repository</b></span></td>
+		<td height="auto" width="15%"><span class="black"><b>Last check</b></span></td>
 		<td height="auto" width="auto"><span class=black"><b>Status</b></span></td>
 	</tr>
 EOF
 }
 
 add_to_index() {
+INDEX_TIME=$(cat $CACHE/$LANG_TARGET.cached/datestamp)
 cat >> $LOG_DIR/index.html.bak << EOF
 	<tr>
 		<td height="auto" width="7%"><span class="black">MIUI$LANG_VERSION</span></td>
 		<td height="auto" width="23%"><span class="black"><a href="$INDEX_LOG_HREF/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html" title="$LANG_NAME MIUI$LANG_VERSION">$LANG_NAME ($LANG_ISO)</a></span></td>
+		<td height="auto" width="15%"><span class="black">$INDEX_TIME</span></td>
 		<td height="auto" width="auto"><span class="green">$1</span><span class="red">$2</span><span class="orange">$3</span><span class="brown">$4</span><span class="pink">$5</span><span class="cyan">$6</span><span class="blue">$7</span><span class="grey">$8</span></td>
 	</tr>
 EOF
