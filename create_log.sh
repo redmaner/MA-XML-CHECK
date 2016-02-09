@@ -17,18 +17,22 @@ for cached_check in $(find $CACHE -iname "*.cached" | sort); do
 	XML_LOG=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
     XML_LOG_NH=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO-no_header
 
-	echo '</script></span><span class="header"><br><br>Checked ('$LANG_CHECK') <a href="'$LANG_URL'" title="'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO')" target="_blank">'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO') repository</a> on '$(cat $cached_check/datestamp)'</span>' >> $XML_LOG_NH
-        echo '<!-- Start of log --><script type="text/plain">' >> $XML_LOG_NH
+	if [ -f $cached_check/prev_log ]; then
+		XML_LOG_NH=$cached_check/prev_log
+	else
+		echo '</script></span><span class="header"><br><br>Checked ('$LANG_CHECK') <a href="'$LANG_URL'" title="'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO')" target="_blank">'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO') repository</a> on '$(cat $cached_check/datestamp)'</span>' >> $XML_LOG_NH
+        	echo '<!-- Start of log --><script type="text/plain">' >> $XML_LOG_NH
 
-	for TEMP_LOG in $(find $cached_check -iname "XML_LOG_TEMP" | sort); do
-		XML_TARGET=$(cat $(dirname $TEMP_LOG)/XML_TARGET)
-		echo '</script><span class="black"><br>'$XML_TARGET'</span><span><script class="error" type="text/plain">' >> $XML_LOG_NH
-		cat $TEMP_LOG >> $XML_LOG_NH
-	done
+		for TEMP_LOG in $(find $cached_check -iname "XML_LOG_TEMP" | sort); do
+			XML_TARGET=$(cat $(dirname $TEMP_LOG)/XML_TARGET)
+			echo '</script><span class="black"><br>'$XML_TARGET'</span><span><script class="error" type="text/plain">' >> $XML_LOG_NH
+			cat $TEMP_LOG >> $XML_LOG_NH
+		done
 
-	LINE_NR=$(wc -l $XML_LOG_NH | cut -d' ' -f1)
+		LINE_NR=$(wc -l $XML_LOG_NH | cut -d' ' -f1)
      	if [ "$(sed -n "$LINE_NR"p $XML_LOG_NH)" == '<!-- Start of log --><script type="text/plain">' ]; then 
            	echo '</script></span><span class="green">No errors found in this repository!</span>' >> $XML_LOG_NH
+		fi
 	fi
 
 	if [ "$DEBUG_MODE" == "double" ]; then
@@ -112,7 +116,7 @@ cat >> $LOG_NEW << EOF
 </body>
 </html>
 EOF
-rm -f $LOG_NH
+cp $LOG_NH $DATA_DIR/$LANG_TARGET/prev_log
 }
 	
 create_log () {

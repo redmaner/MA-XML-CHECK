@@ -34,16 +34,18 @@ else
 		MIUIV5=true
 		REMOTE=false
 		MAX_JOBS=32
-		INDEX_LOGS=false
+		INDEX_LOGS=true
 		INDEX_LOG_HREF="file://$LOG_DIR"
 fi
 
 RES_DIR=$MAIN_DIR/resources
 LANG_DIR=$MAIN_DIR/languages
 REMOTE_DIR=$MAIN_DIR/remote
+DATA_DIR=$MAIN_DIR/data
 
 mkdir -p $LANG_DIR
 mkdir -p $LOG_DIR
+mkdir -p $DATA_DIR
 
 # Debugging 
 PRESERVE_CACHE=false

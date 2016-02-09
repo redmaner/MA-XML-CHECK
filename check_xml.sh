@@ -21,19 +21,42 @@ rm -rf $CACHE
 init_xml_check () {
 if [ -d $LANG_DIR/$LANG_TARGET ]; then
 	echo -e "${txtblu}Checking $LANG_NAME MIUI$LANG_VERSION ($LANG_ISO)${txtrst}"
+	mkdir -p $DATA_DIR/$LANG_TARGET
 	mkdir -p $CACHE/$LANG_TARGET.cached
 	echo "$LANG_NAME" > $CACHE/$LANG_TARGET.cached/lang_name
 	echo "$LANG_VERSION" > $CACHE/$LANG_TARGET.cached/lang_version
 	DATESTAMP=$(date +"%m-%d-%Y %H:%M:%S")
 	echo "$DATESTAMP" > $CACHE/$LANG_TARGET.cached/datestamp
-	for apk_target in $(find $LANG_DIR/$LANG_TARGET -iname "*.apk" | sort); do
-		APK=$(basename $apk_target)
-		DIR=$(basename $(dirname $apk_target))
-		for xml_target in $(find $apk_target -iname "arrays.xml*" -o -iname "strings.xml*" -o -iname "plurals.xml*"); do
-			xml_check "$xml_target" &
-		done
-	done
+	if [ -f $DATA_DIR/$LANG_TARGET/last_commit ]; then
+		if [ $(cat $DATA_DIR/$LANG_TARGET/last_commit) == $(cat $LANG_DIR/$LANG_TARGET/.git/refs/heads/$LANG_BRANCH) ]; then
+			if [ -f $DATA_DIR/$LANG_TARGET/prev_log ]; then
+				echo ">>> Repository is not changed, using old log"
+				cp $DATA_DIR/$LANG_TARGET/prev_log $CACHE/$LANG_TARGET.cached/prev_log
+			else
+				echo ">>> Repository is not changed, old log not found"
+				do_xml_check
+			fi
+		else
+			echo ">>> Repository is changed"
+			cp $LANG_DIR/$LANG_TARGET/.git/refs/heads/$LANG_BRANCH $DATA_DIR/$LANG_TARGET/last_commit
+			do_xml_check
+		fi
+	else
+		cp $LANG_DIR/$LANG_TARGET/.git/refs/heads/$LANG_BRANCH $DATA_DIR/$LANG_TARGET/last_commit
+		do_xml_check
+	fi
 fi
+}
+
+do_xml_check () {
+echo ">>> Checking repository"
+for apk_target in $(find $LANG_DIR/$LANG_TARGET -iname "*.apk" | sort); do
+	APK=$(basename $apk_target)
+	DIR=$(basename $(dirname $apk_target))
+	for xml_target in $(find $apk_target -iname "arrays.xml*" -o -iname "strings.xml*" -o -iname "plurals.xml*"); do
+		xml_check "$xml_target" &
+	done
+done
 wait
 }
 
