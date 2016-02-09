@@ -92,7 +92,7 @@ echo "		--pull [all|language] [force]		Pull specified language"
 echo "							If all is specified, then all languages will be pulled"
 echo "							If a specific language is specified, that language will be pulled"
 echo "							If force is specified, language(s) will be removed and resynced"
-echo "		--remove [cache|logs|all|language]	Removes caches, logs or language(s)"
+echo "		--clear [cache|logs|all|language]	Removes caches, logs or language(s)"
 echo 
 exit 
 }
@@ -166,7 +166,7 @@ if [ $# -gt 0 ]; then
         esac
 
 		# Remove stuff
-     	elif [ $1 == "--remove" ]; then
+     	elif [ $1 == "--clear" ]; then
             if [ "$2" != " " ]; then
                  case "$2" in
                  	logs) 
@@ -179,6 +179,9 @@ if [ $# -gt 0 ]; then
                               
 					all) 
 					rm -rf $MAIN_DIR/languages; mkdir -p $MAIN_DIR/languages;;
+
+					data)
+					rm -rf $DATA_DIR;;
 
 					*) 
 					source $LANG_TOOLS; sync_resources

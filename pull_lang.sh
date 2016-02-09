@@ -19,6 +19,7 @@ if [ -d $LANG_DIR/$LANG_TARGET ]; then
 	if [ "$LANG_GIT" != "$OLD_GIT" ]; then
 		echo -e "${txtblu}\nNew repository detected, removing old repository...\n$OLD_GIT ---> $LANG_GIT${txtrst}"
 		rm -rf $LANG_DIR/$LANG_TARGET
+		rm -rf $DATA_DIR/$LANG_TARGET
 	fi
 fi
 
