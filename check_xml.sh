@@ -25,7 +25,7 @@ if [ -d $LANG_DIR/$LANG_TARGET ]; then
 	mkdir -p $CACHE/$LANG_TARGET.cached
 	echo "$LANG_NAME" > $CACHE/$LANG_TARGET.cached/lang_name
 	echo "$LANG_VERSION" > $CACHE/$LANG_TARGET.cached/lang_version
-	DATESTAMP=$(date +"%m-%d-%Y %H:%M:%S")
+	DATESTAMP=$(date +"%a %b %m %Y %H:%M:%S")
 	echo "$DATESTAMP" > $CACHE/$LANG_TARGET.cached/datestamp
 	if [ -f $DATA_DIR/$LANG_TARGET/last_commit ]; then
 		if [ $(cat $DATA_DIR/$LANG_TARGET/last_commit) == $(cat $LANG_DIR/$LANG_TARGET/.git/refs/heads/$LANG_BRANCH) ]; then
