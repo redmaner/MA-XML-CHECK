@@ -38,9 +38,9 @@ for cached_check in $(find $CACHE -iname "*.cached" | sort); do
 
 	if [ "$DEBUG_MODE" == "double" ]; then
 		cat $XML_LOG_NH >> $XML_LOG_FULL_NH 
-		write_final_log "$XML_LOG_NH" "$XML_LOG"
+		write_final_log "$XML_LOG_NH" "$XML_LOG" true
 		if [ "$LANG_URL" == "$LAST_URL" ]; then
-			write_final_log "$XML_LOG_FULL_NH" "$XML_LOG_FULL"
+			write_final_log "$XML_LOG_FULL_NH" "$XML_LOG_FULL" false
 			rm -f $LOG_DIR/XML_*.html
 			for html in $(find $CACHE -iname "XML_*.html"); do
 				cp $html $LOG_DIR
@@ -48,7 +48,7 @@ for cached_check in $(find $CACHE -iname "*.cached" | sort); do
 			echo -e "${txtgrn}All languages checked, logs at $LOG_DIR${txtrst}"
 		fi
 	else
-		write_final_log "$XML_LOG_NH" "$XML_LOG"
+		write_final_log "$XML_LOG_NH" "$XML_LOG" true
 		cp $XML_LOG $LOG_DIR
 		echo -e "${txtgrn}$LANG_NAME ($LANG_ISO) checked, log at logs/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html${txtrst}"
 	fi
@@ -101,6 +101,7 @@ fi
 write_final_log () {
 LOG_NH=$1
 LOG_NEW=$2
+COPY_LOG=$3
 
 COUNT_RED=$(grep 'class="red"' $LOG_NH | wc -l)
 COUNT_ORANGE=$(grep 'class="orange"' $LOG_NH | wc -l)
@@ -117,7 +118,10 @@ cat >> $LOG_NEW << EOF
 </body>
 </html>
 EOF
-cp $LOG_NH $DATA_DIR/$LANG_TARGET/prev_log
+
+if [ $COPY_LOG == true ]; then
+	cp $LOG_NH $DATA_DIR/$LANG_TARGET/prev_log
+fi
 }
 	
 create_log () {
