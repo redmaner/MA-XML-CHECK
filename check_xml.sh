@@ -32,7 +32,7 @@ if [ -d $LANG_DIR/$LANG_TARGET ]; then
 			if [ -f $DATA_DIR/$LANG_TARGET/prev_log ]; then
 				echo ">>> Repository is not changed, using old log"
 				cp $DATA_DIR/$LANG_TARGET/prev_log $CACHE/$LANG_TARGET.cached/prev_log
-				cp $DATA_DIR/$LANG_TARGET/timestamp $CACHE/$LANG_TARGET.cached/datestamp
+				cp $DATA_DIR/$LANG_TARGET/datestamp $CACHE/$LANG_TARGET.cached/datestamp
 			else
 				echo ">>> Repository is not changed, old log not found"
 				do_xml_check
