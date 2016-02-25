@@ -1,0 +1,47 @@
+The inital code of translators.xiaomi.eu was pushed to github on 20 october 2013. Since that day a lot of things have changed. 
+This file contains the most noteable changes over the years. For more details see the commits of this repository.
+
+----------------------------------------------------
+Year 2016 (version v16)
+----------------------------------------------------
+- Finetuned multi-processing
+- Add index page generation for translators.xiaomi.eu (yes after almost 2 years)
+- Redesigned check cycle (now only checking language if the language is changed)
+- Rewritten apostrophe check
+
+----------------------------------------------------
+Year 2015 (version 5.x)
+----------------------------------------------------
+- New values check
+- New variable check
+- Doubles check for arrays and plurals
+- Rewritten checks and caching (multi-processing support)
+- Support for local_languages.xml
+- Support for remote controller
+- Support for MIUI7
+
+----------------------------------------------------
+Year 2014 (version 3.x / version 4.x)
+----------------------------------------------------
+- HTML updates 
+- Introduce resources (MA-XML-CHECK-RESOURCES)
+- Easy configureable languages
+- New logfunctions (direct links to language repositories)
+- Auto-detect new repositories
+- Improved caching
+- Introduce untranslateable check
+- Multiple check modes (full / basic)
+- Add MXCR system (preparsing of resources)
+- Support for MIUI6
+- Apostrophe check for arrays and plurals
+- Add error count on logs
+
+----------------------------------------------------
+Year 2013 (version 1.x / version 2.x)
+----------------------------------------------------
+- Initial code
+- Change logging from txt files into html 
+- Support both server and local setups
+- Introducuction of apostrophe error check
+- Error categorization with colors
+- Add double debug mode
