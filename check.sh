@@ -109,23 +109,24 @@ if [ $# -gt 0 ]; then
 
 		  		all) 
 				if [ "$3" == "double" ]; then
-                     DEBUG_MODE=double
-                fi; 
-			     LINE_NR=$(cat $LANG_XML | grep 'language check=' | grep -v '<language check="false"' | wc -l)
-			     LAST_URL=$(cat $LANG_XML | grep 'language check=' | grep -v '<language check="false"' | sed -n "$LINE_NR"p | awk '{print $6}' | cut -d'"' -f2)
-			     cat $LANGS_ON | while read language; do
+                     			DEBUG_MODE=double
+                		fi; 
+			     	LINE_NR=$(cat $LANG_XML | grep 'language check=' | grep -v '<language check="false"' | wc -l)
+			     	LAST_URL=$(cat $LANG_XML | grep 'language check=' | grep -v '<language check="false"' | sed -n "$LINE_NR"p | awk '{print $6}' | cut -d'"' -f2)
+			     	cat $LANGS_ON | while read language; do
 					init_lang $language; init_xml_check; 
-   			     done;;
+   			     	done;;
 
 			  	*) 
 				if [ "$3" == "" ]; then
 				    	echo -e "${txtred}\nError: Specifiy MIUI version${txtrst}"; exit
-			    fi
-			    if [ "`cat $LANGS_ALL | grep ''$3' '$2''| wc -l`" -gt 0 ]; then
-					init_lang $(cat $LANGS_ALL | grep ''$3' '$2''); init_xml_check; 
-                else
+			    	fi
+			    	if [ "`cat $LANGS_ALL | grep ''$3' '$2''| wc -l`" -gt 0 ]; then
+					init_lang $(cat $LANGS_ALL | grep ''$3' '$2'')
+					rm -f $DATA_DIR/$LANG_TARGET/last_commit; init_xml_check; 
+                		else
 					echo -e "${txtred}\nLanguage not supported or language not specified${txtrst}"; exit
-			    fi;;
+			    	fi;;
            	esac
 		wait; sync; sleep 5; make_logs	
 		if [ $PRESERVE_CACHE == false ]; then
