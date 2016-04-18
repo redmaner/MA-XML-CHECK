@@ -64,8 +64,9 @@ done
 
 preparse_res () {
 PREPARSE_FILE=$1
+FILENAME=$(basename $PREPARSE_FILE)
 
-case "$PREPARSE_FILE" in
+case "$FILENAME" in
 	languages.xml)
 	preparse_languages_xml;;
 
