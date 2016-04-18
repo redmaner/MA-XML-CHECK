@@ -8,6 +8,7 @@ RES_GIT="git@github.com:Redmaner/MA-XML-CHECK-RESOURCES.git"
 RES_BRANCH="master"
 
 # Resource variables
+RES_XML=$RES_DIR/resources.xml
 LANG_XML=$RES_DIR/languages.xml
 LANGS_ALL=$RES_DIR/languages_all.mxcr
 LANGS_ON=$RES_DIR/languages_enabled.mxcr
@@ -47,36 +48,34 @@ check_mxcr
 # MXCR FILES
 #########################################################################################################
 check_mxcr () {
-if [ ! -e $RES_DIR/resources.md5 ]; then
-	sync_mxcr; create_md5sum_signature "$RES_DIR/resources.md5"
-else
-	create_md5sum_signature "$RES_DIR/resources.diff.md5"
-	diff $RES_DIR/resources.md5 $RES_DIR/resources.diff.md5 > $RES_DIR/resources.result
-	if [ -s $RES_DIR/resources.result ]; then
-		sync_mxcr; create_md5sum_signature "$RES_DIR/resources.md5"
+cat $RES_XML | grep 'preparse="true"' | while read preparse_entry; do
+	preparse_file=$(echo $preparse_entry | cut -d' ' -f2 | cut -d'"' -f2)
+	if [ -e $RES_DIR/$preparse_file.md5 ]; then
+		if [ $(md5sum $RES_DIR/$preparse_file | cut -d' ' -f1) != $(cat $RES_DIR/$preparse_file.md5) ]; then
+			md5sum $RES_DIR/$preparse_file | cut -d' ' -f1 > $RES_DIR/$preparse_file.md5
+			preparse_res $RES_DIR/$preparse_file
+		fi
+	else 
+		md5sum $RES_DIR/$preparse_file | cut -d' ' -f1 > $RES_DIR/$preparse_file.md5
+		preparse_res $RES_DIR/$preparse_file
 	fi
-fi
+done
 }
 
-create_md5sum_signature () {
-SIG_FILE=$1
-rm -f $SIG_FILE
-md5sum $LANG_XML >> $SIG_FILE
-md5sum $RES_DIR/MIUI6_auto_ignorelist.xml >> $SIG_FILE
-md5sum $RES_DIR/MIUI6_ignorelist.xml >> $SIG_FILE
-md5sum $RES_DIR/MIUI7_auto_ignorelist.xml >> $SIG_FILE
-md5sum $RES_DIR/MIUI7_ignorelist.xml >> $SIG_FILE
-if [ -e $RES_DIR/local_languages.xml ]; then
-	md5sum $RES_DIR/local_languages.xml >> $SIG_FILE
-fi
-if [ "$MIUIV5" == "true" ]; then
-	md5sum $RES_DIR/MIUIv5_auto_ignorelist.xml >> $SIG_FILE
-	md5sum $RES_DIR/MIUIv5_ignorelist.xml >> $SIG_FILE
-fi
+preparse_res () {
+PREPARSE_FILE=$1
+
+case "$PREPARSE_FILE" in
+	languages.xml)
+	preparse_languages_xml;;
+
+	*)
+	preparse_ignorelist $PREPARSE_FILE $PREPARSE_FILE.mxcr;;
+esac
 }
 
-sync_mxcr () {
-echo -e "${txtblu}\nGenerating MXCR files${txtrst}"
+preparse_languages_xml() {
+echo -e "${txtblu}\nPreparsing languages.xml${txtrst}"
 # Parse languages.xml to mxcr
 rm -f $RES_DIR/languages_all.mxcr $RES_DIR/languages_enabled.mxcr $RES_DIR/MIUIv5_auto_ignorelist.mxcr $RES_DIR/MIUIv5_ignorelist.mxcr $RES_DIR/MIUI6_auto_ignorelist.mxcr $RES_DIR/MIUI6_ignorelist.mxcr
 cat $LANG_XML | grep 'language check=' | while read language; do
@@ -111,18 +110,12 @@ if [ -e $RES_DIR/local_languages.xml ]; then
 		echo ''$LANG_VERSION' '$LANG_NAME' '$LANG_ISO' normal '$LANG_URL' '$LANG_GIT' '$LANG_BRANCH'' 
 	done >> $LANGS_ALL
 fi
-
-# Parse ignorelists to mxcr
-parse_ignorelist_mxcr "$RES_DIR/MIUI6_ignorelist.xml" "$RES_DIR/MIUI6_ignorelist.mxcr"
-parse_ignorelist_mxcr "$RES_DIR/MIUI7_ignorelist.xml" "$RES_DIR/MIUI7_ignorelist.mxcr"
-if [ "$MIUIV5" == "true" ]; then
-	parse_ignorelist_mxcr "$RES_DIR/MIUIv5_ignorelist.xml" "$RES_DIR/MIUIv5_ignorelist.mxcr"
-fi
 }
 
-parse_ignorelist_mxcr () {
+preparse_ignorelist () {
 TARGET_FILE=$1
 NEW_FILE=$2
+echo -e "${txtblu}\nPreparsing $TARGET_FILE${txtrst}"
 cat $TARGET_FILE | grep '<item ' | while read ignore_string; do
 	ITEM_FOLDER=$(echo $ignore_string | awk '{print $2}' | cut -d'"' -f2)
 	ITEM_APP=$(echo $ignore_string | awk '{print $3}' | cut -d'"' -f2)
@@ -144,7 +137,7 @@ LANG_URL=$5
 LANG_GIT=$6
 LANG_BRANCH=$7
 LANG_TARGET=""$LANG_NAME"_"$LANG_VERSION""
-IGNORELIST=$RES_DIR/MIUI"$LANG_VERSION"_ignorelist.mxcr
+IGNORELIST=$RES_DIR/MIUI"$LANG_VERSION"_ignorelist.xml.mxcr
 AUTO_IGNORELIST=$RES_DIR/MIUI"$LANG_VERSION"_auto_ignorelist.xml
 }
 
@@ -153,8 +146,4 @@ ITEM_FOLDER=$1
 ITEM_APP=$2
 ITEM_FILE=$3
 ITEM_NAME=$4
-}
-
-init_array_count () {
-DIFF_ARRAY_COUNT=$3
 }
