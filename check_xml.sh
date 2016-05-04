@@ -104,6 +104,7 @@ if [ -e "$XML_TARGET" ]; then
 		max_proces; xml_check_values &
 		max_proces; xml_check_plus &
 		max_proces; xml_check_variables &
+		max_proces; xml_check_formatted_false &
 		max_proces; xml_check_untranslateable &;;
 
 		other)
@@ -196,6 +197,33 @@ XML_LOG_VARIABLES=$FILE_CACHE/variables.log
 grep -ne ' 1 $ s \| % s \| % 1 $ s \| % 2 $ s \| % 3 $ s \| % 4 $ s \| % 5 $ s \| % d \| % 1 $ d \| % 2 $ d \| % 3 $ d \| % 4 $ d \| % 5 $ d ' $XML_TARGET >> $XML_LOG_VARIABLES
 grep -ne '(1 $ s)\|(% s)\|(% 1 $ s)\|(% 2 $ s)\|( % 3 $ s)\|(% 4 $ s)\|(% 5 $ s)\|(% d)\|(% 1 $ d)\|(% 2 $ d)\|(% 3 $ d)\|(% 4 $ d)\|(% 5 $ d)' $XML_TARGET >> $XML_LOG_VARIABLES
 write_log_error "grey" "$XML_LOG_VARIABLES"
+}
+
+xml_check_formatted_false () {
+XML_LOG_FORMATTED=$FILE_CACHE/formatted.log
+# Check if formatted=false is required for same variables in a string
+grep "%s\|%d" $XML_TARGET | grep -v 'formatted="false"' | sed -e '/string name="/!d' | cut -d'"' -f2 | uniq --unique | while read string_name; do
+
+	formatted_string=$(sed -e '/name="'$string_name'"/!d' $XML_TARGET)
+	formatted_string_plus=$(sed -e '/<string name="'$string_name'"/,/string>/!d' $XML_TARGET)
+
+	if [ $(echo $formatted_string | grep '</string>\|/>' | wc -l) -gt 0 ]; then
+		if [ $(echo $formatted_string | grep -o "%s" | wc -l) -ge "2" ]; then
+			grep -ne "$string_name" $XML_TARGET >> $XML_LOG_FORMATTED
+		fi
+		if [ $(echo $formatted_string | grep -o "%d" | wc -l) -ge "2" ]; then
+			grep -ne "$string_name" $XML_TARGET >> $XML_LOG_FORMATTED
+		fi
+	else
+		if [ $(echo $formatted_string_plus | grep -o "%s" | wc -l) -ge "2" ]; then
+			grep -ne "$string_name" $XML_TARGET >> $XML_LOG_FORMATTED
+		fi
+		if [ $(echo $formatted_string_plus | grep -o "%d" | wc -l) -ge "2" ]; then
+			grep -ne "$string_name" $XML_TARGET >> $XML_LOG_FORMATTED
+		fi
+	fi
+done
+write_log_error "gold" "$XML_LOG_FORMATTED"
 }
 
 xml_check_untranslateable () {

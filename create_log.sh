@@ -65,6 +65,7 @@ for cached_check in $(find $CACHE -iname "*.cached" | sort); do
 			INDEX_CYAN=""
 			INDEX_BLUE=""
 			INDEX_GREY=""
+			INDEX_GOLD=""
 			if [ $(grep 'class="red"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
 				INDEX_RED="Has parser error(s) | "
 			fi
@@ -86,7 +87,10 @@ for cached_check in $(find $CACHE -iname "*.cached" | sort); do
 			if [ $(grep 'class="grey"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
 				INDEX_GREY="Has variable error(s)"
 			fi
-			add_to_index "" "$INDEX_RED" "$INDEX_ORANGE" "$INDEX_BROWN" "$INDEX_PINK" "$INDEX_CYAN" "$INDEX_BLUE" "$INDEX_GREY"
+			if [ $(grep 'class="gold"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
+				INDEX_GOLD="Has formatted=false"
+			fi
+			add_to_index "" "$INDEX_RED" "$INDEX_ORANGE" "$INDEX_BROWN" "$INDEX_PINK" "$INDEX_CYAN" "$INDEX_BLUE" "$INDEX_GREY" "$INDEX_GOLD"
 		fi
 	fi
 
@@ -110,6 +114,7 @@ COUNT_PINK=$(grep 'class="pink"' $LOG_NH | wc -l)
 COUNT_CYAN=$(grep 'class="cyan"' $LOG_NH | wc -l)
 COUNT_BLUE=$(grep 'class="blue"' $LOG_NH | wc -l)
 COUNT_GREY=$(grep 'class="grey"' $LOG_NH | wc -l)
+COUNT_GOLD=$(grep 'class="gold"' $LOG_NH | wc -l)
 
 create_log "$LOG_NEW"
 cat $LOG_NH >> $LOG_NEW
@@ -169,6 +174,9 @@ script {
 }
 .grey {
 	color: #464646;
+}
+.gold {
+	color: #B88A00
 }
 table {
         background-color: #ffffff;
@@ -230,6 +238,10 @@ a:hover {
 	<tr>
 		<td height="auto" width="120px"><span class="grey">Grey text</span></td>
 		<td height="auto" width="auto"><span class="black">Invalid variable formatting  [Found in $COUNT_GREY file(s)]</span></td><td>
+	</td></tr>
+	<tr>
+		<td height="auto" width="120px"><span class="gold">Gold text</span></td>
+		<td height="auto" width="auto"><span class="black">Requires formatted=false  [Found in $COUNT_GOLD file(s)]</span></td><td>
 	</td></tr>
 </table>
 EOF
