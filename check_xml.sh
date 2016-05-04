@@ -164,6 +164,12 @@ case "$XML_TYPE" in
 		grep -ne "$apostrophe" $XML_TARGET >> $XML_LOG_APOSTROPHE
 	done;;
 esac
+
+#check for &apos; which is not allowed
+grep '&apos;' $XML_TARGET | while read apostrophe; do
+	grep -ne "$apostrophe" $XML_TARGET >> $XML_LOG_APOSTROPHE
+done
+
 write_log_error "brown" "$XML_LOG_APOSTROPHE"
 }
 
