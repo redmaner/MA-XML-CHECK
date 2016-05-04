@@ -289,6 +289,9 @@ body {
 .grey {
 	color: #464646;
 }
+.gold {
+	color: #B88A00
+}
 a, a:active, a:visited {
         color: #000000;
         text-decoration: none;
