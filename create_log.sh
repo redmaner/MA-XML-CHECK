@@ -8,14 +8,17 @@ if [ $INDEX_LOGS == "true" ]; then
 	create_index
 fi
 
-for cached_check in $(find $CACHE -iname "*.cached" | sort); do
+LANGS_IN_CACHE=$(find $CACHE -iname "*.cached" | wc -l);
+LANG_COUNT=0
+find $CACHE -iname "*.cached" | sort | while read cached_check; do
+	LANG_COUNT=$(expr $LANG_COUNT + 1)
 	init_lang $(cat $LANGS_ALL | grep ''$(cat $cached_check/lang_version)' '$(cat $cached_check/lang_name)'');
 	if [ "$DEBUG_MODE" == "double" ]; then
 		XML_LOG_FULL=$CACHE/XML_CHECK_FULL.html
 		XML_LOG_FULL_NH=$CACHE/XML_CHECK_FULL-no_header 
 	fi
 	XML_LOG=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
-    XML_LOG_NH=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO-no_header
+    	XML_LOG_NH=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO-no_header
 
 	if [ -f $cached_check/prev_log ]; then
 		XML_LOG_NH=$cached_check/prev_log
@@ -39,7 +42,7 @@ for cached_check in $(find $CACHE -iname "*.cached" | sort); do
 	if [ "$DEBUG_MODE" == "double" ]; then
 		cat $XML_LOG_NH >> $XML_LOG_FULL_NH 
 		write_final_log "$XML_LOG_NH" "$XML_LOG" true
-		if [ "$LANG_URL" == "$LAST_URL" ]; then
+		if [ "$LANGS_IN_CACHE" == "$LANG_COUNT" ]; then
 			write_final_log "$XML_LOG_FULL_NH" "$XML_LOG_FULL" false
 			rm -f $LOG_DIR/XML_*.html
 			for html in $(find $CACHE -iname "XML_*.html"); do

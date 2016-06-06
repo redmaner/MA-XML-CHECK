@@ -111,8 +111,6 @@ if [ $# -gt 0 ]; then
 				if [ "$3" == "double" ]; then
                      			DEBUG_MODE=double
                 		fi; 
-			     	LINE_NR=$(cat $LANG_XML | grep 'language check=' | grep -v '<language check="false"' | wc -l)
-			     	LAST_URL=$(cat $LANG_XML | grep 'language check=' | grep -v '<language check="false"' | sed -n "$LINE_NR"p | awk '{print $6}' | cut -d'"' -f2)
 			     	cat $LANGS_ON | while read language; do
 					init_lang $language; init_xml_check; 
    			     	done;;
