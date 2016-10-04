@@ -288,6 +288,25 @@ case "$XML_TYPE" in
 		     done >> $XML_LOG_UNTRANSLATEABLE;;
 esac
 
+# Catch values with the values catcher list
+if [ $LANG_VERSION -ge 8 ]; then
+	case "$XML_TYPE" in
+		arrays.xml)
+		catch_values_arrays | while read value_entry; do
+			cat $XML_TARGET | grep 'name="' | cut -d'"' -f2 | grep "$value_entry" | while read catched_entry; do
+				grep -ne $catched_entry $XML_TARGET
+			done >> $XML_LOG_UNTRANSLATEABLE
+		done;;
+
+		strings.xml)
+		catch_values_strings | while read value_entry; do
+			cat $XML_TARGET | grep 'name="' | cut -d'"' -f2 | grep "$value_entry" | while read catched_entry; do
+				grep -ne $catched_entry $XML_TARGET
+			done >> $XML_LOG_UNTRANSLATEABLE
+		done;;
+	esac
+fi
+
 write_log_error "pink" "$XML_LOG_UNTRANSLATEABLE"
 }
 

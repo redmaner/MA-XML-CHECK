@@ -140,6 +140,9 @@ LANG_BRANCH=$7
 LANG_TARGET=""$LANG_NAME"_"$LANG_VERSION""
 IGNORELIST=$RES_DIR/MIUI"$LANG_VERSION"_ignorelist.xml.mxcr
 AUTO_IGNORELIST=$RES_DIR/MIUI"$LANG_VERSION"_auto_ignorelist.xml
+if [ $LANG_VERSION -ge 8 ]; then
+	source $RES_DIR/MIUI"$LANG_VERSION"_value_catcher.sh
+fi
 }
 
 init_ignorelist () {
