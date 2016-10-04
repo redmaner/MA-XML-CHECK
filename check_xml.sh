@@ -288,9 +288,6 @@ case "$XML_TYPE" in
 		     done >> $XML_LOG_UNTRANSLATEABLE;;
 esac
 
-# Check for "string_string_string"
-cat $XML_TARGET | grep "<string" | cut -d '>' -f2 | grep -ne "*_*_*" >> $XML_LOG_UNTRANSLATEABLE
-
 write_log_error "pink" "$XML_LOG_UNTRANSLATEABLE"
 }
 
