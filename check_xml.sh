@@ -294,14 +294,42 @@ if [ $LANG_VERSION -ge 8 ]; then
 		arrays.xml)
 		catch_values_arrays | while read value_entry; do
 			cat $XML_TARGET | grep 'name="' | cut -d'"' -f2 | grep "$value_entry" | while read catched_entry; do
-				grep -ne $catched_entry $XML_TARGET
+				if [ $(cat $AUTO_IGNORELIST | grep 'folder="all" application="'$APK'" file="'$XML_TYPE'" name="'$catched_entry'"/>' | wc -l) == 0 ]; then
+					grep -ne '"'$catched_entry'"' $XML_TARGET; continue
+				else
+					continue
+				fi
+				if [ $(cat $AUTO_IGNORELIST | grep 'folder="'$DIR'" application="'$APK'" file="'$XML_TYPE'" name="'$catched_entry'"/>' | wc -l) == 0 ]; then
+					grep -ne '"'$catched_entry'"' $XML_TARGET; continue
+				else
+					continue
+				fi
+				if [ "$DIR" != "main" ]; then
+					if [ $(cat $AUTO_IGNORELIST | grep 'folder="devices" application="'$APK'" file="'$XML_TYPE'" name="'$catched_entry'"/>' | wc -l) == 0 ]; then
+						grep -ne '"'$catched_entry'"' $XML_TARGET
+					fi
+				fi
 			done >> $XML_LOG_UNTRANSLATEABLE
 		done;;
 
 		strings.xml)
 		catch_values_strings | while read value_entry; do
 			cat $XML_TARGET | grep 'name="' | cut -d'"' -f2 | grep "$value_entry" | while read catched_entry; do
-				grep -ne $catched_entry $XML_TARGET
+				if [ $(cat $AUTO_IGNORELIST | grep 'folder="all" application="'$APK'" file="'$XML_TYPE'" name="'$catched_entry'"/>' | wc -l) == 0 ]; then
+					grep -ne '"'$catched_entry'"' $XML_TARGET; continue
+				else
+					continue
+				fi
+				if [ $(cat $AUTO_IGNORELIST | grep 'folder="'$DIR'" application="'$APK'" file="'$XML_TYPE'" name="'$catched_entry'"/>' | wc -l) == 0 ]; then
+					grep -ne '"'$catched_entry'"' $XML_TARGET; continue
+				else
+					continue
+				fi
+				if [ "$DIR" != "main" ]; then
+					if [ $(cat $AUTO_IGNORELIST | grep 'folder="devices" application="'$APK'" file="'$XML_TYPE'" name="'$catched_entry'"/>' | wc -l) == 0 ]; then
+						grep -ne '"'$catched_entry'"' $XML_TARGET
+					fi
+				fi
 			done >> $XML_LOG_UNTRANSLATEABLE
 		done;;
 	esac
