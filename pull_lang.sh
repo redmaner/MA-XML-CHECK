@@ -9,6 +9,7 @@
 pull_lang () {
 if [ "$PULL_FLAG" != "" ]; then
 	if [ $PULL_FLAG == "force" ]; then
+		rm -rf $DATA_DIR/$LANG_TARGET
 		rm -rf $LANG_DIR/$LANG_TARGET; sleep 1; sync
 	fi
 fi
