@@ -66,6 +66,11 @@ if [ "$REMOTE" == true ]; then
 		remote_update $SYSTEM_CONF "LANGUAGE_CONF" "reset" "false"
 		remote_log "Created language.conf" "true" "true"
 	fi
+	if [ $(cat $SYSTEM_CONF | grep "LANGUAGE_DATA" | cut -d'=' -f2) == "reset" ]; then
+		rm -rf $DATA_DIR
+		remote_update $SYSTEM_CONF "LANGUAGE_DATA" "reset" "false"
+		remote_log "Reset language data" "true" "true"
+	fi
 fi
 }
 
