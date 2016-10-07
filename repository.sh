@@ -35,6 +35,7 @@ fi
 
 push_to_repository () {
 commit_msg=$1
+echo -e "${txtblu}\nPusing to $LANG_NAME MIUI$LANG_VERSION${txtrst}: $commit_msg"
 cd $LANG_DIR/$LANG_TARGET
 git add $LANG_NAME
 git commit -m "$commit_msg"

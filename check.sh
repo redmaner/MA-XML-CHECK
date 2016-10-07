@@ -108,7 +108,7 @@ if [ $# -gt 0 ]; then
 
 		# Check Languages
      	elif [ $1 == "--check" ]; then
-			source $ARRAY_TOOLS; source $CHECK_TOOLS; source $LOG_TOOLS; source $FIX_TOOLS; sync_resources; source $RES_DIR/check_mode.sh; build_cache; echo
+			source $ARRAY_TOOLS; source $LANG_TOOLS; source $CHECK_TOOLS; source $LOG_TOOLS; source $FIX_TOOLS; sync_resources; source $RES_DIR/check_mode.sh; build_cache; echo
             DEBUG_MODE=lang
             case "$2" in
 
@@ -131,7 +131,7 @@ if [ $# -gt 0 ]; then
 					echo -e "${txtred}\nLanguage not supported or language not specified${txtrst}"; exit
 			    	fi;;
            	esac
-		wait; sync; sleep 5; make_logs	
+		wait; sync; sleep 5; check_for_auto_fix; make_logs	
 		if [ $PRESERVE_CACHE == false ]; then
 			clear_cache
 		fi

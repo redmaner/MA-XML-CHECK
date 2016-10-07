@@ -8,13 +8,13 @@ if [ $(sed -e '/name="'$STRING_NAME'"/!d' $XML_TARGET | wc -l) -gt 0 ]; then
 	fi
 	if [ $(sed -e '/name="'$STRING_NAME'"/!d' $XML_TARGET | grep '</string>' | wc -l) -gt 0 ]; then
 		sed -e '/<string name="'$STRING_NAME'"/d' $XML_TARGET >> $XML_TARGET.fixed; mv $XML_TARGET.fixed $XML_TARGET
-		AUTO_FIX=true
+		write_auto_fix
 	elif [ $(sed -e '/name="'$STRING_NAME'"/!d' $XML_TARGET | grep '/>' | wc -l) -gt 0 ]; then
 		sed -e '/<string name="'$STRING_NAME'"/d' $XML_TARGET >> $XML_TARGET.fixed; mv $XML_TARGET.fixed $XML_TARGET
-		AUTO_FIX=true
+		write_auto_fix
 	else
 		sed -e '/<string name="'$STRING_NAME'"/,/string>/d' $XML_TARGET >> $XML_TARGET.fixed; mv $XML_TARGET.fixed $XML_TARGET
-		AUTO_FIX=true
+		write_auto_fix
 	fi
 fi
 }
@@ -29,13 +29,26 @@ if [ $(sed -e '/name="'$ARRAY_NAME'"/!d' $XML_TARGET | wc -l) -gt 0 ]; then
 	case "$ARRAY_TYPE" in
 		string-array) 
 		sed -e '/name="'$ARRAY_NAME'"/,/string-array/d' $XML_TARGET >> $XML_TARGET.fixed; mv $XML_TARGET.fixed $XML_TARGET
-		AUTO_FIX=true;;
+		write_auto_fix;;
 
 		array) 
 		sed -e '/name="'$ARRAY_NAME'"/,/array/d' $XML_TARGET >> $XML_TARGET.fixed; mv $XML_TARGET.fixed $XML_TARGET
-		AUTO_FIX=true;;
+		write_auto_fix;;
 	esac
 fi
+}
+
+write_auto_fix () {
+echo "Auto fixed" > $CACHE/$LANG_TARGET.cached/$LANG_TARGET.fixed
+}
+
+check_for_auto_fix () {
+echo "hallo"
+find $CACHE -iname "*.fixed" | while read fixed_lang; do
+	CACHED_FIX=$(dirname $fixed_lang)
+	init_lang $(cat $LANGS_ALL | grep ''$(cat $CACHED_FIX/lang_version)' '$(cat $CACHED_FIX/lang_name)'');
+	push_to_repository "Auto fixes by translators.xiaomi.eu"
+done
 }
 
 xml_fix_untranslateable () {
