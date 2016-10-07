@@ -46,11 +46,21 @@ if [ -d $LANG_DIR/$LANG_TARGET ]; then
 		cp $LANG_DIR/$LANG_TARGET/.git/refs/heads/$LANG_BRANCH $DATA_DIR/$LANG_TARGET/last_commit
 		do_xml_check
 	fi
+
+	if [ $AUTO_FIX == true ]; then
+		AUTO_FIX=false
+		push_to_repository "Auto fixes by translators.xiaomi.eu"
+	fi
 fi
 }
 
 do_xml_check () {
 echo ">>> Checking repository"
+if [ $LANG_CHECK == "check_fix" ]; then
+	echo ">>> Running in fix mode"
+fi
+
+
 for apk_target in $(find $LANG_DIR/$LANG_TARGET -iname "*.apk" | sort); do
 	APK=$(basename $apk_target)
 	DIR=$(basename $(dirname $apk_target))

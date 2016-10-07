@@ -32,3 +32,12 @@ else
      	git clone $LANG_GIT  -b $LANG_BRANCH $LANG_DIR/$LANG_TARGET
 fi
 }
+
+push_to_repository () {
+commit_msg=$1
+cd $LANG_DIR/$LANG_TARGET
+git add $LANG_NAME
+git commit -m "$commit_msg"
+git push origin $LANG_BRANCH
+cd $MAIN_DIR
+}

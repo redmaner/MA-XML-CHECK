@@ -49,6 +49,7 @@ mkdir -p $DATA_DIR
 
 # Debugging 
 PRESERVE_CACHE=false
+DEBUG_FIX=true
 
 #########################################################################################################
 # VARIABLES / CACHE
@@ -60,11 +61,15 @@ CACHE="$MAIN_DIR/.cache-$DATE"
 # Scripts
 ARRAY_TOOLS=$MAIN_DIR/array_tools.sh
 RES_TOOLS=$MAIN_DIR/resources.sh
-LANG_TOOLS=$MAIN_DIR/pull_lang.sh
+LANG_TOOLS=$MAIN_DIR/repository.sh
 CHECK_TOOLS=$MAIN_DIR/check_xml.sh
 LOG_TOOLS=$MAIN_DIR/create_log.sh
 REMOTE_TOOLS=$MAIN_DIR/remote.sh
-source $RES_TOOLS; source $REMOTE_TOOLS; source $RES_DIR/check_mode.sh
+FIX_TOOLS=$MAIN_DIR/fix_xml.sh
+source $RES_TOOLS; source $REMOTE_TOOLS
+
+# Auto fix
+AUTO_FIX=false
 
 # Remote 
 sync_remote
@@ -103,7 +108,7 @@ if [ $# -gt 0 ]; then
 
 		# Check Languages
      	elif [ $1 == "--check" ]; then
-			source $ARRAY_TOOLS; source $CHECK_TOOLS; source $LOG_TOOLS; sync_resources; build_cache; echo
+			source $ARRAY_TOOLS; source $CHECK_TOOLS; source $LOG_TOOLS; source $FIX_TOOLS; sync_resources; source $RES_DIR/check_mode.sh; build_cache; echo
             DEBUG_MODE=lang
             case "$2" in
 
