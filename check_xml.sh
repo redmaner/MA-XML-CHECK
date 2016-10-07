@@ -213,12 +213,6 @@ if [ $(cat $IGNORELIST | grep ''$APK' '$XML_TYPE' ' | wc -l) -gt 0 ]; then
 		init_ignorelist $(cat $IGNORELIST | grep "$all_line")
 		grep -ne '"'$ITEM_NAME'"' $XML_TARGET
 	done >> $XML_LOG_UNTRANSLATEABLE
-	if [ "$DIR" != "main" ]; then
-		cat $IGNORELIST | grep 'devices '$APK' '$XML_TYPE' ' | while read all_line; do
-			init_ignorelist $(cat $IGNORELIST| grep "$all_line")
-			grep -ne '"'$ITEM_NAME'"' $XML_TARGET
-		done >> $XML_LOG_UNTRANSLATEABLE
-	fi
 fi
 
 # Check for untranslateable strings and arrays due automatically search for @
@@ -234,11 +228,6 @@ case "$XML_TYPE" in
 				else
 					continue
 				fi
-				if [ "$DIR" != "main" ]; then
-					if [ $(cat $AUTO_IGNORELIST | grep 'folder="devices" application="'$APK'" file="'$XML_TYPE'" name="'$auto_search_target'"/>' | wc -l) == 0 ]; then
-						grep -ne '"'$auto_search_target'"' $XML_TARGET
-					fi
-				fi
 		     done >> $XML_LOG_UNTRANSLATEABLE;;
 	 arrays.xml) cat $XML_TARGET | grep 'name="' | while read arrays; do
 				ARRAY_TYPE=$(echo $arrays | cut -d' ' -f1 | cut -d'<' -f2)
@@ -253,11 +242,6 @@ case "$XML_TYPE" in
 						grep -ne '"'$ARRAY_NAME'"' $XML_TARGET; continue
 					else
 						continue
-					fi
-					if [ "$DIR" != "main" ]; then
-						if [ $(cat $AUTO_IGNORELIST | grep 'folder="devices" application="'$APK'" file="'$XML_TYPE'" name="'$ARRAY_NAME'"' | wc -l) -eq 0 ]; then
-							grep -ne '"'$ARRAY_NAME'"' $XML_TARGET
-						fi
 					fi
 				fi
 		     done >> $XML_LOG_UNTRANSLATEABLE;;
@@ -279,11 +263,6 @@ if [ $LANG_VERSION -ge 8 ]; then
 				else
 					continue
 				fi
-				if [ "$DIR" != "main" ]; then
-					if [ $(cat $AUTO_IGNORELIST | grep 'folder="devices" application="'$APK'" file="'$XML_TYPE'" name="'$catched_entry'"/>' | wc -l) == 0 ]; then
-						grep -ne '"'$catched_entry'"' $XML_TARGET
-					fi
-				fi
 			done >> $XML_LOG_UNTRANSLATEABLE
 		done;;
 
@@ -299,11 +278,6 @@ if [ $LANG_VERSION -ge 8 ]; then
 					grep -ne '"'$catched_entry'"' $XML_TARGET; continue
 				else
 					continue
-				fi
-				if [ "$DIR" != "main" ]; then
-					if [ $(cat $AUTO_IGNORELIST | grep 'folder="devices" application="'$APK'" file="'$XML_TYPE'" name="'$catched_entry'"/>' | wc -l) == 0 ]; then
-						grep -ne '"'$catched_entry'"' $XML_TARGET
-					fi
 				fi
 			done >> $XML_LOG_UNTRANSLATEABLE
 		done;;
