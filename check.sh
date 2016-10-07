@@ -64,7 +64,7 @@ LANG_TOOLS=$MAIN_DIR/pull_lang.sh
 CHECK_TOOLS=$MAIN_DIR/check_xml.sh
 LOG_TOOLS=$MAIN_DIR/create_log.sh
 REMOTE_TOOLS=$MAIN_DIR/remote.sh
-source $RES_TOOLS; source $REMOTE_TOOLS
+source $RES_TOOLS; source $REMOTE_TOOLS; source $RES_DIR/check_mode.sh
 
 # Remote 
 sync_remote
@@ -205,6 +205,9 @@ if [ $# -gt 0 ]; then
                 
 				resync) 
 				rm -rf $RES_DIR; sync_resources;;
+
+				preparse)
+				rm -f $RES_DIR/*.md5; sync_resources;;
             esac 
         fi
 

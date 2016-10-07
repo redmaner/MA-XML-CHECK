@@ -88,32 +88,7 @@ if [ -e "$XML_TARGET" ]; then
 		esac
 	fi
 
-	case "$LANG_CHECK" in
-		basic) 
-		max_proces; xml_check_parser &
-		max_proces; xml_check_doubles &
-		max_proces; xml_check_apostrophe &
-		max_proces; xml_check_values &
-		max_proces; xml_check_plus &
-		max_proces; xml_check_variables &;;
-
-		normal) 
-		max_proces; xml_check_parser &
-		max_proces; xml_check_doubles &
-		max_proces; xml_check_apostrophe &
-		max_proces; xml_check_values &
-		max_proces; xml_check_plus &
-		max_proces; xml_check_variables &
-		max_proces; xml_check_formatted_false &
-		max_proces; xml_check_untranslateable &;;
-
-		other)
-		max_proces; xml_check_parser &
-		max_proces; xml_check_doubles &
-		max_proces; xml_check_apostrophe &
-		max_proces; xml_check_plus &
-		max_proces; xml_check_variables &;;
-	esac
+	$LANG_CHECK
 fi
 }
 
