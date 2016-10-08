@@ -35,32 +35,46 @@ if [ -d $LANG_DIR/$LANG_TARGET ]; then
 				cp $DATA_DIR/$LANG_TARGET/datestamp $CACHE/$LANG_TARGET.cached/datestamp
 			else
 				echo ">>> Repository is not changed, old log not found"
-				do_xml_check
+				if [ $LANG_FIX != "none" ]; then
+					do_xml_check true; wait; sync
+				fi
+				do_xml_check false
 			fi
 		else
 			echo ">>> Repository is changed"
 			cp $LANG_DIR/$LANG_TARGET/.git/refs/heads/$LANG_BRANCH $DATA_DIR/$LANG_TARGET/last_commit
-			do_xml_check
+			if [ $LANG_FIX != "none" ]; then
+				do_xml_check true; wait; sync
+			fi
+			do_xml_check false
 		fi
 	else
 		cp $LANG_DIR/$LANG_TARGET/.git/refs/heads/$LANG_BRANCH $DATA_DIR/$LANG_TARGET/last_commit
-		do_xml_check
+		if [ $LANG_FIX != "none" ]; then
+			do_xml_check true; wait; sync
+		fi
+		do_xml_check false
 	fi
 fi
 }
 
 do_xml_check () {
-echo ">>> Checking repository"
-if [ $LANG_CHECK == "check_fix" ]; then
-	echo ">>> Running in fix mode"
+FIX_MODE=$1
+if [ $FIX_MODE == true ]; then
+	echo ">>> Fixing repostory"
+else 
+	echo ">>> Checking repository"
 fi
-
 
 for apk_target in $(find $LANG_DIR/$LANG_TARGET -iname "*.apk" | sort); do
 	APK=$(basename $apk_target)
 	DIR=$(basename $(dirname $apk_target))
 	for xml_target in $(find $apk_target -iname "arrays.xml*" -o -iname "strings.xml*" -o -iname "plurals.xml*"); do
-		xml_check "$xml_target" &
+		if [ $FIX_MODE == true ]; then
+			xml_fix "$xml_target" &
+		else 
+			xml_check "$xml_target" &
+		fi
 	done
 done
 wait
@@ -94,6 +108,25 @@ if [ -e "$XML_TARGET" ]; then
 	fi
 
 	$LANG_CHECK
+fi
+}
+
+xml_fix () {
+XML_TARGET=$1
+
+if [ -e "$XML_TARGET" ]; then
+	XML_TYPE=$(basename $XML_TARGET)
+
+	# Fix .part files for XML_TYPE
+	if [ $(echo $XML_TYPE | grep ".part" | wc -l) -gt 0 ]; then
+		case "$XML_TYPE" in
+		   	strings.xml.part) XML_TYPE="strings.xml";;
+			arrays.xml.part) XML_TYPE="arrays.xml";;
+			plurals.xml.part) XML_TYPE="plurals.xml";;
+		esac
+	fi
+
+	$LANG_FIX
 fi
 }
 

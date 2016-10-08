@@ -43,7 +43,6 @@ echo "Auto fixed" > $CACHE/$LANG_TARGET.cached/$LANG_TARGET.fixed
 }
 
 check_for_auto_fix () {
-echo "hallo"
 find $CACHE -iname "*.fixed" | while read fixed_lang; do
 	CACHED_FIX=$(dirname $fixed_lang)
 	init_lang $(cat $LANGS_ALL | grep ''$(cat $CACHED_FIX/lang_version)' '$(cat $CACHED_FIX/lang_name)'');

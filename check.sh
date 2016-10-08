@@ -114,22 +114,22 @@ if [ $# -gt 0 ]; then
 
 		  		all) 
 				if [ "$3" == "double" ]; then
-                     			DEBUG_MODE=double
-                		fi; 
-			     	cat $LANGS_ON | while read language; do
-					init_lang $language; init_xml_check; 
-   			     	done;;
+                		DEBUG_MODE=double
+                fi; 
+			    cat $LANGS_ON | while read language; do
+					init_lang $language; init_xml_check; wait; sync
+   			    done;;
 
 			  	*) 
 				if [ "$3" == "" ]; then
 				    	echo -e "${txtred}\nError: Specifiy MIUI version${txtrst}"; exit
-			    	fi
-			    	if [ "`cat $LANGS_ALL | grep ''$3' '$2''| wc -l`" -gt 0 ]; then
+			    fi
+			    if [ "`cat $LANGS_ALL | grep ''$3' '$2''| wc -l`" -gt 0 ]; then
 					init_lang $(cat $LANGS_ALL | grep ''$3' '$2'')
 					rm -f $DATA_DIR/$LANG_TARGET/last_commit; init_xml_check; 
-                		else
+                else
 					echo -e "${txtred}\nLanguage not supported or language not specified${txtrst}"; exit
-			    	fi;;
+			    fi;;
            	esac
 		wait; sync; sleep 5; check_for_auto_fix; make_logs	
 		if [ $PRESERVE_CACHE == false ]; then
