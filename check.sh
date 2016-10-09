@@ -26,7 +26,6 @@ if [ -d /home/translators.xiaomi.eu ]; then
 		MIUIV5=false
 		REMOTE=true
 		MAX_JOBS=64
-		INDEX_LOGS=true
 		INDEX_LOG_HREF="http://translators.xiaomi.eu"
 else
      	MAIN_DIR=$PWD
@@ -34,7 +33,6 @@ else
 		MIUIV5=true
 		REMOTE=false
 		MAX_JOBS=32
-		INDEX_LOGS=true
 		INDEX_LOG_HREF="file://$LOG_DIR"
 fi
 
@@ -113,6 +111,7 @@ if [ $# -gt 0 ]; then
             case "$2" in
 
 		  		all) 
+				INDEX_LOGS=true
 				if [ "$3" == "double" ]; then
                 		DEBUG_MODE=double
                 fi; 
@@ -121,6 +120,7 @@ if [ $# -gt 0 ]; then
    			    done;;
 
 			  	*) 
+				INDEX_LOGS=false
 				if [ "$3" == "" ]; then
 				    	echo -e "${txtred}\nError: Specifiy MIUI version${txtrst}"; exit
 			    fi
