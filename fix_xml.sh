@@ -26,15 +26,8 @@ if [ $(sed -e '/name="'$ARRAY_NAME'"/!d' $XML_TARGET | wc -l) -gt 0 ]; then
 	if [ $DEBUG_FIX == true ]; then
    		echo "Fixing $XML_TARGET"
 	fi
-	case "$ARRAY_TYPE" in
-		string-array) 
-		sed -e '/name="'$ARRAY_NAME'"/,/string-array/d' $XML_TARGET >> $XML_TARGET.fixed; mv $XML_TARGET.fixed $XML_TARGET
-		write_auto_fix;;
-
-		array) 
-		sed -e '/name="'$ARRAY_NAME'"/,/array/d' $XML_TARGET >> $XML_TARGET.fixed; mv $XML_TARGET.fixed $XML_TARGET
-		write_auto_fix;;
-	esac
+	sed -e '/name="'$ARRAY_NAME'"/,/'$ARRAY_TYPE'/d' $XML_TARGET >> $XML_TARGET.fixed; mv $XML_TARGET.fixed $XML_TARGET
+	write_auto_fix
 fi
 }
 
