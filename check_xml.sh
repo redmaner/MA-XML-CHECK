@@ -240,15 +240,15 @@ write_log_error "gold" "$XML_LOG_FORMATTED"
 }
 
 xml_check_untranslateable () {
-# Check for untranslateable strings, arrays, plurals using ignorelist
+# Check for untranslateable strings, arrays, plurals using untranslateablelist
 XML_LOG_UNTRANSLATEABLE=$FILE_CACHE/UNTRANSLATEABLE.log
-if [ $(cat $IGNORELIST | grep ''$APK' '$XML_TYPE' ' | wc -l) -gt 0 ]; then
-	cat $IGNORELIST | grep 'all '$APK' '$XML_TYPE' ' | while read all_line; do
-		init_ignorelist $(cat $IGNORELIST | grep "$all_line")
+if [ $(cat $UNTRANSLATEABLE_LIST | grep ''$APK' '$XML_TYPE' ' | wc -l) -gt 0 ]; then
+	cat $UNTRANSLATEABLE_LIST | grep 'all '$APK' '$XML_TYPE' ' | while read all_line; do
+		init_list $(cat $UNTRANSLATEABLE_LIST | grep "$all_line")
 		grep -ne '"'$ITEM_NAME'"' $XML_TARGET
 	done >> $XML_LOG_UNTRANSLATEABLE
-	cat $IGNORELIST | grep ''$DIR' '$APK' '$XML_TYPE' ' | while read all_line; do
-		init_ignorelist $(cat $IGNORELIST | grep "$all_line")
+	cat $UNTRANSLATEABLE_LIST | grep ''$DIR' '$APK' '$XML_TYPE' ' | while read all_line; do
+		init_list $(cat $UNTRANSLATEABLE_LIST | grep "$all_line")
 		grep -ne '"'$ITEM_NAME'"' $XML_TARGET
 	done >> $XML_LOG_UNTRANSLATEABLE
 fi

@@ -71,14 +71,14 @@ case "$FILENAME" in
 	preparse_languages_xml;;
 
 	*)
-	preparse_ignorelist $PREPARSE_FILE $PREPARSE_FILE.mxcr;;
+	preparse_list $PREPARSE_FILE $PREPARSE_FILE.mxcr;;
 esac
 }
 
 preparse_languages_xml() {
 echo -e "${txtblu}\nPreparsing languages.xml${txtrst}"
 # Parse languages.xml to mxcr
-rm -f $RES_DIR/languages_all.mxcr $RES_DIR/languages_enabled.mxcr $RES_DIR/MIUIv5_auto_ignorelist.mxcr $RES_DIR/MIUIv5_ignorelist.mxcr $RES_DIR/MIUI6_auto_ignorelist.mxcr $RES_DIR/MIUI6_ignorelist.mxcr
+rm -f $RES_DIR/languages_all.mxcr $RES_DIR/languages_enabled.mxcr 
 cat $LANG_XML | grep 'language check=' | while read language; do
 	LANG_CHECK=$(echo $language | awk '{print $2}' | cut -d'"' -f2)
 	LANG_FIX=$(echo $language | awk '{print $3}' | cut -d'"' -f2)
@@ -124,7 +124,7 @@ if [ -e $RES_DIR/local_languages.xml ]; then
 fi
 }
 
-preparse_ignorelist () {
+preparse_list () {
 TARGET_FILE=$1
 NEW_FILE=$2
 echo -e "${txtblu}\nPreparsing $TARGET_FILE${txtrst}"
@@ -150,14 +150,14 @@ LANG_URL=$6
 LANG_GIT=$7
 LANG_BRANCH=$8
 LANG_TARGET=""$LANG_NAME"_"$LANG_VERSION""
-IGNORELIST=$RES_DIR/MIUI"$LANG_VERSION"_ignorelist.xml.mxcr
+UNTRANSLATEABLE_LIST=$RES_DIR/MIUI"$LANG_VERSION"_untranslateable.xml.mxcr
 AUTO_IGNORELIST=$RES_DIR/MIUI"$LANG_VERSION"_auto_ignorelist.xml
 if [ $LANG_VERSION -ge 8 ]; then
 	source $RES_DIR/MIUI"$LANG_VERSION"_value_catcher.sh
 fi
 }
 
-init_ignorelist () {
+init_list () {
 ITEM_FOLDER=$1
 ITEM_APP=$2
 ITEM_FILE=$3
