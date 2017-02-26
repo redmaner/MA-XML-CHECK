@@ -207,7 +207,7 @@ a:hover {
 }
 </style></head>
 <body>
-<a href="http://translators.xiaomi.eu" title="xiaomi.eu Translators home"><img width="20%" height="20%" src="https://miuios.cz/images/xiaomi-europe-logo77.png"></a>
+<a href="http://translators.xiaomi.eu" title="xiaomi.eu Translators home"><img width="20%" height="20%" src="https://s16.postimg.org/9heai94lx/xiaomi_europe_logo77.png"></a>
 <br><br>
 <table border="0" cellpadding="0" cellspacing="0">
 	<tr>
@@ -316,7 +316,7 @@ table {
         }
 </style></head>
 <body>
-<a href="http://xiaomi.eu" title="xiaomi.eu Forums - Unofficial International MIUI / Xiaomi Support"><img  width="20%" height="20%" src="https://miuios.cz/images/xiaomi-europe-logo77.png"></a>
+<a href="http://xiaomi.eu" title="xiaomi.eu Forums - Unofficial International MIUI / Xiaomi Support"><img  width="20%" height="20%" src="https://s16.postimg.org/9heai94lx/xiaomi_europe_logo77.png"></a>
 <br><br>
 <span class="header">LOGS</span><br><br>
 <a href="$INDEX_LOG_HREF/XML_CHECK_FULL.html" title="Universal log"><b>Universal log</b></a><br><br>
