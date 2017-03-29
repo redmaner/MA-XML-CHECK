@@ -23,14 +23,12 @@ esac
 if [ -d /home/translators.xiaomi.eu ]; then
      	MAIN_DIR=/home/translators.xiaomi.eu/scripts
      	LOG_DIR=/home/translators.xiaomi.eu/public_html
-		MIUIV5=false
 		REMOTE=true
 		MAX_JOBS=64
 		INDEX_LOG_HREF="http://translators.xiaomi.eu"
 else
      	MAIN_DIR=$PWD
      	LOG_DIR=$PWD/logs
-		MIUIV5=true
 		REMOTE=false
 		MAX_JOBS=32
 		INDEX_LOG_HREF="file://$LOG_DIR"
@@ -65,9 +63,6 @@ LOG_TOOLS=$MAIN_DIR/create_log.sh
 REMOTE_TOOLS=$MAIN_DIR/remote.sh
 FIX_TOOLS=$MAIN_DIR/fix_xml.sh
 source $RES_TOOLS; source $REMOTE_TOOLS
-
-# Auto fix
-AUTO_FIX=false
 
 # Remote 
 sync_remote
