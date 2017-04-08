@@ -84,6 +84,7 @@ if [ "$REMOTE" == true ]; then
 	fi
 	if [ "$(cat $LANGUAGE_CONF | grep ''$LANG_TARGET'' | cut -d'=' -f2)" == "wipe_permanent" ]; then
 		rm -rf $LANG_DIR/$LANG_TARGET
+		rm -rf $DATA_DIR/$LANG_TARGET
 	fi
 fi
 }
