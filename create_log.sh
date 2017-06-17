@@ -13,12 +13,9 @@ LANG_COUNT=0
 find $CACHE -iname "*.cached" | sort | while read cached_check; do
 	LANG_COUNT=$(expr $LANG_COUNT + 1)
 	init_lang $(cat $LANGS_ALL | grep ''$(cat $cached_check/lang_version)' '$(cat $cached_check/lang_name)'');
-	if [ "$DEBUG_MODE" == "double" ]; then
-		XML_LOG_FULL=$CACHE/XML_CHECK_FULL.html
-		XML_LOG_FULL_NH=$CACHE/XML_CHECK_FULL-no_header 
-	fi
+
 	XML_LOG=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
-    	XML_LOG_NH=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO-no_header
+    XML_LOG_NH=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO-no_header
 
 	if [ -f $cached_check/prev_log ]; then
 		XML_LOG_NH=$cached_check/prev_log
@@ -39,22 +36,9 @@ find $CACHE -iname "*.cached" | sort | while read cached_check; do
 		fi
 	fi
 
-	if [ "$DEBUG_MODE" == "double" ]; then
-		cat $XML_LOG_NH >> $XML_LOG_FULL_NH 
-		write_final_log "$XML_LOG_NH" "$XML_LOG" true
-		if [ "$LANGS_IN_CACHE" == "$LANG_COUNT" ]; then
-			write_final_log "$XML_LOG_FULL_NH" "$XML_LOG_FULL" false
-			rm -f $LOG_DIR/XML_*.html
-			for html in $(find $CACHE -iname "XML_*.html"); do
-				cp $html $LOG_DIR
-			done
-			echo -e "${txtgrn}All languages checked, logs at $LOG_DIR${txtrst}"
-		fi
-	else
-		write_final_log "$XML_LOG_NH" "$XML_LOG" true
-		cp $XML_LOG $LOG_DIR
-		echo -e "${txtgrn}$LANG_NAME ($LANG_ISO) checked, log at logs/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html${txtrst}"
-	fi
+	write_final_log "$XML_LOG_NH" "$XML_LOG" true
+	cp $XML_LOG $LOG_DIR
+	echo -e "${txtgrn}$LANG_NAME ($LANG_ISO) checked, log at logs/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html${txtrst}"
 
 	if [ $INDEX_LOGS == "true" ]; then
 		INDEX_LOG_TARGET=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
@@ -319,7 +303,6 @@ table {
 <a href="http://xiaomi.eu" title="xiaomi.eu Forums - Unofficial International MIUI / Xiaomi Support"><img src="https://s16.postimg.org/9heai94lx/xiaomi_europe_logo77.png"></a>
 <br><br>
 <span class="header">LOGS</span><br><br>
-<a href="$INDEX_LOG_HREF/XML_CHECK_FULL.html" title="Universal log"><b>Universal log</b></a><br><br>
 <table border="0" cellpadding="0" cellspacing="0">
 	<tr>
 		<td height="auto" width="7%"><span class="black"><b>Version</b></span></td>

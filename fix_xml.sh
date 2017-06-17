@@ -71,51 +71,45 @@ fi
 
 # Check for untranslateable strings and arrays due automatically search for @
 case "$XML_TYPE" in 
-	strings.xml) cat $XML_TARGET | grep '@android\|@string\|@color\|@drawable\|@null\|@array' | cut -d'>' -f1 | cut -d'"' -f2 | while read auto_search_target; do
-				if [ $(cat $AUTO_IGNORELIST | grep 'folder="all" application="'$APK'" file="'$XML_TYPE'" name="'$auto_search_target'"/>' | wc -l) == 0 ]; then
-					xml_remove_string ''$auto_search_target''; continue
-				else
-					continue
-				fi
-				if [ $(cat $AUTO_IGNORELIST | grep 'folder="'$DIR'" application="'$APK'" file="'$XML_TYPE'" name="'$auto_search_target'"/>' | wc -l) == 0 ]; then
-					xml_remove_string ''$auto_search_target''; continue
-				else
-					continue
-				fi
-		     done;;
-	 arrays.xml) cat $XML_TARGET | grep 'name="' | while read arrays; do
-				ARRAY_TYPE=$(echo $arrays | cut -d'<' -f2 | cut -d' ' -f1)
-				ARRAY_NAME=$(echo $arrays | cut -d'>' -f1 | cut -d'"' -f2)
-				if [ $(arrays_parse $ARRAY_NAME $ARRAY_TYPE $XML_TARGET | grep '@android\|@string\|@color\|@drawable\|@null\|@array' | wc -l) -gt 0 ]; then
-					if [ $(cat $AUTO_IGNORELIST | grep 'folder="all" application="'$APK'" file="'$XML_TYPE'" name="'$ARRAY_NAME'"' | wc -l) -eq 0 ]; then
-						xml_remove_array ''$ARRAY_NAME''; continue
-					else
-						continue
-					fi
-					if [ $(cat $AUTO_IGNORELIST | grep 'folder="'$DIR'" application="'$APK'" file="'$XML_TYPE'" name="'$ARRAY_NAME'"' | wc -l) -eq 0 ]; then
-						xml_remove_array ''$ARRAY_NAME''; continue
-					else
-						continue
-					fi
-				fi
-		     done;;
+
+	strings.xml) 
+	cat $XML_TARGET | grep '@android\|@string\|@color\|@drawable\|@null\|@array' | cut -d'>' -f1 | cut -d'"' -f2 | while read auto_search_target; do
+		if [ $(cat $AUTO_IGNORELIST | grep 'folder="all" application="'$APK'" file="'$XML_TYPE'" name="'$auto_search_target'"/>' | wc -l) == 0 ]; then
+			xml_remove_string ''$auto_search_target''
+		fi
+		if [ $(cat $AUTO_IGNORELIST | grep 'folder="'$DIR'" application="'$APK'" file="'$XML_TYPE'" name="'$auto_search_target'"/>' | wc -l) == 0 ]; then
+			xml_remove_string ''$auto_search_target''
+		fi
+	done;;
+
+	arrays.xml)
+	cat $XML_TARGET | grep 'name="' | while read arrays; do
+		ARRAY_TYPE=$(echo $arrays | cut -d'<' -f2 | cut -d' ' -f1)
+		ARRAY_NAME=$(echo $arrays | cut -d'>' -f1 | cut -d'"' -f2)
+		if [ $(arrays_parse $ARRAY_NAME $ARRAY_TYPE $XML_TARGET | grep '@android\|@string\|@color\|@drawable\|@null\|@array' | wc -l) -gt 0 ]; then
+			if [ $(cat $AUTO_IGNORELIST | grep 'folder="all" application="'$APK'" file="'$XML_TYPE'" name="'$ARRAY_NAME'"' | wc -l) -eq 0 ]; then
+				xml_remove_array ''$ARRAY_NAME''
+			fi
+			if [ $(cat $AUTO_IGNORELIST | grep 'folder="'$DIR'" application="'$APK'" file="'$XML_TYPE'" name="'$ARRAY_NAME'"' | wc -l) -eq 0 ]; then
+				xml_remove_array ''$ARRAY_NAME''
+			fi
+		fi
+	done;;
+
 esac
 
 # Catch values with the values catcher list
 if [ $LANG_VERSION -ge 8 ]; then
 	case "$XML_TYPE" in
+
 		arrays.xml)
 		catch_values_arrays | while read value_entry; do
 			cat $XML_TARGET | grep 'name="' | cut -d'"' -f2 | grep "$value_entry" | while read catched_entry; do
 				if [ $(cat $AUTO_IGNORELIST | grep 'folder="all" application="'$APK'" file="'$XML_TYPE'" name="'$catched_entry'"/>' | wc -l) == 0 ]; then
-					xml_remove_array ''$catched_entry''; continue
-				else
-					continue
+					xml_remove_array ''$catched_entry''
 				fi
 				if [ $(cat $AUTO_IGNORELIST | grep 'folder="'$DIR'" application="'$APK'" file="'$XML_TYPE'" name="'$catched_entry'"/>' | wc -l) == 0 ]; then
-					xml_remove_array ''$catched_entry''; continue
-				else
-					continue
+					xml_remove_array ''$catched_entry''
 				fi
 			done 
 		done;;
@@ -124,14 +118,10 @@ if [ $LANG_VERSION -ge 8 ]; then
 		catch_values_strings | while read value_entry; do
 			cat $XML_TARGET | grep 'name="' | cut -d'"' -f2 | grep "$value_entry" | while read catched_entry; do
 				if [ $(cat $AUTO_IGNORELIST | grep 'folder="all" application="'$APK'" file="'$XML_TYPE'" name="'$catched_entry'"/>' | wc -l) == 0 ]; then
-					xml_remove_string ''$catched_entry''; continue
-				else
-					continue
+					xml_remove_string ''$catched_entry''
 				fi
 				if [ $(cat $AUTO_IGNORELIST | grep 'folder="'$DIR'" application="'$APK'" file="'$XML_TYPE'" name="'$catched_entry'"/>' | wc -l) == 0 ]; then
-					xml_remove_string ''$catched_entry''; continue
-				else
-					continue
+					xml_remove_string ''$catched_entry''
 				fi
 			done 
 		done;;

@@ -45,7 +45,7 @@ mkdir -p $DATA_DIR
 
 # Debugging 
 PRESERVE_CACHE=false
-DEBUG_FIX=true
+DEBUG_FIX=false
 
 #########################################################################################################
 # VARIABLES / CACHE
@@ -80,7 +80,7 @@ echo "Usage: check.sh [option]"
 echo 
 echo " [option]:"
 echo " 		--help					This help"
-echo "		--check [all|language] [full|double]	Check specified language"
+echo "		--check [all|language]	Check specified language"
 echo "							If all is specified, then all languages will be checked"
 echo "							If a specific language is specified, that language will be checked"
 echo "							If third argument is not defined, all languages will be logged in seperate files"
@@ -102,16 +102,12 @@ if [ $# -gt 0 ]; then
 		# Check Languages
      	elif [ $1 == "--check" ]; then
 			source $ARRAY_TOOLS; source $LANG_TOOLS; source $CHECK_TOOLS; source $LOG_TOOLS; source $FIX_TOOLS; sync_resources; source $RES_DIR/check_mode.sh; build_cache; echo
-            DEBUG_MODE=lang
             case "$2" in
 
 		  		all) 
 				INDEX_LOGS=true
-				if [ "$3" == "double" ]; then
-                		DEBUG_MODE=double
-                fi; 
 			    cat $LANGS_ON | while read language; do
-					init_lang $language; init_xml_check; wait; sync
+					init_lang $language; init_xml_check; wait
    			    done;;
 
 			  	*) 
@@ -126,7 +122,7 @@ if [ $# -gt 0 ]; then
 					echo -e "${txtred}\nLanguage not supported or language not specified${txtrst}"; exit
 			    fi;;
            	esac
-		wait; sync; sleep 5; check_for_auto_fix; make_logs	
+		wait; sleep 5; check_for_auto_fix; make_logs	
 		if [ $PRESERVE_CACHE == false ]; then
 			clear_cache
 		fi
@@ -177,7 +173,8 @@ if [ $# -gt 0 ]; then
 				   	done;;
                               
 					all) 
-					rm -rf $MAIN_DIR/languages; mkdir -p $MAIN_DIR/languages;;
+					rm -rf $MAIN_DIR/languages; mkdir -p $MAIN_DIR/languages
+					rm -rf $DATA_DIR;;
 
 					data)
 					rm -rf $DATA_DIR;;

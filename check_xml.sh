@@ -36,7 +36,7 @@ if [ -d $LANG_DIR/$LANG_TARGET ]; then
 			else
 				echo ">>> Repository is not changed, old log not found"
 				if [ $LANG_FIX != "none" ]; then
-					do_xml_check true; wait; sync
+					do_xml_check true
 				fi
 				do_xml_check false
 			fi
@@ -44,14 +44,14 @@ if [ -d $LANG_DIR/$LANG_TARGET ]; then
 			echo ">>> Repository is changed"
 			cp $LANG_DIR/$LANG_TARGET/.git/refs/heads/$LANG_BRANCH $DATA_DIR/$LANG_TARGET/last_commit
 			if [ $LANG_FIX != "none" ]; then
-				do_xml_check true; wait; sync
+				do_xml_check true
 			fi
 			do_xml_check false
 		fi
 	else
 		cp $LANG_DIR/$LANG_TARGET/.git/refs/heads/$LANG_BRANCH $DATA_DIR/$LANG_TARGET/last_commit
 		if [ $LANG_FIX != "none" ]; then
-			do_xml_check true; wait; sync
+			do_xml_check true
 		fi
 		do_xml_check false
 	fi
@@ -66,10 +66,10 @@ else
 	echo ">>> Checking repository"
 fi
 
-for apk_target in $(find $LANG_DIR/$LANG_TARGET -iname "*.apk" | sort); do
+find $LANG_DIR/$LANG_TARGET -iname "*.apk" | sort | while read apk_target; do 
 	APK=$(basename $apk_target)
 	DIR=$(basename $(dirname $apk_target))
-	for xml_target in $(find $apk_target -iname "arrays.xml*" -o -iname "strings.xml*" -o -iname "plurals.xml*"); do
+	find $apk_target -iname "arrays.xml*" -o -iname "strings.xml*" -o -iname "plurals.xml*" | sort | while read xml_target; do
 		if [ $FIX_MODE == true ]; then
 			xml_fix "$xml_target" &
 		else 
@@ -168,8 +168,8 @@ xml_check_apostrophe () {
 # Check for apostrophe errors
 XML_LOG_APOSTROPHE=$FILE_CACHE/APOSTROPHE.log
 case "$XML_TYPE" in
+
 	strings.xml)
-	
 	grep "'" $XML_TARGET | grep '<string' | grep -v '>"' | grep -v "'\''" | while read apostrophe; do
 		grep -ne "$apostrophe" $XML_TARGET >> $XML_LOG_APOSTROPHE
 	done;;
@@ -177,6 +177,7 @@ case "$XML_TYPE" in
 	grep "'" $XML_TARGET | grep '<item' | grep -v '>"' | grep -v "'\''" | while read apostrophe; do
 		grep -ne "$apostrophe" $XML_TARGET >> $XML_LOG_APOSTROPHE
 	done;;
+
 esac
 
 #check for &apos; which is not allowed
@@ -255,39 +256,37 @@ fi
 
 # Check for untranslateable strings and arrays due automatically search for @
 case "$XML_TYPE" in 
-	strings.xml) cat $XML_TARGET | grep '@android\|@string\|@color\|@drawable\|@null\|@array' | cut -d'>' -f1 | cut -d'"' -f2 | while read auto_search_target; do
-				if [ $(cat $AUTO_IGNORELIST | grep 'folder="all" application="'$APK'" file="'$XML_TYPE'" name="'$auto_search_target'"/>' | wc -l) == 0 ]; then
-					grep -ne '"'$auto_search_target'"' $XML_TARGET; continue
-				else
-					continue
-				fi
-				if [ $(cat $AUTO_IGNORELIST | grep 'folder="'$DIR'" application="'$APK'" file="'$XML_TYPE'" name="'$auto_search_target'"/>' | wc -l) == 0 ]; then
-					grep -ne '"'$auto_search_target'"' $XML_TARGET; continue
-				else
-					continue
-				fi
-		     done >> $XML_LOG_UNTRANSLATEABLE;;
-	 arrays.xml) cat $XML_TARGET | grep 'name="' | while read arrays; do
-				ARRAY_TYPE=$(echo $arrays | cut -d' ' -f1 | cut -d'<' -f2)
-				ARRAY_NAME=$(echo $arrays | cut -d'>' -f1 | cut -d'"' -f2)
-				if [ $(arrays_parse $ARRAY_NAME $ARRAY_TYPE $XML_TARGET | grep '@android\|@string\|@color\|@drawable\|@null\|@array' | wc -l) -gt 0 ]; then
-					if [ $(cat $AUTO_IGNORELIST | grep 'folder="all" application="'$APK'" file="'$XML_TYPE'" name="'$ARRAY_NAME'"' | wc -l) -eq 0 ]; then
-						grep -ne '"'$ARRAY_NAME'"' $XML_TARGET; continue
-					else
-						continue
-					fi
-					if [ $(cat $AUTO_IGNORELIST | grep 'folder="'$DIR'" application="'$APK'" file="'$XML_TYPE'" name="'$ARRAY_NAME'"' | wc -l) -eq 0 ]; then
-						grep -ne '"'$ARRAY_NAME'"' $XML_TARGET; continue
-					else
-						continue
-					fi
-				fi
-		     done >> $XML_LOG_UNTRANSLATEABLE;;
+
+	strings.xml) 
+	cat $XML_TARGET | grep '@android\|@string\|@color\|@drawable\|@null\|@array' | cut -d'>' -f1 | cut -d'"' -f2 | while read auto_search_target; do
+		if [ $(cat $AUTO_IGNORELIST | grep 'folder="all" application="'$APK'" file="'$XML_TYPE'" name="'$auto_search_target'"/>' | wc -l) == 0 ]; then
+			grep -ne '"'$auto_search_target'"' $XML_TARGET
+		fi
+		if [ $(cat $AUTO_IGNORELIST | grep 'folder="'$DIR'" application="'$APK'" file="'$XML_TYPE'" name="'$auto_search_target'"/>' | wc -l) == 0 ]; then
+					grep -ne '"'$auto_search_target'"' $XML_TARGET
+		fi
+	done >> $XML_LOG_UNTRANSLATEABLE;;
+
+	arrays.xml) 
+	cat $XML_TARGET | grep 'name="' | while read arrays; do
+		ARRAY_TYPE=$(echo $arrays | cut -d' ' -f1 | cut -d'<' -f2)
+		ARRAY_NAME=$(echo $arrays | cut -d'>' -f1 | cut -d'"' -f2)
+		if [ $(arrays_parse $ARRAY_NAME $ARRAY_TYPE $XML_TARGET | grep '@android\|@string\|@color\|@drawable\|@null\|@array' | wc -l) -gt 0 ]; then
+			if [ $(cat $AUTO_IGNORELIST | grep 'folder="all" application="'$APK'" file="'$XML_TYPE'" name="'$ARRAY_NAME'"' | wc -l) -eq 0 ]; then
+				grep -ne '"'$ARRAY_NAME'"' $XML_TARGET
+			fi
+			if [ $(cat $AUTO_IGNORELIST | grep 'folder="'$DIR'" application="'$APK'" file="'$XML_TYPE'" name="'$ARRAY_NAME'"' | wc -l) -eq 0 ]; then
+				grep -ne '"'$ARRAY_NAME'"' $XML_TARGET
+			fi
+		fi
+	done >> $XML_LOG_UNTRANSLATEABLE;;
+
 esac
 
 # Catch values with the values catcher list
 if [ $LANG_VERSION -ge 8 ]; then
 	case "$XML_TYPE" in
+
 		arrays.xml)
 		catch_values_arrays | while read value_entry; do
 			cat $XML_TARGET | grep 'name="' | cut -d'"' -f2 | grep "$value_entry" | while read catched_entry; do
