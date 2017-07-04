@@ -70,7 +70,6 @@ find $LANG_DIR/$LANG_TARGET -iname "*.apk" | sort | while read apk_target; do
 	APK=$(basename $apk_target)
 	DIR=$(basename $(dirname $apk_target))
 	find $apk_target -iname "arrays.xml*" -o -iname "strings.xml*" -o -iname "plurals.xml*" | sort | while read xml_target; do
-	echo "$APK $xml_target" >> check.log
 		if [ $FIX_MODE == true ]; then
 			xml_fix "$xml_target" &
 		else 
