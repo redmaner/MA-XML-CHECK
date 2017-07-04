@@ -24,7 +24,7 @@ find $CACHE -iname "*.cached" | sort | while read cached_check; do
 		echo '</script></span><span class="header"><br><br>Checked ('$LANG_CHECK') <a href="'$LANG_URL'" title="'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO')" target="_blank">'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO') repository</a> on '$(cat $cached_check/datestamp)'</span>' >> $XML_LOG_NH
         	echo '<!-- Start of log --><script type="text/plain">' >> $XML_LOG_NH
 
-		for TEMP_LOG in $(find $cached_check -iname "XML_LOG_TEMP" | sort); do
+		find $cached_check -iname "XML_LOG_TEMP" | sort | while read TEMP_LOG; do
 			XML_TARGET=$(cat $(dirname $TEMP_LOG)/XML_TARGET)
 			echo '</script><span class="black"><br>'$XML_TARGET'</span><span><script class="error" type="text/plain">' >> $XML_LOG_NH
 			cat $TEMP_LOG >> $XML_LOG_NH
