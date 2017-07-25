@@ -42,6 +42,11 @@ find $CACHE -iname "*.cached" | sort | while read cached_check; do
 
 	if [ $INDEX_LOGS == "true" ]; then
 		INDEX_LOG_TARGET=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
+		if [ "$LANG_VERSION" == "9" ]; then
+			$MIUI_VERSION_INDEX="<b>MIUI$LANG_VERSION</b>"
+		else
+			$MIUI_VERSION_INDEX="MIUI$LANG_VERSION"
+		fi
 		if [ $(grep 'No errors found in this repository!' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
 			add_to_index "No errors found" "" "" "" "" "" "" ""
 		else
@@ -305,7 +310,7 @@ table {
 <span class="header">LOGS</span><br><br>
 <table border="0" cellpadding="0" cellspacing="0">
 	<tr>
-		<td height="auto" width="7%"><span class="black"><b>Version</b></span></td>
+		<td height="auto" width="10%"><span class="black"><b>Version</b></span></td>
 		<td height="auto" width="25%"><span class="black"><b>Language repository</b></span></td>
 		<td height="auto" width="25%"><span class="black"><b>Last check</b></span></td>
 		<td height="auto" width="auto"><span class=black"><b>Status</b></span></td>
@@ -317,7 +322,7 @@ add_to_index() {
 INDEX_TIME=$(cat $CACHE/$LANG_TARGET.cached/datestamp)
 cat >> $LOG_DIR/index.html.bak << EOF
 	<tr>
-		<td height="auto" width="7%"><span class="black">MIUI$LANG_VERSION</span></td>
+		<td height="auto" width="10%"><span class="black">$MIUI_VERSION_INDEX</span></td>
 		<td height="auto" width="25%"><span class="black"><a href="$INDEX_LOG_HREF/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html" title="$LANG_NAME MIUI$LANG_VERSION">$LANG_NAME ($LANG_ISO)</a></span></td>
 		<td height="auto" width="25%"><span class="black">$INDEX_TIME</span></td>
 		<td height="auto" width="auto"><span class="green">$1</span><span class="red">$2</span><span class="orange">$3</span><span class="brown">$4</span><span class="pink">$5</span><span class="cyan">$6</span><span class="blue">$7</span><span class="grey">$8</span><span class="gold">$9</span></td>
