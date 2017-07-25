@@ -43,9 +43,9 @@ find $CACHE -iname "*.cached" | sort | while read cached_check; do
 	if [ $INDEX_LOGS == "true" ]; then
 		INDEX_LOG_TARGET=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
 		if [ "$LANG_VERSION" == "9" ]; then
-			$MIUI_VERSION_INDEX="<b>MIUI$LANG_VERSION</b>"
+			MIUI_VERSION_INDEX="<b>MIUI$LANG_VERSION</b>"
 		else
-			$MIUI_VERSION_INDEX="MIUI$LANG_VERSION"
+			MIUI_VERSION_INDEX="MIUI$LANG_VERSION"
 		fi
 		if [ $(grep 'No errors found in this repository!' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
 			add_to_index "No errors found" "" "" "" "" "" "" ""
