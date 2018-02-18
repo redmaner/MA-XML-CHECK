@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2013 - 2015, Redmaner
+# Copyright (c) 2013 - 2018, Redmaner
 # This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International license
 # The license can be found at http://creativecommons.org/licenses/by-nc-sa/4.0/
 
@@ -126,7 +126,6 @@ LOG=$1
 cat >> $LOG << EOF
 <!DOCTYPE html>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-<html>
 <head>
 <style>
 body {
@@ -196,7 +195,7 @@ a:hover {
 }
 </style></head>
 <body>
-<a href="http://translators.xiaomi.eu" title="xiaomi.eu Translators home"><img src="https://s16.postimg.org/9heai94lx/xiaomi_europe_logo77.png"></a>
+<a href="http://translators.xiaomi.eu" title="xiaomi.eu Translators home"><img src="https://translators.xiaomi.eu/xiaomi_europe.png"></a>
 <br><br>
 <table border="0" cellpadding="0" cellspacing="0">
 	<tr>
@@ -243,7 +242,6 @@ create_index () {
 cat > $LOG_DIR/index.html.bak << EOF
 <!DOCTYPE html>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-<html>
 <head>
 <style>
 body {
@@ -305,7 +303,7 @@ table {
         }
 </style></head>
 <body>
-<a href="http://xiaomi.eu" title="xiaomi.eu Forums - Unofficial International MIUI / Xiaomi Support"><img src="https://s16.postimg.org/9heai94lx/xiaomi_europe_logo77.png"></a>
+<a href="http://xiaomi.eu" title="xiaomi.eu Forums - Unofficial International MIUI / Xiaomi Support"><img src="https://translators.xiaomi.eu/xiaomi_europe.png"></a>
 <br><br>
 <span class="header">LOGS</span><br><br>
 <table border="0" cellpadding="0" cellspacing="0">
@@ -313,7 +311,7 @@ table {
 		<td height="auto" width="8%"><span class="black"><b>Version</b></span></td>
 		<td height="auto" width="25%"><span class="black"><b>Language repository</b></span></td>
 		<td height="auto" width="25%"><span class="black"><b>Last check</b></span></td>
-		<td height="auto" width="auto"><span class=black"><b>Status</b></span></td>
+		<td height="auto" width="auto"><span class="black"><b>Status</b></span></td>
 	</tr>
 EOF
 }
