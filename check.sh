@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2013 - 2016, Redmaner
+# Copyright (c) 2013 - 2018, Redmaner
 # This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International license
 # The license can be found at http://creativecommons.org/licenses/by-nc-sa/4.0/
 
@@ -24,13 +24,16 @@ if [ -d /home/translators.xiaomi.eu ]; then
      	MAIN_DIR=/home/translators.xiaomi.eu/scripts
      	LOG_DIR=/home/translators.xiaomi.eu/public_html
 		REMOTE=true
-		MAX_JOBS=64
+		MAX_JOBS=12
 		INDEX_LOG_HREF="http://translators.xiaomi.eu"
+		if [ ! -f $LOG_DIR/xiaomi_europe.png ]; then
+			cp $MAIN_DIR/xiaomi_europe.png $LOG_DIR/xiaomi_europe.png
+		fi
 else
      	MAIN_DIR=$PWD
      	LOG_DIR=$PWD/logs
 		REMOTE=false
-		MAX_JOBS=32
+		MAX_JOBS=8
 		INDEX_LOG_HREF="file://$LOG_DIR"
 fi
 
