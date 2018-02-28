@@ -107,40 +107,29 @@ case "$XML_TYPE" in
 esac
 
 # Catch values with the values catcher list
-if [ $LANG_VERSION -ge 8 ]; then
-	case "$XML_TYPE" in
-
-		arrays.xml)
-		catch_values_arrays | while read value_entry; do
-			cat $XML_TARGET | grep 'name="' | cut -d'"' -f2 | grep "$value_entry" | while read catched_entry; do
-				if [ $(cat $AUTO_IGNORELIST | grep 'folder="all" application="'$APK'" file="'$XML_TYPE'" name="'$catched_entry'"/>' | wc -l) == 0 ]; then
-					xml_remove_array ''$catched_entry''; continue
-				else
-					continue
-				fi
-				if [ $(cat $AUTO_IGNORELIST | grep 'folder="'$DIR'" application="'$APK'" file="'$XML_TYPE'" name="'$catched_entry'"/>' | wc -l) == 0 ]; then
-					xml_remove_array ''$catched_entry''; continue
-				else
-					continue
-				fi
+if [ -e $VALUE_CATCHER_LIST ]; then
+	if [ $(cat $VALUE_CATCHER_LIST | grep ''$APK' '$XML_TYPE' ' | wc -l) -gt 0 ]; then
+		case "$XML_TYPE" in
+			arrays.xml)
+			cat $VALUE_CATCHER_LIST | grep 'all '$APK' '$XML_TYPE' ' | while read all_line; do
+				init_list $(cat $VALUE_CATCHER_LIST | grep "$all_line")
+				xml_remove_array ''$ITEM_NAME''
 			done 
-		done;;
+			cat $VALUE_CATCHER_LIST | grep ''$DIR' '$APK' '$XML_TYPE' ' | while read all_line; do
+				init_list $(cat $VALUE_CATCHER_LIST | grep "$all_line")
+				xml_remove_array ''$ITEM_NAME''
+			done;;
 
-		strings.xml)
-		catch_values_strings | while read value_entry; do
-			cat $XML_TARGET | grep 'name="' | cut -d'"' -f2 | grep "$value_entry" | while read catched_entry; do
-				if [ $(cat $AUTO_IGNORELIST | grep 'folder="all" application="'$APK'" file="'$XML_TYPE'" name="'$catched_entry'"/>' | wc -l) == 0 ]; then
-					xml_remove_string ''$catched_entry''; continue
-				else 
-					continue
-				fi
-				if [ $(cat $AUTO_IGNORELIST | grep 'folder="'$DIR'" application="'$APK'" file="'$XML_TYPE'" name="'$catched_entry'"/>' | wc -l) == 0 ]; then
-					xml_remove_string ''$catched_entry''; continue
-				else
-					continue
-				fi
+			strings.xml)
+			cat $VALUE_CATCHER_LIST | grep 'all '$APK' '$XML_TYPE' ' | while read all_line; do
+				init_list $(cat $VALUE_CATCHER_LIST | grep "$all_line")
+				xml_remove_string ''$ITEM_NAME''
 			done 
-		done;;
-	esac
+			cat $VALUE_CATCHER_LIST | grep ''$DIR' '$APK' '$XML_TYPE' ' | while read all_line; do
+				init_list $(cat $VALUE_CATCHER_LIST | grep "$all_line")
+				xml_remove_string ''$ITEM_NAME''
+			done;;
+		esac
+	fi
 fi
 }

@@ -53,7 +53,7 @@ DEBUG_FIX=false
 #########################################################################################################
 # VARIABLES / CACHE
 #########################################################################################################
-VERSION=16
+VERSION=18
 DATE=$(date +"%m-%d-%Y-%H-%M-%S")
 CACHE="$MAIN_DIR/.cache-$DATE"
 
@@ -65,6 +65,7 @@ CHECK_TOOLS=$MAIN_DIR/check_xml.sh
 LOG_TOOLS=$MAIN_DIR/create_log.sh
 REMOTE_TOOLS=$MAIN_DIR/remote.sh
 FIX_TOOLS=$MAIN_DIR/fix_xml.sh
+VALUE_TOOLS=$MAIN_DIR/generate_value_lists.sh
 source $RES_TOOLS; source $REMOTE_TOOLS
 
 # Remote 
@@ -104,7 +105,7 @@ if [ $# -gt 0 ]; then
 
 		# Check Languages
      	elif [ $1 == "--check" ]; then
-			source $ARRAY_TOOLS; source $LANG_TOOLS; source $CHECK_TOOLS; source $LOG_TOOLS; source $FIX_TOOLS; sync_resources; source $RES_DIR/check_mode.sh; build_cache; echo
+			source $ARRAY_TOOLS; source $LANG_TOOLS; source $CHECK_TOOLS; source $LOG_TOOLS; source $FIX_TOOLS; sync_resources; source $RES_DIR/check_mode.sh; build_cache; source $VALUE_TOOLS; generate_value_catcher_lists_normal; echo
             case "$2" in
 
 		  		all) 
@@ -202,6 +203,9 @@ if [ $# -gt 0 ]; then
         	case "$2" in
 				sync) 
 				sync_resources;;
+
+				values)
+				source $LANG_TOOLS;  sync_resources; source $VALUE_TOOLS; generate_value_catcher_lists_normal;;
                 
 				resync) 
 				rm -rf $RES_DIR; sync_resources;;

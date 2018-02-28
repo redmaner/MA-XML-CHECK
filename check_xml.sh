@@ -292,41 +292,17 @@ case "$XML_TYPE" in
 esac
 
 # Catch values with the values catcher list
-if [ $LANG_VERSION -ge 8 ]; then
-	case "$XML_TYPE" in
-
-		arrays.xml)
-		catch_values_arrays | while read value_entry; do
-			cat $XML_TARGET | grep 'name="' | cut -d'"' -f2 | grep "$value_entry" | while read catched_entry; do
-				if [ $(cat $AUTO_IGNORELIST | grep 'folder="all" application="'$APK'" file="'$XML_TYPE'" name="'$catched_entry'"/>' | wc -l) == 0 ]; then
-					grep -ne '"'$catched_entry'"' $XML_TARGET; continue
-				else
-					continue
-				fi
-				if [ $(cat $AUTO_IGNORELIST | grep 'folder="'$DIR'" application="'$APK'" file="'$XML_TYPE'" name="'$catched_entry'"/>' | wc -l) == 0 ]; then
-					grep -ne '"'$catched_entry'"' $XML_TARGET; continue
-				else
-					continue
-				fi
-			done >> $XML_LOG_UNTRANSLATEABLE
-		done;;
-
-		strings.xml)
-		catch_values_strings | while read value_entry; do
-			cat $XML_TARGET | grep 'name="' | cut -d'"' -f2 | grep "$value_entry" | while read catched_entry; do
-				if [ $(cat $AUTO_IGNORELIST | grep 'folder="all" application="'$APK'" file="'$XML_TYPE'" name="'$catched_entry'"/>' | wc -l) == 0 ]; then
-					grep -ne '"'$catched_entry'"' $XML_TARGET; continue
-				else
-					continue
-				fi
-				if [ $(cat $AUTO_IGNORELIST | grep 'folder="'$DIR'" application="'$APK'" file="'$XML_TYPE'" name="'$catched_entry'"/>' | wc -l) == 0 ]; then
-					grep -ne '"'$catched_entry'"' $XML_TARGET; continue
-				else
-					continue
-				fi
-			done >> $XML_LOG_UNTRANSLATEABLE
-		done;;
-	esac
+if [ -e $VALUE_CATCHER_LIST ]; then
+	if [ $(cat $VALUE_CATCHER_LIST | grep ''$APK' '$XML_TYPE' ' | wc -l) -gt 0 ]; then
+		cat $VALUE_CATCHER_LIST | grep 'all '$APK' '$XML_TYPE' ' | while read all_line; do
+			init_list $(cat $VALUE_CATCHER_LIST | grep "$all_line")
+			grep -ne '"'$ITEM_NAME'"' $XML_TARGET
+		done >> $XML_LOG_UNTRANSLATEABLE
+		cat $VALUE_CATCHER_LIST | grep ''$DIR' '$APK' '$XML_TYPE' ' | while read all_line; do
+			init_list $(cat $VALUE_CATCHER_LIST | grep "$all_line")
+			grep -ne '"'$ITEM_NAME'"' $XML_TARGET
+		done >> $XML_LOG_UNTRANSLATEABLE
+	fi
 fi
 
 write_log_error "pink" "$XML_LOG_UNTRANSLATEABLE"

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2013 - 2015, Redmaner
+# Copyright (c) 2013 - 2018, Redmaner
 # This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International license
 # The license can be found at http://creativecommons.org/licenses/by-nc-sa/4.0/
 
@@ -152,9 +152,8 @@ LANG_BRANCH=$8
 LANG_TARGET=""$LANG_NAME"_"$LANG_VERSION""
 UNTRANSLATEABLE_LIST=$RES_DIR/MIUI"$LANG_VERSION"_untranslateable.xml.mxcr
 AUTO_IGNORELIST=$RES_DIR/MIUI"$LANG_VERSION"_auto_ignorelist.xml
-if [ $LANG_VERSION -ge 8 ]; then
-	source $RES_DIR/MIUI"$LANG_VERSION"_value_catcher.sh
-fi
+VALUE_CATCHER_LIST=$RES_DIR/language_value_lists/MIUI"$LANG_VERSION"_"$LANG_NAME"_value_catcher.mxcr
+source $RES_DIR/MIUI"$LANG_VERSION"_value_catcher.sh
 }
 
 init_list () {
