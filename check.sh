@@ -205,7 +205,7 @@ if [ $# -gt 0 ]; then
 				sync_resources;;
 
 				values)
-				source $LANG_TOOLS;  sync_resources; source $VALUE_TOOLS; generate_value_catcher_lists_normal;;
+				source $LANG_TOOLS;  sync_resources; source $VALUE_TOOLS; generate_value_catcher_lists_force;;
                 
 				resync) 
 				rm -rf $RES_DIR; sync_resources;;
