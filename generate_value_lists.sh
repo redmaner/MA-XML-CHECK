@@ -49,7 +49,7 @@ if [ $LANG_VERSION -ge 8 ]; then
 					continue
 				fi
 				if [ $(cat $AUTO_IGNORELIST | grep 'folder="'$DIR'" application="'$APK'" file="'$XML_TYPE'" name="'$catched_entry'"/>' | wc -l) == 0 ]; then
-					echo -e '---------------------------------------------------------------------------------------\nfolder="all" application="'$APK'" xml="'$XML'" name="'$catched_entry'"\n---------------------------------------------------------------------------------------\n'$(xml_read_array_content $catched_entry)'\n\n' >> $LANG_VALUE_LIST_FULL
+					echo -e '---------------------------------------------------------------------------------------\nfolder="'$DIR'" application="'$APK'" xml="'$XML'" name="'$catched_entry'"\n---------------------------------------------------------------------------------------\n'$(xml_read_array_content $catched_entry)'\n\n' >> $LANG_VALUE_LIST_FULL
 					echo ''$DIR' '$APK' '$XML_TYPE' '$catched_entry'' >> $LANG_VALUE_LIST; continue
 				else
 					continue
@@ -67,7 +67,7 @@ if [ $LANG_VERSION -ge 8 ]; then
 					continue
 				fi
 				if [ $(cat $AUTO_IGNORELIST | grep 'folder="'$DIR'" application="'$APK'" file="'$XML_TYPE'" name="'$catched_entry'"/>' | wc -l) == 0 ]; then
-					echo -e '---------------------------------------------------------------------------------------\nfolder="all" application="'$APK'" xml="'$XML'" name="'$catched_entry'"\n---------------------------------------------------------------------------------------\n'$(xml_read_string_content $catched_entry)'\n\n' >> $LANG_VALUE_LIST_FULL
+					echo -e '---------------------------------------------------------------------------------------\nfolder="'$DIR'" application="'$APK'" xml="'$XML'" name="'$catched_entry'"\n---------------------------------------------------------------------------------------\n'$(xml_read_string_content $catched_entry)'\n\n' >> $LANG_VALUE_LIST_FULL
 					echo ''$DIR' '$APK' '$XML_TYPE' '$catched_entry'' >> $LANG_VALUE_LIST; continue
 				else
 					continue
@@ -147,6 +147,7 @@ if [ ! -e $LISTS_DATE ]; then
 	day_correction
 	echo $DATE_CHECK > $LISTS_DATE
 	push_lists_to_git	
+	rm -rf $DATA_DIR; mkdir -p $DATA_DIR
 elif [ $(($DATE_CHECK - $(cat $LISTS_DATE))) -ge $RES_GEN_PERIOD ]; then
 	rm -f $LISTS_DIR/*
 	cp $LISTS_DIR_NEW/*.mxcr $LISTS_DIR
@@ -155,6 +156,7 @@ elif [ $(($DATE_CHECK - $(cat $LISTS_DATE))) -ge $RES_GEN_PERIOD ]; then
 	day_correction
 	echo $DATE_CHECK > $LISTS_DATE
 	push_lists_to_git
+	rm -rf $DATA_DIR; mkdir -p $DATA_DIR
 fi
 }
 
@@ -166,5 +168,6 @@ generate_value_catcher_lists_force () {
 	day_correction
 	echo $DATE_CHECK > $LISTS_DATE
 	push_lists_to_git
+	rm -rf $DATA_DIR; mkdir -p $DATA_DIR
 }
 
