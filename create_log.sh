@@ -195,7 +195,7 @@ a:hover {
 }
 </style></head>
 <body>
-<a href="http://translators.xiaomi.eu" title="xiaomi.eu Translators home"><img src="https://translators.xiaomi.eu/xiaomi_europe.png"></a>
+<a href="http://translators.xiaomi.eu" title="xiaomi.eu Translators home"><img class="fix" src="https://translators.xiaomi.eu/xiaomi_europe.png"></a>
 <br><br>
 <table border="0" cellpadding="0" cellspacing="0">
 	<tr>
@@ -303,7 +303,7 @@ table {
         }
 </style></head>
 <body>
-<a href="http://xiaomi.eu" title="xiaomi.eu Forums - Unofficial International MIUI / Xiaomi Support"><img src="https://translators.xiaomi.eu/xiaomi_europe.png"></a>
+<a href="http://xiaomi.eu" title="xiaomi.eu Forums - Unofficial International MIUI / Xiaomi Support"><img class="fix" src="https://translators.xiaomi.eu/xiaomi_europe.png"></a>
 <br><br>
 <span class="header">LOGS</span><br><br>
 <table border="0" cellpadding="0" cellspacing="0">
