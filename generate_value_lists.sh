@@ -6,13 +6,9 @@ DATE_DAY=$(date +"%A")
 DATE_FULL=$(date +"%m-%d-%Y-%H-%M-%S")
 DATE_COMMIT=$(date +"%m %d %Y")
 
-RES_GEN_PERIOD="7"
+RES_GEN_PERIOD="3"
 
 LISTS_DATE=$RES_DIR/.gen_lists
-LISTS_DIR=$RES_DIR/language_value_lists
-LISTS_DIR_NEW=$RES_DIR/language_value_lists_new
-
-mkdir -p $LISTS_DIR $LISTS_DIR_NEW
 
 xml_read_string_content () {
 STRING_NAME=$1
@@ -82,6 +78,9 @@ init_gen_lists () {
 mkdir -p $LISTS_DIR $LISTS_DIR_NEW
 cat $LANGS_ON | while read language; do
 	init_lang $language
+	LISTS_DIR=$RES_DIR/MIUI"$LANG_VERSION"/language_value_lists
+	LISTS_DIR_NEW=$RES_DIR/MIUI"$LANG_VERSION"/language_value_lists_new
+	mkdir -p $LISTS_DIR $LISTS_DIR_NEW
 	if [ -d $LANG_DIR/$LANG_TARGET ]; then
 		echo -e "${txtblu}Generating value list for $LANG_NAME MIUI$LANG_VERSION ($LANG_ISO)${txtrst}"
 		LANG_VALUE_LIST=$LISTS_DIR_NEW/MIUI"$LANG_VERSION"_"$LANG_NAME"_value_catcher.mxcr
@@ -110,28 +109,6 @@ cat $LANGS_ON | while read language; do
 done
 }
 
-day_correction () {
-case $DATE_DAY in
-	Monday)
-	DATE_CHECK=$(($DATE_CHECK - 1));;
-
-	Tuesday)
-	DATE_CHECK=$(($DATE_CHECK - 2));;
-
-	Wednesday)
-	DATE_CHECK=$(($DATE_CHECK - 3));;
-
-	Thursday)
-	DATE_CHECK=$(($DATE_CHECK - 4));;
-
-	Friday)
-	DATE_CHECK=$(($DATE_CHECK - 5));;
-
-	Saturday)
-	DATE_CHECK=$(($DATE_CHECK - 6));;
-esac
-}
-
 push_lists_to_git () {
 echo -e "${txtblu}\nPusing new value catcher lists${txtrst}"
 cd $RES_DIR
@@ -144,7 +121,6 @@ cd $MAIN_DIR
 generate_value_catcher_lists_normal () {
 if [ ! -e $LISTS_DATE ]; then
 	init_gen_lists;
-	day_correction
 	echo $DATE_CHECK > $LISTS_DATE
 	push_lists_to_git	
 	rm -rf $DATA_DIR; mkdir -p $DATA_DIR
@@ -153,7 +129,6 @@ elif [ $(($DATE_CHECK - $(cat $LISTS_DATE))) -ge $RES_GEN_PERIOD ]; then
 	cp $LISTS_DIR_NEW/*.mxcr $LISTS_DIR
 	rm -f $LISTS_DIR_NEW/*.mxcr $LISTS_DIR_NEW/*.list
 	init_gen_lists;
-	day_correction
 	echo $DATE_CHECK > $LISTS_DATE
 	push_lists_to_git
 	rm -rf $DATA_DIR; mkdir -p $DATA_DIR
@@ -165,7 +140,6 @@ generate_value_catcher_lists_force () {
 	cp $LISTS_DIR_NEW/*.mxcr $LISTS_DIR
 	rm -f $LISTS_DIR_NEW/*.mxcr $LISTS_DIR_NEW/*.list
 	init_gen_lists;
-	day_correction
 	echo $DATE_CHECK > $LISTS_DATE
 	push_lists_to_git
 	rm -rf $DATA_DIR; mkdir -p $DATA_DIR
