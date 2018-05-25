@@ -75,7 +75,6 @@ fi
 }
 
 init_gen_lists () {
-mkdir -p $LISTS_DIR $LISTS_DIR_NEW
 cat $LANGS_ON | while read language; do
 	init_lang $language
 	if [ -d $LANG_DIR/$LANG_TARGET ]; then
