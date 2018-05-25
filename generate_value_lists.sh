@@ -78,14 +78,28 @@ init_gen_lists () {
 mkdir -p $LISTS_DIR $LISTS_DIR_NEW
 cat $LANGS_ON | while read language; do
 	init_lang $language
-	LISTS_DIR=$RES_DIR/MIUI"$LANG_VERSION"/language_value_lists
-	LISTS_DIR_NEW=$RES_DIR/MIUI"$LANG_VERSION"/language_value_lists_new
-	mkdir -p $LISTS_DIR $LISTS_DIR_NEW
 	if [ -d $LANG_DIR/$LANG_TARGET ]; then
+
 		echo -e "${txtblu}Generating value list for $LANG_NAME MIUI$LANG_VERSION ($LANG_ISO)${txtrst}"
+
+		# Make folders
+		LISTS_DIR=$RES_DIR/MIUI"$LANG_VERSION"/language_value_lists
+		LISTS_DIR_NEW=$RES_DIR/MIUI"$LANG_VERSION"/language_value_lists_new
+		mkdir -p $LISTS_DIR 
+		mkdir -p $LISTS_DIR_NEW
+
+		# Copy and clean
 		LANG_VALUE_LIST=$LISTS_DIR_NEW/MIUI"$LANG_VERSION"_"$LANG_NAME"_value_catcher.mxcr
 		LANG_VALUE_LIST_FULL=$LISTS_DIR_NEW/MIUI"$LANG_VERSION"_"$LANG_NAME"_value_catcher.list
-		rm -f $LISTS_DIR_NEW/MIUI"$LANG_VERSION"_"$LANG_NAME"_value_cather.mxcr
+
+		if [ -e $LANG_VALUE_LIST ]; then
+			cp -f $LANG_VALUE_LIST $LISTS_DIR/MIUI"$LANG_VERSION"_"$LANG_NAME"_value_cather.mxcr
+		fi
+
+		rm -f $LANG_VALUE_LIST 
+		rm -f $LANG_VALUE_LIST_FULL
+		
+		# Make new lists
 		find $LANG_DIR/$LANG_TARGET -iname "*.apk" | sort | while read apk_target; do 
 			APK=$(basename $apk_target)
 			DIR=$(basename $(dirname $apk_target))
@@ -115,8 +129,10 @@ done
 
 push_lists_to_git () {
 echo -e "${txtblu}\nPusing new value catcher lists${txtrst}"
+cd $RES_DIR
 git commit -m "Update value catcher lists ($DATE_COMMIT)"
 git push origin master
+cd $MAIN_DIR
 }
 
 generate_value_catcher_lists_normal () {
@@ -126,9 +142,6 @@ if [ ! -e $LISTS_DATE ]; then
 	push_lists_to_git	
 	rm -rf $DATA_DIR; mkdir -p $DATA_DIR
 elif [ $(($DATE_CHECK - $(cat $LISTS_DATE))) -ge $RES_GEN_PERIOD ]; then
-	rm -f $LISTS_DIR/*
-	cp $LISTS_DIR_NEW/*.mxcr $LISTS_DIR
-	rm -f $LISTS_DIR_NEW/*.mxcr $LISTS_DIR_NEW/*.list
 	init_gen_lists;
 	echo $DATE_CHECK > $LISTS_DATE
 	push_lists_to_git
@@ -137,9 +150,6 @@ fi
 }
 
 generate_value_catcher_lists_force () {
-	rm -f $LISTS_DIR/*
-	cp $LISTS_DIR_NEW/*.mxcr $LISTS_DIR
-	rm -f $LISTS_DIR_NEW/*.mxcr $LISTS_DIR_NEW/*.list
 	init_gen_lists;
 	echo $DATE_CHECK > $LISTS_DATE
 	push_lists_to_git
