@@ -106,16 +106,17 @@ cat $LANGS_ON | while read language; do
 			done
 		done
 	fi
+	cd $RES_DIR
+	git add MIUI"$LANG_VERSION"/language_value_lists
+	git add MIUI"$LANG_VERSION"/language_value_lists_new
+	cd $MAIN_DIR
 done
 }
 
 push_lists_to_git () {
 echo -e "${txtblu}\nPusing new value catcher lists${txtrst}"
-cd $RES_DIR
-git add language_value_lists language_value_lists_new
 git commit -m "Update value catcher lists ($DATE_COMMIT)"
 git push origin master
-cd $MAIN_DIR
 }
 
 generate_value_catcher_lists_normal () {
