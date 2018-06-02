@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2013 - 2015, Redmaner
+# Copyright (c) 2013 - 2018, Redmaner
 # This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International license
 # The license can be found at http://creativecommons.org/licenses/by-nc-sa/4.0/
 
@@ -38,7 +38,7 @@ commit_msg=$1
 echo -e "${txtblu}\nPusing to $LANG_NAME MIUI$LANG_VERSION${txtrst}: $commit_msg"
 cd $LANG_DIR/$LANG_TARGET
 git add $LANG_NAME
-git commit -m "$commit_msg"
+git commit -s -m "$commit_msg"
 git push origin $LANG_BRANCH
 cd $MAIN_DIR
 }

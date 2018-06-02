@@ -1,5 +1,9 @@
 #!/bin/bash
+# Copyright (c) 2013 - 2018, Redmaner
+# This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International license
+# The license can be found at http://creativecommons.org/licenses/by-nc-sa/4.0/
 
+# Remove string function
 xml_remove_string () {
 STRING_NAME=$1
 if [ $(sed -e '/name="'$STRING_NAME'"/!d' $XML_TARGET | wc -l) -gt 0 ]; then
@@ -19,6 +23,27 @@ if [ $(sed -e '/name="'$STRING_NAME'"/!d' $XML_TARGET | wc -l) -gt 0 ]; then
 fi
 }
 
+# Remove string function specifically for removing doubles
+xml_remove_string_double () {
+STRING_NAME=$1
+if [ $(sed -e '/name="'$STRING_NAME'"/!d' $XML_TARGET | wc -l) -gt 0 ]; then
+	if [ $DEBUG_FIX == true ]; then
+   		echo "Fixing $XML_TARGET"
+	fi
+	if [ $(sed -e '/name="'$STRING_NAME'"/!d' $XML_TARGET | grep '</string>' | wc -l) -gt 0 ]; then
+		sed -e '0,/'$STRING_NAME'/{/<string name="'$STRING_NAME'"/d}' $XML_TARGET >> $XML_TARGET.fixed; mv $XML_TARGET.fixed $XML_TARGET
+		write_auto_fix
+	elif [ $(sed -e '/name="'$STRING_NAME'"/!d' $XML_TARGET | grep '/>' | wc -l) -gt 0 ]; then
+		sed -e '0,/'$STRING_NAME'/{/<string name="'$STRING_NAME'"/d}' $XML_TARGET >> $XML_TARGET.fixed; mv $XML_TARGET.fixed $XML_TARGET
+		write_auto_fix
+	else
+		sed -e '/<string name="'$STRING_NAME'"/,/string>/d' $XML_TARGET >> $XML_TARGET.fixed; mv $XML_TARGET.fixed $XML_TARGET
+		write_auto_fix
+	fi
+fi
+}
+
+# Remove array function
 xml_remove_array () {
 ARRAY_NAME=$1
 ARRAY_TYPE=$(cat $XML_TARGET | grep 'name="'$ARRAY_NAME'"' | cut -d'<' -f2 | cut -d' ' -f1)
@@ -41,6 +66,23 @@ find $CACHE -iname "*.fixed" | while read fixed_lang; do
 	init_lang $(cat $LANGS_ALL | grep ''$(cat $CACHED_FIX/lang_version)' '$(cat $CACHED_FIX/lang_name)'');
 	push_to_repository "Auto fixes by translators.xiaomi.eu"
 done
+}
+
+# Remove doubles
+xml_fix_double () {
+case "$XML_TYPE" in
+
+	strings.xml)	
+	cat $XML_TARGET | grep '<string name=' | cut -d'"' -f2 | sort | uniq --repeated | while read double; do
+		xml_remove_string_double "$double"
+	done;;
+
+	arrays.xml)
+	cat $XML_TARGET | grep '<array\|<string-array\|<integer-array' | cut -d'"' -f2 | sort | uniq --repeated | while read double; do
+		xml_remove_array "$double" 
+	done;;
+
+esac
 }
 
 xml_fix_untranslateable () {
