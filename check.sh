@@ -48,7 +48,7 @@ mkdir -p $DATA_DIR
 
 # Debugging 
 PRESERVE_CACHE=false
-DEBUG_FIX=true
+DEBUG_FIX=false
 
 #########################################################################################################
 # VARIABLES / CACHE
