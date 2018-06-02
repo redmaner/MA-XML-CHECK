@@ -48,7 +48,7 @@ mkdir -p $DATA_DIR
 
 # Debugging 
 PRESERVE_CACHE=false
-DEBUG_FIX=false
+DEBUG_FIX=true
 
 #########################################################################################################
 # VARIABLES / CACHE
@@ -105,7 +105,10 @@ if [ $# -gt 0 ]; then
 
 		# Check Languages
      	elif [ $1 == "--check" ]; then
-			source $ARRAY_TOOLS; source $LANG_TOOLS; source $CHECK_TOOLS; source $LOG_TOOLS; source $FIX_TOOLS; sync_resources; source $RES_DIR/check_mode.sh; build_cache; source $VALUE_TOOLS; generate_value_catcher_lists_normal; echo
+			source $ARRAY_TOOLS; source $LANG_TOOLS; source $CHECK_TOOLS; source $LOG_TOOLS; source $FIX_TOOLS; sync_resources; source $RES_DIR/check_mode.sh; build_cache; source $VALUE_TOOLS; echo
+			if [ "$REMOTE" == "true" ]; then
+				generate_value_catcher_lists_normal
+			fi
             case "$2" in
 
 		  		all) 
