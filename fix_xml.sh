@@ -56,6 +56,18 @@ if [ $(sed -e '/name="'$ARRAY_NAME'"/!d' $XML_TARGET | wc -l) -gt 0 ]; then
 fi
 }
 
+xml_remove_array_double () {
+ARRAY_NAME=$1
+ARRAY_TYPE=$(cat $XML_TARGET | grep 'name="'$ARRAY_NAME'"' | cut -d'<' -f2 | cut -d' ' -f1 | uniq)
+if [ $(sed -e '/name="'$ARRAY_NAME'"/!d' $XML_TARGET | wc -l) -gt 0 ]; then
+	if [ $DEBUG_FIX == true ]; then
+   		echo "Fixing $XML_TARGET"
+	fi
+	sed -e '/name="'$ARRAY_NAME'"/,/'$ARRAY_TYPE'/d' $XML_TARGET >> $XML_TARGET.fixed; mv $XML_TARGET.fixed $XML_TARGET
+	write_auto_fix
+fi
+}
+
 write_auto_fix () {
 echo "Auto fixed" > $CACHE/$LANG_TARGET.cached/$LANG_TARGET.fixed
 }
@@ -74,12 +86,12 @@ case "$XML_TYPE" in
 
 	strings.xml)	
 	cat $XML_TARGET | grep '<string name=' | cut -d'"' -f2 | sort | uniq --repeated | while read double; do
-		xml_remove_string_double "$double"
+		xml_remove_string_double ''$double''
 	done;;
 
 	arrays.xml)
-	cat $XML_TARGET | grep '<array\|<string-array\|<integer-array' | cut -d'"' -f2 | sort | uniq --repeated | while read double; do
-		xml_remove_array "$double" 
+	cat $XML_TARGET | grep 'name=' | cut -d'"' -f2 | sort | uniq --repeated | while read double; do
+		xml_remove_array_double ''$double''
 	done;;
 
 esac
