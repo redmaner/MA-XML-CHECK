@@ -42,7 +42,7 @@ find $CACHE -iname "*.cached" | sort | while read cached_check; do
 
 	if [ $INDEX_LOGS == "true" ]; then
 		INDEX_LOG_TARGET=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
-		if [ "$LANG_VERSION" == "10" ]; then
+		if [ "$LANG_VERSION" == "11" ]; then
 			MIUI_VERSION_INDEX='<span class="orange">MIUI'$LANG_VERSION'</span>'
 		else
 			MIUI_VERSION_INDEX="MIUI$LANG_VERSION"
@@ -195,7 +195,7 @@ a:hover {
 }
 </style></head>
 <body>
-<a href="http://translators.xiaomi.eu" title="xiaomi.eu Translators home"><img class="fix" src="https://translators.xiaomi.eu/xiaomi_europe.png"></a>
+<a href="https://translators.xiaomi.eu" title="xiaomi.eu Translators home"><img class="fix" src="https://translators.xiaomi.eu/xiaomi_europe.png"></a>
 <br><br>
 <table border="0" cellpadding="0" cellspacing="0">
 	<tr>
@@ -303,7 +303,7 @@ table {
         }
 </style></head>
 <body>
-<a href="http://xiaomi.eu" title="xiaomi.eu Forums - Unofficial International MIUI / Xiaomi Support"><img class="fix" src="https://translators.xiaomi.eu/xiaomi_europe.png"></a>
+<a href="https://xiaomi.eu" title="xiaomi.eu Forums - Unofficial International MIUI / Xiaomi Support"><img class="fix" src="https://translators.xiaomi.eu/xiaomi_europe.png"></a>
 <br><br>
 <span class="header">LOGS</span><br><br>
 <table border="0" cellpadding="0" cellspacing="0">
