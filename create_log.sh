@@ -42,7 +42,7 @@ find $CACHE -iname "*.cached" | sort | while read cached_check; do
 
 	if [ $INDEX_LOGS == "true" ]; then
 		INDEX_LOG_TARGET=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
-		if [ "$LANG_VERSION" == "10" ]; then
+		if [ "$LANG_VERSION" == "11" ]; then
 			MIUI_VERSION_INDEX='<span class="orange">MIUI'$LANG_VERSION'</span>'
 		else
 			MIUI_VERSION_INDEX="MIUI$LANG_VERSION"
