@@ -127,7 +127,7 @@ fi
 case "$XML_TYPE" in 
 
 	strings.xml) 
-	cat $XML_TARGET | grep '@android\|@string\|@color\|@drawable\|@null\|@array' | cut -d'>' -f1 | cut -d'"' -f2 | while read auto_search_target; do
+	cat $XML_TARGET | grep '@android\|@string\|string\|@color\|@drawable\|drawable\|@null\|@dimen\|@array\|array\|com.' | cut -d'>' -f1 | cut -d'"' -f2 | while read auto_search_target; do
 		if [ $(cat $AUTO_IGNORELIST | grep 'folder="all" application="'$APK'" file="'$XML_TYPE'" name="'$auto_search_target'"/>' | wc -l) == 0 ]; then
 			xml_remove_string ''$auto_search_target''; continue
 		else
@@ -144,7 +144,7 @@ case "$XML_TYPE" in
 	cat $XML_TARGET | grep 'name="' | while read arrays; do
 		ARRAY_TYPE=$(echo $arrays | cut -d'<' -f2 | cut -d' ' -f1)
 		ARRAY_NAME=$(echo $arrays | cut -d'>' -f1 | cut -d'"' -f2)
-		if [ $(arrays_parse $ARRAY_NAME $ARRAY_TYPE $XML_TARGET | grep '@android\|@string\|@color\|@drawable\|@null\|@array' | wc -l) -gt 0 ]; then
+		if [ $(arrays_parse $ARRAY_NAME $ARRAY_TYPE $XML_TARGET | grep '@android\|@string\|string\|@color\|@drawable\|drawable\|@null\|@dimen\|@array\|array\|com.' | wc -l) -gt 0 ]; then
 			if [ $(cat $AUTO_IGNORELIST | grep 'folder="all" application="'$APK'" file="'$XML_TYPE'" name="'$ARRAY_NAME'"' | wc -l) -eq 0 ]; then
 				xml_remove_array ''$ARRAY_NAME''; continue
 			else
