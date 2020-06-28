@@ -1,0 +1,14 @@
+[Unit]
+Description=MA-CHECK-DAEMON
+After=network.target
+
+[Service]
+Type=simple
+User=translators.xiaomi.eu
+Restart=always
+RestartSec=5s
+ExecStart=/usr/bin/macheckd /home/translators.xiaomi.eu/macheck/
+
+# Other Restart options: or always, on-abort, etc
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,16 @@
+#!/bin/bash
+
+MACHECK_DIR=$1
+
+# Start endless loop 
+while true
+do
+  
+  # Sync languages 
+  $MACHECK_DIR/check.sh --pull all 
+  sleep 450 
+
+  # Check languages 
+  $MACHECK_DIR/check.sh --check all 
+  sleep 450
+done
