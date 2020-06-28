@@ -104,7 +104,7 @@ if [ $# -gt 0 ]; then
     # Check Languages
     elif [ $1 == "--check" ]; then
 
-        source $ARRAY_TOOLS; source $LANG_TOOLS; source $CHECK_TOOLS; source $LOG_TOOLS; source $FIX_TOOLS; sync_resources; build_cache; source $VALUE_TOOLS; echo
+        source $LANG_TOOLS; source $CHECK_TOOLS; source $LOG_TOOLS; source $FIX_TOOLS; sync_resources; build_cache; source $VALUE_TOOLS; echo
 
         case "$2" in
 

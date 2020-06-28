@@ -207,18 +207,6 @@ a:hover {
 		<td height="auto" width="auto"><span class="black">Parser error [Found in $COUNT_RED file(s)]</span></td><td>
 	</td></tr>
 	<tr>
-		<td height="auto" width="120px"><span class="orange">Orange text</span></td>
-		<td height="auto" width="auto"><span class="black">Double strings [Found in $COUNT_ORANGE file(s)]</span></td><td>
-	</td></tr>
-	<tr>
-		<td height="auto" width="120px"><span class="brown">Brown text</span></td>
-		<td height="auto" width="auto"><span class="black">Apostrophe syntax error  [Found in $COUNT_BROWN file(s)]</span></td><td>
-	</td></tr>
-	<tr>
-		<td height="auto" width="120px"><span class="pink">Pink text</span></td>
-		<td height="auto" width="auto"><span class="black">Untranslateable string, array or plural - Has to be removed from xml!  [Found in $COUNT_PINK file(s)]</span></td><td>
-	</td></tr>
-	<tr>
 		<td height="auto" width="120px"><span class="cyan">Cyan text</span></td>
 		<td height="auto" width="auto"><span class="black">Wrong values folder  [Found in $COUNT_CYAN file(s)]</span></td><td>
 	</td></tr>
@@ -229,10 +217,6 @@ a:hover {
 	<tr>
 		<td height="auto" width="120px"><span class="grey">Grey text</span></td>
 		<td height="auto" width="auto"><span class="black">Invalid variable formatting  [Found in $COUNT_GREY file(s)]</span></td><td>
-	</td></tr>
-	<tr>
-		<td height="auto" width="120px"><span class="gold">Gold text</span></td>
-		<td height="auto" width="auto"><span class="black">Requires formatted=false  [Found in $COUNT_GOLD file(s)]</span></td><td>
 	</td></tr>
 </table>
 EOF
