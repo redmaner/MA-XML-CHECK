@@ -55,7 +55,7 @@ cat $RES_XML | grep 'preparse="true"' | while read preparse_entry; do
 			md5sum $RES_DIR/$preparse_file | cut -d' ' -f1 > $RES_DIR/$preparse_file.md5
 			preparse_res $RES_DIR/$preparse_file
 		fi
-	else 
+	else
 		md5sum $RES_DIR/$preparse_file | cut -d' ' -f1 > $RES_DIR/$preparse_file.md5
 		preparse_res $RES_DIR/$preparse_file
 	fi
@@ -78,20 +78,20 @@ esac
 preparse_languages_xml() {
 echo -e "${txtblu}\nPreparsing languages.xml${txtrst}"
 # Parse languages.xml to mxcr
-rm -f $RES_DIR/languages_all.mxcr $RES_DIR/languages_enabled.mxcr 
+rm -f $RES_DIR/languages_all.mxcr $RES_DIR/languages_enabled.mxcr
 cat $LANG_XML | grep 'language check=' | while read language; do
 	LANG_CHECK=$(echo $language | awk '{print $2}' | cut -d'"' -f2)
 	LANG_FIX=$(echo $language | awk '{print $3}' | cut -d'"' -f2)
 	LANG_VERSION=$(echo $language | awk '{print $4}' | cut -d'"' -f2)
 	LANG_NAME=$(echo $language | awk '{print $5}' | cut -d'"' -f2)
 	LANG_ISO=$(echo $language | awk '{print $6}' | cut -d'"' -f2)
-	LANG_URL=$(echo $language | awk '{print $7}' | cut -d'"' -f2) 
+	LANG_URL=$(echo $language | awk '{print $7}' | cut -d'"' -f2)
 	LANG_GIT=$(echo $language | awk '{print $8}' | cut -d'"' -f2)
 	LANG_BRANCH=$(echo $language | awk '{print $9}' | cut -d'"' -f2)
 	if [ $LANG_CHECK == false ]; then
 		LANG_CHECK=check_normal
 	fi
-	echo ''$LANG_VERSION' '$LANG_NAME' '$LANG_ISO' '$LANG_CHECK' '$LANG_FIX' '$LANG_URL' '$LANG_GIT' '$LANG_BRANCH'' 
+	echo ''$LANG_VERSION' '$LANG_NAME' '$LANG_ISO' '$LANG_CHECK' '$LANG_FIX' '$LANG_URL' '$LANG_GIT' '$LANG_BRANCH''
 done > $LANGS_ALL
 cat $LANG_XML | grep 'language check=' | grep -v '<language check="false"' | while read language; do
 	LANG_CHECK=$(echo $language | awk '{print $2}' | cut -d'"' -f2)
@@ -99,7 +99,7 @@ cat $LANG_XML | grep 'language check=' | grep -v '<language check="false"' | whi
 	LANG_VERSION=$(echo $language | awk '{print $4}' | cut -d'"' -f2)
 	LANG_NAME=$(echo $language | awk '{print $5}' | cut -d'"' -f2)
 	LANG_ISO=$(echo $language | awk '{print $6}' | cut -d'"' -f2)
-	LANG_URL=$(echo $language | awk '{print $7}' | cut -d'"' -f2) 
+	LANG_URL=$(echo $language | awk '{print $7}' | cut -d'"' -f2)
 	LANG_GIT=$(echo $language | awk '{print $8}' | cut -d'"' -f2)
 	LANG_BRANCH=$(echo $language | awk '{print $9}' | cut -d'"' -f2)
 	echo ''$LANG_VERSION' '$LANG_NAME' '$LANG_ISO' '$LANG_CHECK' '$LANG_FIX' '$LANG_URL' '$LANG_GIT' '$LANG_BRANCH''
@@ -113,13 +113,13 @@ if [ -e $RES_DIR/local_languages.xml ]; then
 		LANG_VERSION=$(echo $language | awk '{print $4}' | cut -d'"' -f2)
 		LANG_NAME=$(echo $language | awk '{print $5}' | cut -d'"' -f2)
 		LANG_ISO=$(echo $language | awk '{print $6}' | cut -d'"' -f2)
-		LANG_URL=$(echo $language | awk '{print $7}' | cut -d'"' -f2) 
+		LANG_URL=$(echo $language | awk '{print $7}' | cut -d'"' -f2)
 		LANG_GIT=$(echo $language | awk '{print $8}' | cut -d'"' -f2)
 		LANG_BRANCH=$(echo $language | awk '{print $9}' | cut -d'"' -f2)
 		if [ $LANG_CHECK == false ]; then
 			LANG_CHECK=check_normal
 		fi
-		echo ''$LANG_VERSION' '$LANG_NAME' '$LANG_ISO' '$LANG_CHECK' '$LANG_FIX' '$LANG_URL' '$LANG_GIT' '$LANG_BRANCH'' 
+		echo ''$LANG_VERSION' '$LANG_NAME' '$LANG_ISO' '$LANG_CHECK' '$LANG_FIX' '$LANG_URL' '$LANG_GIT' '$LANG_BRANCH''
 	done >> $LANGS_ALL
 fi
 }
@@ -150,10 +150,7 @@ LANG_URL=$6
 LANG_GIT=$7
 LANG_BRANCH=$8
 LANG_TARGET=""$LANG_NAME"_"$LANG_VERSION""
-UNTRANSLATEABLE_LIST=$RES_DIR/MIUI"$LANG_VERSION"/MIUI"$LANG_VERSION"_untranslateable.xml.mxcr
-AUTO_IGNORELIST=$RES_DIR/MIUI"$LANG_VERSION"/MIUI"$LANG_VERSION"_auto_ignorelist.xml
-VALUE_CATCHER_LIST=$RES_DIR/MIUI"$LANG_VERSION"/language_value_lists/MIUI"$LANG_VERSION"_"$LANG_NAME"_value_catcher.mxcr
-source $RES_DIR/MIUI"$LANG_VERSION"/MIUI"$LANG_VERSION"_value_catcher.sh
+LANG_FILTER=$RES_DIR/MIUI"$LANG_VERSION"/MIUI"$LANG_VERSION"_filter.yaml
 }
 
 init_list () {
