@@ -96,7 +96,11 @@ xml_check () {
 			esac
 		fi
 
-		$LANG_CHECK
+		
+   		max_proces; xml_check_parser &
+    		max_proces; xml_check_values &
+    		max_proces; xml_check_plus &
+    		max_proces; xml_check_variables &
 	fi
 }
 
