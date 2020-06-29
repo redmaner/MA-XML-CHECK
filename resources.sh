@@ -4,7 +4,7 @@
 # The license can be found at http://creativecommons.org/licenses/by-nc-sa/4.0/
 
 # Variables
-RES_GIT="git@github.com:Redmaner/MA-XML-CHECK-RESOURCES.git"
+RES_GIT="git@github.com:translators-xiaomi-eu/MA-XML-CHECK-RESOURCES.git"
 RES_BRANCH="master"
 
 # Resource variables

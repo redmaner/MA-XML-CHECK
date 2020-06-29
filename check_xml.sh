@@ -99,7 +99,6 @@ xml_check () {
 		
    		max_proces; xml_check_parser &
     		max_proces; xml_check_values &
-    		max_proces; xml_check_plus &
     		max_proces; xml_check_variables &
 	fi
 }
@@ -126,13 +125,6 @@ xml_check_values () {
 		echo "Wrong values folder, should be values-$LANG_ISO" >> $XML_LOG_VALUES
 	fi
 	write_log_error "cyan" "$XML_LOG_VALUES"
-}
-
-xml_check_plus () {
-	# Check for '+' at the beginning of a line, outside <string>
-	XML_LOG_PLUS=$FILE_CACHE/PLUS.log
-	grep -ne "+ * <s" $XML_TARGET >> $XML_LOG_PLUS
-	write_log_error "blue" "$XML_LOG_PLUS"
 }
 
 xml_check_variables () {

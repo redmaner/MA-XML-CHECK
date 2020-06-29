@@ -21,11 +21,11 @@ esac
 
 # Determine server or a local machine
 if [ -d /home/translators.xiaomi.eu ]; then
-    MAIN_DIR=/home/translators.xiaomi.eu/scripts
+    MAIN_DIR=/home/translators.xiaomi.eu/macheck
     LOG_DIR=/home/translators.xiaomi.eu/public_html
     REMOTE=true
     MAX_JOBS=12
-    INDEX_LOG_HREF="http://translators.xiaomi.eu"
+    INDEX_LOG_HREF="https://macheck.securityme.uk"
     if [ ! -f $LOG_DIR/xiaomi_europe.png ]; then
       cp $MAIN_DIR/xiaomi_europe.png $LOG_DIR/xiaomi_europe.png
     fi

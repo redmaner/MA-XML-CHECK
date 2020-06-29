@@ -42,7 +42,7 @@ find $CACHE -iname "*.cached" | sort | while read cached_check; do
 
 	if [ $INDEX_LOGS == "true" ]; then
 		INDEX_LOG_TARGET=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
-		if [ "$LANG_VERSION" == "11" ]; then
+		if [ "$LANG_VERSION" == "12" ]; then
 			MIUI_VERSION_INDEX='<span class="orange">MIUI'$LANG_VERSION'</span>'
 		else
 			MIUI_VERSION_INDEX="MIUI$LANG_VERSION"
@@ -195,7 +195,7 @@ a:hover {
 }
 </style></head>
 <body>
-<a href="https://translators.xiaomi.eu" title="xiaomi.eu Translators home"><img class="fix" src="https://translators.xiaomi.eu/xiaomi_europe.png"></a>
+<a href="$INDEX_LOG_HREF" title="xiaomi.eu Translators home"><img class="fix" src="https://translators.xiaomi.eu/xiaomi_europe.png"></a>
 <br><br>
 <table border="0" cellpadding="0" cellspacing="0">
 	<tr>
@@ -209,10 +209,6 @@ a:hover {
 	<tr>
 		<td height="auto" width="120px"><span class="cyan">Cyan text</span></td>
 		<td height="auto" width="auto"><span class="black">Wrong values folder  [Found in $COUNT_CYAN file(s)]</span></td><td>
-	</td></tr>
-	<tr>
-		<td height="auto" width="120px"><span class="blue">Blue text</span></td>
-		<td height="auto" width="auto"><span class="black">'+' outside of tags  [Found in $COUNT_BLUE file(s)]</span></td><td>
 	</td></tr>
 	<tr>
 		<td height="auto" width="120px"><span class="grey">Grey text</span></td>
