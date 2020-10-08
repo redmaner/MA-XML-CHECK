@@ -3,127 +3,127 @@
 # This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International license
 # The license can be found at http://creativecommons.org/licenses/by-nc-sa/4.0/
 
-make_logs () {
-if [ $INDEX_LOGS == "true" ]; then
-	create_index
-fi
-
-LANGS_IN_CACHE=$(find $CACHE -iname "*.cached" | wc -l);
-LANG_COUNT=0
-find $CACHE -iname "*.cached" | sort | while read cached_check; do
-	LANG_COUNT=$(expr $LANG_COUNT + 1)
-	init_lang $(cat $LANGS_ALL | grep ''$(cat $cached_check/lang_version)' '$(cat $cached_check/lang_name)'');
-
-	XML_LOG=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
-    XML_LOG_NH=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO-no_header
-
-	if [ -f $cached_check/prev_log ]; then
-		XML_LOG_NH=$cached_check/prev_log
-	else
-		cp $cached_check/datestamp $DATA_DIR/$LANG_TARGET/datestamp
-		echo '</script></span><span class="header"><br><br>Checked ('$LANG_CHECK') <a href="'$LANG_URL'" title="'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO')" target="_blank">'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO') repository</a> on '$(cat $cached_check/datestamp)'</span>' >> $XML_LOG_NH
-        	echo '<!-- Start of log --><script type="text/plain">' >> $XML_LOG_NH
-
-		find $cached_check -iname "XML_LOG_TEMP" | sort | while read TEMP_LOG; do
-			XML_TARGET=$(cat $(dirname $TEMP_LOG)/XML_TARGET)
-			echo '</script><span class="black"><br>'$XML_TARGET'</span><span><script class="error" type="text/plain">' >> $XML_LOG_NH
-			cat $TEMP_LOG >> $XML_LOG_NH
-		done
-
-		LINE_NR=$(wc -l $XML_LOG_NH | cut -d' ' -f1)
-     	if [ "$(sed -n "$LINE_NR"p $XML_LOG_NH)" == '<!-- Start of log --><script type="text/plain">' ]; then 
-           	echo '</script></span><span class="green">No errors found in this repository!</span>' >> $XML_LOG_NH
-		fi
+make_logs() {
+	if [ $INDEX_LOGS == "true" ]; then
+		create_index
 	fi
 
-	write_final_log "$XML_LOG_NH" "$XML_LOG" true
-	cp $XML_LOG $LOG_DIR
-	echo -e "${txtgrn}$LANG_NAME ($LANG_ISO) checked, log at logs/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html${txtrst}"
+	LANGS_IN_CACHE=$(find $CACHE -iname "*.cached" | wc -l)
+	LANG_COUNT=0
+	find $CACHE -iname "*.cached" | sort | while read cached_check; do
+		LANG_COUNT=$(expr $LANG_COUNT + 1)
+		init_lang $(cat $LANGS_ALL | grep ''$(cat $cached_check/lang_version)' '$(cat $cached_check/lang_name)'')
+
+		XML_LOG=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
+		XML_LOG_NH=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO-no_header
+
+		if [ -f $cached_check/prev_log ]; then
+			XML_LOG_NH=$cached_check/prev_log
+		else
+			cp $cached_check/datestamp $DATA_DIR/$LANG_TARGET/datestamp
+			echo '</script></span><span class="header"><br><br>Checked ('$LANG_CHECK') <a href="'$LANG_URL'" title="'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO')" target="_blank">'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO') repository</a> on '$(cat $cached_check/datestamp)'</span>' >>$XML_LOG_NH
+			echo '<!-- Start of log --><script type="text/plain">' >>$XML_LOG_NH
+
+			find $cached_check -iname "XML_LOG_TEMP" | sort | while read TEMP_LOG; do
+				XML_TARGET=$(cat $(dirname $TEMP_LOG)/XML_TARGET)
+				echo '</script><span class="black"><br>'$XML_TARGET'</span><span><script class="error" type="text/plain">' >>$XML_LOG_NH
+				cat $TEMP_LOG >>$XML_LOG_NH
+			done
+
+			LINE_NR=$(wc -l $XML_LOG_NH | cut -d' ' -f1)
+			if [ "$(sed -n "$LINE_NR"p $XML_LOG_NH)" == '<!-- Start of log --><script type="text/plain">' ]; then
+				echo '</script></span><span class="green">No errors found in this repository!</span>' >>$XML_LOG_NH
+			fi
+		fi
+
+		write_final_log "$XML_LOG_NH" "$XML_LOG" true
+		cp $XML_LOG $LOG_DIR
+		echo -e "${txtgrn}$LANG_NAME ($LANG_ISO) checked, log at logs/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html${txtrst}"
+
+		if [ $INDEX_LOGS == "true" ]; then
+			INDEX_LOG_TARGET=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
+			if [ "$LANG_VERSION" == "11" ]; then
+				MIUI_VERSION_INDEX='<span class="orange">MIUI'$LANG_VERSION'</span>'
+			else
+				MIUI_VERSION_INDEX="MIUI$LANG_VERSION"
+			fi
+			if [ $(grep 'No errors found in this repository!' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
+				add_to_index "No errors found" "" "" "" "" "" "" ""
+			else
+				INDEX_RED=""
+				INDEX_ORANGE=""
+				INDEX_BROWN=""
+				INDEX_PINK=""
+				INDEX_CYAN=""
+				INDEX_BLUE=""
+				INDEX_GREY=""
+				INDEX_GOLD=""
+				if [ $(grep 'class="red"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
+					INDEX_RED="Has parser error(s) | "
+				fi
+				if [ $(grep 'class="orange"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
+					INDEX_ORANGE="Has doubles | "
+				fi
+				if [ $(grep 'class="brown"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
+					INDEX_BROWN="Has apostrophe error(s) | "
+				fi
+				if [ $(grep 'class="pink"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
+					INDEX_PINK="Has untranslateable(s) | "
+				fi
+				if [ $(grep 'class="cyan"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
+					INDEX_CYAN="Has wrong value folder(s) | "
+				fi
+				if [ $(grep 'class="blue"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
+					INDEX_BLUE="Has + error(s) | "
+				fi
+				if [ $(grep 'class="grey"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
+					INDEX_GREY="Has variable error(s)"
+				fi
+				if [ $(grep 'class="gold"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
+					INDEX_GOLD="Has formatted=false"
+				fi
+				add_to_index "" "$INDEX_RED" "$INDEX_ORANGE" "$INDEX_BROWN" "$INDEX_PINK" "$INDEX_CYAN" "$INDEX_BLUE" "$INDEX_GREY" "$INDEX_GOLD"
+			fi
+		fi
+
+	done
 
 	if [ $INDEX_LOGS == "true" ]; then
-		INDEX_LOG_TARGET=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
-		if [ "$LANG_VERSION" == "11" ]; then
-			MIUI_VERSION_INDEX='<span class="orange">MIUI'$LANG_VERSION'</span>'
-		else
-			MIUI_VERSION_INDEX="MIUI$LANG_VERSION"
-		fi
-		if [ $(grep 'No errors found in this repository!' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
-			add_to_index "No errors found" "" "" "" "" "" "" ""
-		else
-			INDEX_RED=""
-			INDEX_ORANGE=""
-			INDEX_BROWN=""
-			INDEX_PINK=""
-			INDEX_CYAN=""
-			INDEX_BLUE=""
-			INDEX_GREY=""
-			INDEX_GOLD=""
-			if [ $(grep 'class="red"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
-				INDEX_RED="Has parser error(s) | "
-			fi
-			if [ $(grep 'class="orange"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
-				INDEX_ORANGE="Has doubles | "
-			fi
-			if [ $(grep 'class="brown"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
-				INDEX_BROWN="Has apostrophe error(s) | "
-			fi
-			if [ $(grep 'class="pink"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
-				INDEX_PINK="Has untranslateable(s) | "
-			fi
-			if [ $(grep 'class="cyan"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
-				INDEX_CYAN="Has wrong value folder(s) | "
-			fi
-			if [ $(grep 'class="blue"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
-				INDEX_BLUE="Has + error(s) | "
-			fi
-			if [ $(grep 'class="grey"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
-				INDEX_GREY="Has variable error(s)"
-			fi
-			if [ $(grep 'class="gold"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
-				INDEX_GOLD="Has formatted=false"
-			fi
-			add_to_index "" "$INDEX_RED" "$INDEX_ORANGE" "$INDEX_BROWN" "$INDEX_PINK" "$INDEX_CYAN" "$INDEX_BLUE" "$INDEX_GREY" "$INDEX_GOLD"
-		fi
+		echo '</body></html>' >>$LOG_DIR/index.html.bak
+		mv $LOG_DIR/index.html.bak $LOG_DIR/index.html
 	fi
-
-done
-
-if [ $INDEX_LOGS == "true" ]; then
-	echo '</body></html>' >> $LOG_DIR/index.html.bak
-	mv $LOG_DIR/index.html.bak $LOG_DIR/index.html
-fi
 }
 
-write_final_log () {
-LOG_NH=$1
-LOG_NEW=$2
-COPY_LOG=$3
+write_final_log() {
+	LOG_NH=$1
+	LOG_NEW=$2
+	COPY_LOG=$3
 
-COUNT_RED=$(grep 'class="red"' $LOG_NH | wc -l)
-COUNT_ORANGE=$(grep 'class="orange"' $LOG_NH | wc -l)
-COUNT_BROWN=$(grep 'class="brown"' $LOG_NH | wc -l)
-COUNT_PINK=$(grep 'class="pink"' $LOG_NH | wc -l)
-COUNT_CYAN=$(grep 'class="cyan"' $LOG_NH | wc -l)
-COUNT_BLUE=$(grep 'class="blue"' $LOG_NH | wc -l)
-COUNT_GREY=$(grep 'class="grey"' $LOG_NH | wc -l)
-COUNT_GOLD=$(grep 'class="gold"' $LOG_NH | wc -l)
+	COUNT_RED=$(grep 'class="red"' $LOG_NH | wc -l)
+	COUNT_ORANGE=$(grep 'class="orange"' $LOG_NH | wc -l)
+	COUNT_BROWN=$(grep 'class="brown"' $LOG_NH | wc -l)
+	COUNT_PINK=$(grep 'class="pink"' $LOG_NH | wc -l)
+	COUNT_CYAN=$(grep 'class="cyan"' $LOG_NH | wc -l)
+	COUNT_BLUE=$(grep 'class="blue"' $LOG_NH | wc -l)
+	COUNT_GREY=$(grep 'class="grey"' $LOG_NH | wc -l)
+	COUNT_GOLD=$(grep 'class="gold"' $LOG_NH | wc -l)
 
-create_log "$LOG_NEW"
-cat $LOG_NH >> $LOG_NEW
-cat >> $LOG_NEW << EOF
+	create_log "$LOG_NEW"
+	cat $LOG_NH >>$LOG_NEW
+	cat >>$LOG_NEW <<EOF
 </script>
 </body>
 </html>
 EOF
 
-if [ $COPY_LOG == true ]; then
-	cp $LOG_NH $DATA_DIR/$LANG_TARGET/prev_log
-fi
+	if [ $COPY_LOG == true ]; then
+		cp $LOG_NH $DATA_DIR/$LANG_TARGET/prev_log
+	fi
 }
-	
-create_log () {
-LOG=$1
-cat >> $LOG << EOF
+
+create_log() {
+	LOG=$1
+	cat >>$LOG <<EOF
 <!DOCTYPE html>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
 <head>
@@ -238,8 +238,8 @@ a:hover {
 EOF
 }
 
-create_index () {
-cat > $LOG_DIR/index.html.bak << EOF
+create_index() {
+	cat >$LOG_DIR/index.html.bak <<EOF
 <!DOCTYPE html>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
 <head>
@@ -317,8 +317,8 @@ EOF
 }
 
 add_to_index() {
-INDEX_TIME=$(cat $CACHE/$LANG_TARGET.cached/datestamp)
-cat >> $LOG_DIR/index.html.bak << EOF
+	INDEX_TIME=$(cat $CACHE/$LANG_TARGET.cached/datestamp)
+	cat >>$LOG_DIR/index.html.bak <<EOF
 	<tr>
 		<td height="auto" width="8%"><span class="black">$MIUI_VERSION_INDEX</span></td>
 		<td height="auto" width="25%"><span class="black"><a href="$INDEX_LOG_HREF/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html" title="$LANG_NAME MIUI$LANG_VERSION">$LANG_NAME ($LANG_ISO)</a></span></td>
