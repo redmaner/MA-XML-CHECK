@@ -251,6 +251,7 @@ xml_check_formatted_false() {
 }
 
 xml_check_untranslateable() {
+
 	# Check for untranslateable strings, arrays, plurals using untranslateablelist
 	XML_LOG_UNTRANSLATEABLE=$FILE_CACHE/UNTRANSLATEABLE.log
 	if [ $(cat $UNTRANSLATEABLE_LIST | grep ''$APK' '$XML_TYPE' ' | wc -l) -gt 0 ]; then
@@ -306,20 +307,6 @@ xml_check_untranslateable() {
 		;;
 
 	esac
-
-	# Catch values with the values catcher list
-	if [ -e $VALUE_CATCHER_LIST ]; then
-		if [ $(cat $VALUE_CATCHER_LIST | grep ''$APK' '$XML_TYPE' ' | wc -l) -gt 0 ]; then
-			cat $VALUE_CATCHER_LIST | grep 'all '$APK' '$XML_TYPE' ' | while read all_line; do
-				init_list $(cat $VALUE_CATCHER_LIST | grep "$all_line")
-				grep -ne '"'$ITEM_NAME'"' $XML_TARGET
-			done >>$XML_LOG_UNTRANSLATEABLE
-			cat $VALUE_CATCHER_LIST | grep ''$DIR' '$APK' '$XML_TYPE' ' | while read all_line; do
-				init_list $(cat $VALUE_CATCHER_LIST | grep "$all_line")
-				grep -ne '"'$ITEM_NAME'"' $XML_TARGET
-			done >>$XML_LOG_UNTRANSLATEABLE
-		fi
-	fi
 
 	write_log_error "pink" "$XML_LOG_UNTRANSLATEABLE"
 }

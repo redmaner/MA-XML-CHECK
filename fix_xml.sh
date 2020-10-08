@@ -177,33 +177,4 @@ xml_fix_untranslateable() {
 		;;
 
 	esac
-
-	# Catch values with the values catcher list
-	if [ -e $VALUE_CATCHER_LIST ]; then
-		if [ $(cat $VALUE_CATCHER_LIST | grep ''$APK' '$XML_TYPE' ' | wc -l) -gt 0 ]; then
-			case "$XML_TYPE" in
-			arrays.xml)
-				cat $VALUE_CATCHER_LIST | grep 'all '$APK' '$XML_TYPE' ' | while read all_line; do
-					init_list $(cat $VALUE_CATCHER_LIST | grep "$all_line")
-					xml_remove_array ''$ITEM_NAME''
-				done
-				cat $VALUE_CATCHER_LIST | grep ''$DIR' '$APK' '$XML_TYPE' ' | while read all_line; do
-					init_list $(cat $VALUE_CATCHER_LIST | grep "$all_line")
-					xml_remove_array ''$ITEM_NAME''
-				done
-				;;
-
-			strings.xml)
-				cat $VALUE_CATCHER_LIST | grep 'all '$APK' '$XML_TYPE' ' | while read all_line; do
-					init_list $(cat $VALUE_CATCHER_LIST | grep "$all_line")
-					xml_remove_string ''$ITEM_NAME''
-				done
-				cat $VALUE_CATCHER_LIST | grep ''$DIR' '$APK' '$XML_TYPE' ' | while read all_line; do
-					init_list $(cat $VALUE_CATCHER_LIST | grep "$all_line")
-					xml_remove_string ''$ITEM_NAME''
-				done
-				;;
-			esac
-		fi
-	fi
 }

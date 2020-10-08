@@ -25,7 +25,7 @@ if [ -d /home/translators.xiaomi.eu ]; then
 	MAIN_DIR=/home/translators.xiaomi.eu/scripts
 	LOG_DIR=/home/translators.xiaomi.eu/public_html
 	REMOTE=true
-	MAX_JOBS=12
+	MAX_JOBS=4
 	INDEX_LOG_HREF="http://translators.xiaomi.eu"
 	if [ ! -f $LOG_DIR/xiaomi_europe.png ]; then
 		cp $MAIN_DIR/xiaomi_europe.png $LOG_DIR/xiaomi_europe.png
@@ -34,7 +34,7 @@ else
 	MAIN_DIR=$PWD
 	LOG_DIR=$PWD/logs
 	REMOTE=false
-	MAX_JOBS=8
+	MAX_JOBS=4
 	INDEX_LOG_HREF="file://$LOG_DIR"
 fi
 
@@ -66,7 +66,6 @@ CHECK_TOOLS=$MAIN_DIR/check_xml.sh
 LOG_TOOLS=$MAIN_DIR/create_log.sh
 REMOTE_TOOLS=$MAIN_DIR/remote.sh
 FIX_TOOLS=$MAIN_DIR/fix_xml.sh
-VALUE_TOOLS=$MAIN_DIR/generate_value_lists.sh
 source $RES_TOOLS
 source $REMOTE_TOOLS
 
@@ -115,11 +114,7 @@ if [ $# -gt 0 ]; then
 		sync_resources
 		source $RES_DIR/check_mode.sh
 		build_cache
-		source $VALUE_TOOLS
 		echo
-		if [ "$REMOTE" == "true" ]; then
-			generate_value_catcher_lists_normal
-		fi
 		case "$2" in
 
 		all)
@@ -251,8 +246,6 @@ if [ $# -gt 0 ]; then
 			values)
 				source $LANG_TOOLS
 				sync_resources
-				source $VALUE_TOOLS
-				generate_value_catcher_lists_force
 				;;
 
 			resync)
