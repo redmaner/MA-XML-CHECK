@@ -31,8 +31,7 @@ init_xml_check() {
 		if [ -f $DATA_DIR/$LANG_TARGET/last_commit ]; then
 			if [ $(cat $DATA_DIR/$LANG_TARGET/last_commit) == $(cat $LANG_DIR/$LANG_TARGET/.git/refs/heads/$LANG_BRANCH) ]; then
 				if [ -f $DATA_DIR/$LANG_TARGET/prev_log ]; then
-					echo ">>> Repository is not changed, using old log"
-					echo
+					echo -e ">>> Repository is not changed, using old log\n"
 					cp $DATA_DIR/$LANG_TARGET/prev_log $CACHE/$LANG_TARGET.cached/prev_log
 					cp $DATA_DIR/$LANG_TARGET/datestamp $CACHE/$LANG_TARGET.cached/datestamp
 				else
@@ -71,8 +70,7 @@ do_xml_check() {
 	if [ $FIX_MODE == true ]; then
 		echo ">>> Fixing repository"
 	else
-		echo ">>> Checking repository"
-		echo
+		echo -e ">>> Checking repository\n"
 	fi
 
 	find $LANG_DIR/$LANG_TARGET -iname "*.apk" | sort | while read apk_target; do

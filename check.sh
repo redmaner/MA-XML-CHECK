@@ -51,13 +51,13 @@ else
 		;;
 	esac
 
-	cd $MAIN_DIR
-
 	LOG_DIR=$MAIN_DIR/logs
 	REMOTE=false
 	MAX_JOBS=4
 	INDEX_LOG_HREF="file://$LOG_DIR"
 fi
+
+cd $MAIN_DIR
 
 RES_DIR=$MAIN_DIR/resources
 LANG_DIR=$MAIN_DIR/languages
@@ -75,7 +75,7 @@ DEBUG_FIX=false
 #########################################################################################################
 # VARIABLES / CACHE
 #########################################################################################################
-VERSION=22
+VERSION=23
 DATE=$(date +"%m-%d-%Y-%H-%M-%S")
 CACHE="$MAIN_DIR/.cache-$DATE"
 

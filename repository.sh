@@ -41,10 +41,11 @@ pull_lang() {
 
 push_to_repository() {
 	commit_msg=$1
-	echo -e "${txtblu}\nPushing to $LANG_NAME MIUI$LANG_VERSION${txtrst}: $commit_msg"
+	echo -e "${txtblu}Pushing to $LANG_NAME MIUI$LANG_VERSION${txtrst}: $commit_msg"
 	cd $LANG_DIR/$LANG_TARGET
 	git add $LANG_NAME
 	git commit -s -m "$commit_msg"
 	git push origin $LANG_BRANCH
+	echo
 	cd $MAIN_DIR
 }
