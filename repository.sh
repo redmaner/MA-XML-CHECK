@@ -31,15 +31,17 @@ pull_lang() {
 	if [ -e $LANG_DIR/$LANG_TARGET ]; then
 		cd $LANG_DIR/$LANG_TARGET
 		git pull origin $LANG_BRANCH
+		echo
 		cd ../../..
 	else
 		git clone $LANG_GIT -b $LANG_BRANCH $LANG_DIR/$LANG_TARGET
+		echo
 	fi
 }
 
 push_to_repository() {
 	commit_msg=$1
-	echo -e "${txtblu}\nPusing to $LANG_NAME MIUI$LANG_VERSION${txtrst}: $commit_msg"
+	echo -e "${txtblu}\nPushing to $LANG_NAME MIUI$LANG_VERSION${txtrst}: $commit_msg"
 	cd $LANG_DIR/$LANG_TARGET
 	git add $LANG_NAME
 	git commit -s -m "$commit_msg"

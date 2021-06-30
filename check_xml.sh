@@ -59,13 +59,15 @@ init_xml_check() {
 			fi
 			do_xml_check false
 		fi
+	else
+		echo -e "${txtred}Error: \"$LANG_DIR/$LANG_TARGET\" path not found\n\nUse '--pull' option first\n${txtrst}"
 	fi
 }
 
 do_xml_check() {
 	FIX_MODE=$1
 	if [ $FIX_MODE == true ]; then
-		echo ">>> Fixing repostory"
+		echo ">>> Fixing repository"
 	else
 		echo ">>> Checking repository"
 	fi
