@@ -32,6 +32,7 @@ init_xml_check() {
 			if [ $(cat $DATA_DIR/$LANG_TARGET/last_commit) == $(cat $LANG_DIR/$LANG_TARGET/.git/refs/heads/$LANG_BRANCH) ]; then
 				if [ -f $DATA_DIR/$LANG_TARGET/prev_log ]; then
 					echo ">>> Repository is not changed, using old log"
+					echo
 					cp $DATA_DIR/$LANG_TARGET/prev_log $CACHE/$LANG_TARGET.cached/prev_log
 					cp $DATA_DIR/$LANG_TARGET/datestamp $CACHE/$LANG_TARGET.cached/datestamp
 				else
@@ -60,7 +61,8 @@ init_xml_check() {
 			do_xml_check false
 		fi
 	else
-		echo -e "${txtred}Error: \"$LANG_DIR/$LANG_TARGET\" path not found\n\nUse '--pull' option first\n${txtrst}"
+		PULL_OPTION="${LANG_TARGET/_/ }"
+		echo -e "${txtred}Error: \"$LANG_DIR/$LANG_TARGET\" path not found\n\nUse ' --pull $PULL_OPTION ' option first\n${txtrst}"
 	fi
 }
 
@@ -70,6 +72,7 @@ do_xml_check() {
 		echo ">>> Fixing repository"
 	else
 		echo ">>> Checking repository"
+		echo
 	fi
 
 	find $LANG_DIR/$LANG_TARGET -iname "*.apk" | sort | while read apk_target; do

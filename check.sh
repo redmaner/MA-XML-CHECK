@@ -75,7 +75,7 @@ DEBUG_FIX=false
 #########################################################################################################
 # VARIABLES / CACHE
 #########################################################################################################
-VERSION=21
+VERSION=22
 DATE=$(date +"%m-%d-%Y-%H-%M-%S")
 CACHE="$MAIN_DIR/.cache-$DATE"
 
@@ -118,7 +118,7 @@ show_argument_help() {
 	echo "								If a specific language is specified, [miuiversion] must be defined and that language will be checked"
 	echo "								If 'autofix' is specified as last argument, allow pushing an auto-fix commit to language(s) repo(s)"
 	echo
-	echo "		--clear [cache|logs|all|language]		Removes cache, logs and/or language(s)"
+	echo "		--clear [cache|logs|data|language|all]		Remove cache, logs, 'data' folder, a specified language, or all"
 	echo
 	exit
 }
@@ -151,8 +151,12 @@ if [ $# -gt 0 ]; then
 
 		*)
 			INDEX_LOGS=false
+			if [ "$2" == "" ]; then
+				echo -e "${txtred}Error: Specify language\n${txtrst}"
+				exit
+			fi
 			if [ "$3" == "" ]; then
-				echo -e "${txtred}Error: Specifiy MIUI version\n${txtrst}"
+				echo -e "${txtred}Error: Specify MIUI version\n${txtrst}"
 				exit
 			fi
 			if [ "$(cat $LANGS_ALL | grep ''$3' '$2'' | wc -l)" -gt 0 ]; then
@@ -160,7 +164,7 @@ if [ $# -gt 0 ]; then
 				rm -f $DATA_DIR/$LANG_TARGET/last_commit
 				init_xml_check
 			else
-				echo -e "${txtred}Error: Language not supported or language not specified\n${txtrst}"
+				echo -e "${txtred}Error: Not supported language with this MIUI version or unknown language specified\n${txtrst}"
 				exit
 			fi
 			;;
@@ -195,11 +199,16 @@ if [ $# -gt 0 ]; then
 			;;
 
 		*)
-			if [ "$3" == "" ]; then
-				echo -e "${txtred}\nError: Specifiy MIUI version\n${txtrst}"
+			if [ "$2" == "" ]; then
+				echo -e "${txtred}\nError: Specify language\n${txtrst}"
 				exit
-			elif [ "$3" == "force" ]; then
-				echo -e "${txtred}\nError: Specifiy MIUI version before force flag\n${txtrst}"
+			fi
+			if [ "$3" == "" ]; then
+				echo -e "${txtred}\nError: Specify MIUI version\n${txtrst}"
+				exit
+			fi
+			if [ "$3" == "force" ]; then
+				echo -e "${txtred}\nError: Specify MIUI version before 'force' flag\n${txtrst}"
 				exit
 			fi
 			if [ "$(cat $LANGS_ALL | grep ''$3' '$2'' | wc -l)" -gt 0 ]; then
@@ -212,7 +221,7 @@ if [ $# -gt 0 ]; then
 				check_language_remote
 				pull_lang
 			else
-				echo -e "${txtred}\nError: Language not supported or language not specified\n${txtrst}"
+				echo -e "${txtred}\nError: Not supported language with this MIUI version or unknown language specified\n${txtrst}"
 				exit
 			fi
 			;;
@@ -224,36 +233,44 @@ if [ $# -gt 0 ]; then
 			case "$2" in
 			logs)
 				rm -f $LOG_DIR/XML_*.html
+				echo -e "${txtblu}\nInfo: All log files removed!\n${txtblu}"
 				;;
 
 			cache)
 				ls -a | grep ".cache" | while read found_cache; do
 					rm -rf $found_cache
 				done
+				echo -e "${txtblu}\nInfo: All cache folders removed!\n${txtblu}"
 				;;
 
 			all)
 				rm -rf $MAIN_DIR/languages
 				mkdir -p $MAIN_DIR/languages
 				rm -rf $DATA_DIR
+				echo -e "${txtblu}\nInfo: Data folder & all languages removed!\n${txtblu}"
 				;;
 
 			data)
 				rm -rf $DATA_DIR
+				echo -e "${txtblu}\nInfo: 'data' folder removed!\n${txtblu}"
 				;;
 
 			*)
 				source $LANG_TOOLS
 				sync_resources
+				if [ "$2" == "" ]; then
+					echo -e "${txtred}\nError: Specify what to remove\n${txtrst}"
+					exit
+				fi
 				if [ "$3" == "" ]; then
-					echo -e "${txtred}\nError: Specifiy MIUI version\n${txtrst}"
+					echo -e "${txtred}\nError: Specify MIUI version\n${txtrst}"
 					exit
 				fi
 				if [ "$(cat $LANGS_ALL | grep ''$3' '$2'' | wc -l)" -gt 0 ]; then
 					init_lang $(cat $LANGS_ALL | grep ''$3' '$2'')
 					rm -rf $MAIN_DIR/languages/$LANG_TARGET
 				else
-					echo -e "${txtred}\nError: Language not supported or language not specified\n${txtrst}"
+					echo -e "${txtred}\nError: Not supported language with this MIUI version or unknown language specified\n${txtrst}"
 					exit
 				fi
 				;;
