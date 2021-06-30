@@ -38,7 +38,7 @@ make_logs() {
 
 		write_final_log "$XML_LOG_NH" "$XML_LOG" true
 		cp $XML_LOG $LOG_DIR
-		echo -e "${txtgrn}$LANG_NAME ($LANG_ISO) checked, log at logs/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html${txtrst}"
+		echo -e "${txtgrn}\n$LANG_NAME ($LANG_ISO) checked, log at \"$LOG_DIR/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html\"\n${txtrst}"
 
 		if [ $INDEX_LOGS == "true" ]; then
 			INDEX_LOG_TARGET=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html

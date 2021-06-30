@@ -31,8 +31,29 @@ if [ -d /home/translators.xiaomi.eu ]; then
 		cp $MAIN_DIR/xiaomi_europe.png $LOG_DIR/xiaomi_europe.png
 	fi
 else
-	MAIN_DIR=$PWD
-	LOG_DIR=$PWD/logs
+	WDIR="$PWD"; [ "$PWD" = "/" ] && WDIR=""
+	case "$0" in
+	/*)
+		SDIR="${0}"
+		;;
+
+	*)
+		SDIR="$WDIR/${0#./}"
+		;;
+	esac
+
+	MAIN_DIR="${SDIR%/*}"
+
+	case "$MAIN_DIR" in
+	*\ * )
+		echo -e "${txtred}\nError: Script file path must NOT contain spaces\n${txtrst}"
+		exit
+		;;
+	esac
+
+	cd $MAIN_DIR
+
+	LOG_DIR=$MAIN_DIR/logs
 	REMOTE=false
 	MAX_JOBS=4
 	INDEX_LOG_HREF="file://$LOG_DIR"
@@ -54,7 +75,7 @@ DEBUG_FIX=false
 #########################################################################################################
 # VARIABLES / CACHE
 #########################################################################################################
-VERSION=20
+VERSION=21
 DATE=$(date +"%m-%d-%Y-%H-%M-%S")
 CACHE="$MAIN_DIR/.cache-$DATE"
 
@@ -84,18 +105,20 @@ show_argument_help() {
 	echo "Usage: check.sh [option]"
 	echo
 	echo " [option]:"
-	echo " 		--help					This help"
-	echo "		--check [all|language]	Check specified language"
-	echo "							If all is specified, then all languages will be checked"
-	echo "							If a specific language is specified, that language will be checked"
-	echo "							If third argument is not defined, all languages will be logged in seperate files"
-	echo "							If third argument is 'full', all languages will be logged in one file"
-	echo "							If third argument is 'double', all languages will be logged in one file and in seperate files"
-	echo "		--pull [all|language] [force]		Pull specified language"
-	echo "							If all is specified, then all languages will be pulled"
-	echo "							If a specific language is specified, that language will be pulled"
-	echo "							If force is specified, language(s) will be removed and resynced"
-	echo "		--clear [cache|logs|all|language]	Removes caches, logs or language(s)"
+	echo
+	echo "		--help						This help"
+	echo
+	echo "		--pull [all|language] [miuiversion] [force]	Pull all or a specified language"
+	echo "								If 'all' is specified, then all languages will be pulled"
+	echo "								If a specific language is specified, [miuiversion] must be defined and that language will be pulled"
+	echo "								If 'force' is specified as last argument, language(s) will be removed and resynced"
+	echo
+	echo "		--check [all|language] [miuiversion] [autofix]	Check all or a specified language (do not forget to use '--pull' option first)"
+	echo "								If 'all' is specified, then all languages will be checked"
+	echo "								If a specific language is specified, [miuiversion] must be defined and that language will be checked"
+	echo "								If 'autofix' is specified as last argument, allow pushing an auto-fix commit to language(s) repo(s)"
+	echo
+	echo "		--clear [cache|logs|all|language]		Removes cache, logs and/or language(s)"
 	echo
 	exit
 }
@@ -129,7 +152,7 @@ if [ $# -gt 0 ]; then
 		*)
 			INDEX_LOGS=false
 			if [ "$3" == "" ]; then
-				echo -e "${txtred}\nError: Specifiy MIUI version${txtrst}"
+				echo -e "${txtred}Error: Specifiy MIUI version\n${txtrst}"
 				exit
 			fi
 			if [ "$(cat $LANGS_ALL | grep ''$3' '$2'' | wc -l)" -gt 0 ]; then
@@ -137,14 +160,16 @@ if [ $# -gt 0 ]; then
 				rm -f $DATA_DIR/$LANG_TARGET/last_commit
 				init_xml_check
 			else
-				echo -e "${txtred}\nLanguage not supported or language not specified${txtrst}"
+				echo -e "${txtred}Error: Language not supported or language not specified\n${txtrst}"
 				exit
 			fi
 			;;
 		esac
 		wait
 		sleep 5
-		check_for_auto_fix
+		if [ "${*: -1:1}" == "autofix" ]; then
+			check_for_auto_fix
+		fi
 		make_logs
 		if [ $PRESERVE_CACHE == false ]; then
 			clear_cache
@@ -171,10 +196,10 @@ if [ $# -gt 0 ]; then
 
 		*)
 			if [ "$3" == "" ]; then
-				echo -e "${txtred}\nError: Specifiy MIUI version${txtrst}"
+				echo -e "${txtred}\nError: Specifiy MIUI version\n${txtrst}"
 				exit
 			elif [ "$3" == "force" ]; then
-				echo -e "${txtred}\nError: Specifiy MIUI version before force flag${txtrst}"
+				echo -e "${txtred}\nError: Specifiy MIUI version before force flag\n${txtrst}"
 				exit
 			fi
 			if [ "$(cat $LANGS_ALL | grep ''$3' '$2'' | wc -l)" -gt 0 ]; then
@@ -187,7 +212,7 @@ if [ $# -gt 0 ]; then
 				check_language_remote
 				pull_lang
 			else
-				echo -e "${txtred}\nLanguage not supported or language not specified${txtrst}"
+				echo -e "${txtred}\nError: Language not supported or language not specified\n${txtrst}"
 				exit
 			fi
 			;;
@@ -221,14 +246,14 @@ if [ $# -gt 0 ]; then
 				source $LANG_TOOLS
 				sync_resources
 				if [ "$3" == "" ]; then
-					echo -e "${txtred}\nError: Specifiy MIUI version${txtrst}"
+					echo -e "${txtred}\nError: Specifiy MIUI version\n${txtrst}"
 					exit
 				fi
 				if [ "$(cat $LANGS_ALL | grep ''$3' '$2'' | wc -l)" -gt 0 ]; then
 					init_lang $(cat $LANGS_ALL | grep ''$3' '$2'')
 					rm -rf $MAIN_DIR/languages/$LANG_TARGET
 				else
-					echo -e "${txtred}\nLanguage not supported or language not specified${txtrst}"
+					echo -e "${txtred}\nError: Language not supported or language not specified\n${txtrst}"
 					exit
 				fi
 				;;
