@@ -49,7 +49,7 @@ make_logs() {
 			else
 				MIUI_VERSION_INDEX="MIUI$LANG_VERSION"
 			fi
-			if [ $(grep 'No errors found in this repository!' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
+			if [ $(grep 'No errors found in this repository' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
 				add_to_index "No errors found" "" "" "" "" "" "" ""
 			else
 				INDEX_RED=""
