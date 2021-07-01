@@ -21,18 +21,20 @@ make_logs() {
 			XML_LOG_NH=$cached_check/prev_log
 		else
 			cp $cached_check/datestamp $DATA_DIR/$LANG_TARGET/datestamp
-			echo '</script></span><span class="header"><br><br>Checked ('$LANG_CHECK') <a href="'$LANG_URL'" title="'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO')" target="_blank">'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO') repository</a> on '$(cat $cached_check/datestamp)'</span>' >>$XML_LOG_NH
-			echo '<!-- Start of log --><script type="text/plain">' >>$XML_LOG_NH
+			echo '<span class="header"><br><br>Checked ('$LANG_CHECK') <a href="'$LANG_URL'" title="'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO')" target="_blank">'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO') repository</a> on '$(cat $cached_check/datestamp)'</span>' >>$XML_LOG_NH
+			echo -e '<!-- Start of log -->\n<div id="Log">' >>$XML_LOG_NH
 
 			find $cached_check -iname "XML_LOG_TEMP" | sort | while read TEMP_LOG; do
 				XML_TARGET=$(cat $(dirname $TEMP_LOG)/XML_TARGET)
-				echo '</script><span class="black"><br>'$XML_TARGET'</span><span><script class="error" type="text/plain">' >>$XML_LOG_NH
+				XML_FILE=${XML_TARGET/$LANG_DIR\/$LANG_TARGET\//}
+				LINE_NR=$(wc -l $XML_LOG_NH | cut -d' ' -f1)
+				echo -e '<br>\n<span class="black">• '$XML_FILE'</span>' >>$XML_LOG_NH
 				cat $TEMP_LOG >>$XML_LOG_NH
 			done
 
 			LINE_NR=$(wc -l $XML_LOG_NH | cut -d' ' -f1)
-			if [ "$(sed -n "$LINE_NR"p $XML_LOG_NH)" == '<!-- Start of log --><script type="text/plain">' ]; then
-				echo '</script></span><span class="green">No errors found in this repository!</span>' >>$XML_LOG_NH
+			if [ "$(sed -n "$LINE_NR"p $XML_LOG_NH)" == '<div id="Log">' ]; then
+				echo -e '<br>\n<span class="green">• No errors found in this repository</span>' >>$XML_LOG_NH
 			fi
 		fi
 
@@ -89,7 +91,7 @@ make_logs() {
 	done
 
 	if [ $INDEX_LOGS == "true" ]; then
-		echo '</body></html>' >>$LOG_DIR/index.html.bak
+		echo -e '</table>\n</body>\n</html>' >>$LOG_DIR/index.html.bak
 		mv $LOG_DIR/index.html.bak $LOG_DIR/index.html
 	fi
 }
@@ -111,7 +113,7 @@ write_final_log() {
 	create_log "$LOG_NEW"
 	cat $LOG_NH >>$LOG_NEW
 	cat >>$LOG_NEW <<EOF
-</script>
+</div>
 </body>
 </html>
 EOF
@@ -125,114 +127,109 @@ create_log() {
 	LOG=$1
 	cat >>$LOG <<EOF
 <!DOCTYPE html>
-<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<html lang="en">
 <head>
+<title>XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO</title>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
 <style>
 body {
-	margin: 0px 35px;
+  margin: 0px 35px;
 }
 script {
-  	display: block;
-  	padding: auto;
+  display: block;
 }
 .header {
-  	font-weight: bold;
-  	color: #000000;
+  font-weight: bold;
+  color: #000000;
 }
 .black {
-  	color: #000000;
+  color: #000000;
 }
 .green {
-  	color: #006633;
+  color: #006633;
 }
 .red {
-  	color: #ff0000;
+  color: #ff0000;
 }
 .blue {
-  	color: #0000ff;
+  color: #0000ff;
 }
 .orange {
-  	color: #FF6633;
+  color: #FF6633;
 }
 .brown {
-  	color: #660000;
+  color: #660000;
 }
 .pink {
-	color: #FF14B1;
+  color: #FF14B1;
 }
 .cyan {
-	color: #0099FF;
+  color: #0099FF;
 }
 .grey {
-	color: #464646;
+  color: #464646;
 }
 .gold {
-	color: #B88A00
+  color: #B88A00
 }
-table {
-        background-color: #ffffff;
-        border-collapse: collapse;
-        border-top: 0px solid #ffffff;
-        border-bottom: 0px solid #ffffff;
-        border-left: 0px solid #ffffff;
-        border-right: 0px solid #ffffff;
-        text-align: left;
-        }
-
 a, a:active, a:visited {
-        color: #000000;
-        text-decoration: none;
-        }
-
-a:hover {
-        color: #ec6e00;
-        text-decoration: underline;
-        }
-
-.error {
-  	white-space: pre;
-  	margin-top: -10px;
+  color: #000000;
+  text-decoration: none;
 }
-</style></head>
+a:hover {
+  color: #ec6e00;
+  text-decoration: underline;
+}
+.error {
+  white-space: pre;
+}
+#Table {
+  text-align: left;
+}
+td {
+  padding: 0 15px;
+}
+</style>
+</head>
 <body>
-<a href="https://translators.xiaomi.eu" title="xiaomi.eu Translators home"><img class="fix" src="https://translators.xiaomi.eu/xiaomi_europe.png"></a>
+<a href="https://translators.xiaomi.eu" title="xiaomi.eu Translators home"><img alt="xiaomi.eu logo" class="fix" src="https://translators.xiaomi.eu/xiaomi_europe.png"></a>
 <br><br>
-<table border="0" cellpadding="0" cellspacing="0">
+<table id="Table">
 	<tr>
-		<td height="auto" width="120px"><span class="green">Green text</span></td>
-		<td height="auto" width="auto"><span class="black">No errors found</span><td>
+		<td><span class="green">Green text</span></td>
+		<td><span class="black">No errors found</span><td>
 	</tr>
 	<tr>
-		<td height="auto" width="120px"><span class="red">Red text</span></td>
-		<td height="auto" width="auto"><span class="black">Parser error [Found in $COUNT_RED file(s)]</span></td><td>
+		<td><span class="red">Red text</span></td>
+		<td><span class="black">Parser error [Found in $COUNT_RED file(s)]</span></td><td>
 	</td></tr>
 	<tr>
-		<td height="auto" width="120px"><span class="orange">Orange text</span></td>
-		<td height="auto" width="auto"><span class="black">Double strings [Found in $COUNT_ORANGE file(s)]</span></td><td>
+		<td><span class="orange">Orange text</span></td>
+		<td><span class="black">Double strings [Found in $COUNT_ORANGE file(s)]</span></td><td>
 	</td></tr>
 	<tr>
-		<td height="auto" width="120px"><span class="brown">Brown text</span></td>
-		<td height="auto" width="auto"><span class="black">Apostrophe syntax error  [Found in $COUNT_BROWN file(s)]</span></td><td>
+		<td><span class="brown">Brown text</span></td>
+		<td><span class="black">Apostrophe syntax error  [Found in $COUNT_BROWN file(s)]</span></td><td>
 	</td></tr>
 	<tr>
-		<td height="auto" width="120px"><span class="pink">Pink text</span></td>
-		<td height="auto" width="auto"><span class="black">Untranslateable string, array or plural - Has to be removed from xml!  [Found in $COUNT_PINK file(s)]</span></td><td>
+		<td><span class="pink">Pink text</span></td>
+		<td><span class="black">Untranslateable string, array or plural - Has to be removed from xml!  [Found in $COUNT_PINK file(s)]</span></td><td>
 	</td></tr>
 	<tr>
-		<td height="auto" width="120px"><span class="cyan">Cyan text</span></td>
-		<td height="auto" width="auto"><span class="black">Wrong values folder  [Found in $COUNT_CYAN file(s)]</span></td><td>
+		<td><span class="cyan">Cyan text</span></td>
+		<td><span class="black">Wrong values folder  [Found in $COUNT_CYAN file(s)]</span></td><td>
 	</td></tr>
 	<tr>
-		<td height="auto" width="120px"><span class="blue">Blue text</span></td>
-		<td height="auto" width="auto"><span class="black">'+' outside of tags  [Found in $COUNT_BLUE file(s)]</span></td><td>
+		<td><span class="blue">Blue text</span></td>
+		<td><span class="black">'+' outside of tags  [Found in $COUNT_BLUE file(s)]</span></td><td>
 	</td></tr>
 	<tr>
-		<td height="auto" width="120px"><span class="grey">Grey text</span></td>
-		<td height="auto" width="auto"><span class="black">Invalid variable formatting  [Found in $COUNT_GREY file(s)]</span></td><td>
+		<td><span class="grey">Grey text</span></td>
+		<td><span class="black">Invalid variable formatting  [Found in $COUNT_GREY file(s)]</span></td><td>
 	</td></tr>
 	<tr>
-		<td height="auto" width="120px"><span class="gold">Gold text</span></td>
-		<td height="auto" width="auto"><span class="black">Requires formatted=false  [Found in $COUNT_GOLD file(s)]</span></td><td>
+		<td><span class="gold">Gold text</span></td>
+		<td><span class="black">Requires formatted=false  [Found in $COUNT_GOLD file(s)]</span></td><td>
 	</td></tr>
 </table>
 EOF
@@ -241,77 +238,75 @@ EOF
 create_index() {
 	cat >$LOG_DIR/index.html.bak <<EOF
 <!DOCTYPE html>
-<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<html lang="en">
 <head>
+<title>xiaomi.eu Translators home</title>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
 <style>
 body {
-	margin: 0px 35px;
+  margin: 0px 35px;
 }
 .header {
-  	font-weight: bold;
-	font-size: 150%;
-  	color: #ec6e00;
+  font-weight: bold;
+  font-size: 150%;
+  color: #ec6e00;
 }
 .black {
-  	color: #000000;
+  color: #000000;
 }
 .green {
-  	color: #006633;
+  color: #006633;
 }
 .red {
-  	color: #ff0000;
+  color: #ff0000;
 }
 .blue {
-  	color: #0000ff;
+  color: #0000ff;
 }
 .orange {
-  	color: #FF6633;
+  color: #FF6633;
 }
 .brown {
-  	color: #660000;
+  color: #660000;
 }
 .pink {
-	color: #FF14B1;
+  color: #FF14B1;
 }
 .cyan {
-	color: #0099FF;
+  color: #0099FF;
 }
 .grey {
-	color: #464646;
+  color: #464646;
 }
 .gold {
-	color: #B88A00
+  color: #B88A00
 }
 a, a:active, a:visited {
-        color: #000000;
-        text-decoration: none;
-        }
-
+  color: #000000;
+  text-decoration: none;
+}
 a:hover {
-        color: #ec6e00;
-        text-decoration: underline;
-        }
-
-table {
-        background-color: #ffffff;
-        border-collapse: collapse;
-        border-top: 0px solid #ffffff;
-        border-bottom: 0px solid #ffffff;
-        border-left: 0px solid #ffffff;
-        border-right: 0px solid #ffffff;
-        text-align: left;
-        }
-</style></head>
+  color: #ec6e00;
+  text-decoration: underline;
+}
+#Table {
+  text-align: left;
+}
+td {
+  padding: 0 15px;
+}
+</style>
+</head>
 <body>
-<a href="https://xiaomi.eu" title="xiaomi.eu Forums - Unofficial International MIUI / Xiaomi Support"><img class="fix" src="https://translators.xiaomi.eu/xiaomi_europe.png"></a>
+<a href="https://xiaomi.eu" title="xiaomi.eu Forums - Unofficial International MIUI / Xiaomi Support"><img alt="xiaomi.eu logo" class="fix" src="https://translators.xiaomi.eu/xiaomi_europe.png"></a>
 <br><br>
 <span class="header">LOGS</span><br><br>
-<table border="0" cellpadding="0" cellspacing="0">
+<table id="Table">
 	<tr>
-		<td height="auto" width="8%"><span class="black"><b>Version</b></span></td>
-		<td height="auto" width="25%"><span class="black"><b>Language repository</b></span></td>
-		<td height="auto" width="25%"><span class="black"><b>Last check</b></span></td>
-		<td height="auto" width="auto"><span class="black"><b>Status</b></span></td>
+		<td><span class="black"><b>Version</b></span></td>
+		<td><span class="black"><b>Language repository</b></span></td>
+		<td><span class="black"><b>Last check</b></span></td>
+		<td><span class="black"><b>Status</b></span></td>
 	</tr>
 EOF
 }
@@ -320,10 +315,10 @@ add_to_index() {
 	INDEX_TIME=$(cat $CACHE/$LANG_TARGET.cached/datestamp)
 	cat >>$LOG_DIR/index.html.bak <<EOF
 	<tr>
-		<td height="auto" width="8%"><span class="black">$MIUI_VERSION_INDEX</span></td>
-		<td height="auto" width="25%"><span class="black"><a href="$INDEX_LOG_HREF/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html" title="$LANG_NAME MIUI$LANG_VERSION">$LANG_NAME ($LANG_ISO)</a></span></td>
-		<td height="auto" width="25%"><span class="black">$INDEX_TIME</span></td>
-		<td height="auto" width="auto"><span class="green">$1</span><span class="red">$2</span><span class="orange">$3</span><span class="brown">$4</span><span class="pink">$5</span><span class="cyan">$6</span><span class="blue">$7</span><span class="grey">$8</span><span class="gold">$9</span></td>
+		<td><span class="black">$MIUI_VERSION_INDEX</span></td>
+		<td><span class="black"><a href="$INDEX_LOG_HREF/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html" title="$LANG_NAME MIUI$LANG_VERSION">$LANG_NAME ($LANG_ISO)</a></span></td>
+		<td><span class="black">$INDEX_TIME</span></td>
+		<td><span class="green">$1</span><span class="red">$2</span><span class="orange">$3</span><span class="brown">$4</span><span class="pink">$5</span><span class="cyan">$6</span><span class="blue">$7</span><span class="grey">$8</span><span class="gold">$9</span></td>
 	</tr>
 EOF
 }
