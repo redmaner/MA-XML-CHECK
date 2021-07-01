@@ -75,7 +75,7 @@ DEBUG_FIX=false
 #########################################################################################################
 # VARIABLES / CACHE
 #########################################################################################################
-VERSION=23
+VERSION=24
 DATE=$(date +"%m-%d-%Y-%H-%M-%S")
 CACHE="$MAIN_DIR/.cache-$DATE"
 
@@ -118,7 +118,7 @@ show_argument_help() {
 	echo "								If a specific language is specified, [miuiversion] must be defined and that language will be checked"
 	echo "								If 'autofix' is specified as last argument, allow pushing an auto-fix commit to language(s) repo(s)"
 	echo
-	echo "		--clear [cache|logs|data|language|all]		Remove cache, logs, 'data' folder, a specified language, or all"
+	echo "		--clear [cache|logs|data|language|all]		Remove '.cache*' folder(s), logs, 'data' folder, a specified language, or all"
 	echo
 	exit
 }
@@ -233,26 +233,26 @@ if [ $# -gt 0 ]; then
 			case "$2" in
 			logs)
 				rm -f $LOG_DIR/XML_*.html
-				echo -e "${txtblu}\nInfo: All log files removed!\n${txtblu}"
+				echo -e "${txtblu}\nInfo: All log files removed\n${txtrst}"
 				;;
 
 			cache)
 				ls -a | grep ".cache" | while read found_cache; do
 					rm -rf $found_cache
 				done
-				echo -e "${txtblu}\nInfo: All cache folders removed!\n${txtblu}"
+				echo -e "${txtblu}\nInfo: All '.cache*' folders removed\n${txtrst}"
 				;;
 
 			all)
 				rm -rf $MAIN_DIR/languages
 				mkdir -p $MAIN_DIR/languages
 				rm -rf $DATA_DIR
-				echo -e "${txtblu}\nInfo: Data folder & all languages removed!\n${txtblu}"
+				echo -e "${txtblu}\nInfo: 'data' folder & all languages removed\n${txtrst}"
 				;;
 
 			data)
 				rm -rf $DATA_DIR
-				echo -e "${txtblu}\nInfo: 'data' folder removed!\n${txtblu}"
+				echo -e "${txtblu}\nInfo: 'data' folder removed\n${txtrst}"
 				;;
 
 			*)
