@@ -321,9 +321,7 @@ write_log_error() {
 	if [ -s $2 ]; then
 		ERROR_MSG=$(cat $2)
 		ERROR_MSG="${ERROR_MSG//"$XML_TARGET:"/}"
-		echo '<span class="'$1'"><script class="error" type="text/plain">' >>$XML_LOG_TEMP
-		echo "$ERROR_MSG" >>$XML_LOG_TEMP
-		echo '</script></span>' >>$XML_LOG_TEMP
+		echo "<span class=\"$1\"><script type=\"text/plain\">$ERROR_MSG</script></span>" >>$XML_LOG_TEMP
 	fi
 	rm -f $2
 }
