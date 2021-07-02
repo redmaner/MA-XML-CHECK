@@ -22,19 +22,24 @@ make_logs() {
 		else
 			cp $cached_check/datestamp $DATA_DIR/$LANG_TARGET/datestamp
 			echo '<span class="header"><br><br>Checked ('$LANG_CHECK') <a href="'$LANG_URL'" title="'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO')" target="_blank">'$LANG_NAME' MIUI'$LANG_VERSION' ('$LANG_ISO') repository</a> on '$(cat $cached_check/datestamp)'</span>' >>$XML_LOG_NH
-			echo -e '<!-- Start of log -->\n<div id="Log">' >>$XML_LOG_NH
+			echo '<div id="Log">' >>$XML_LOG_NH
 
+			ERROR_FOUND=0
 			find $cached_check -iname "XML_LOG_TEMP" | sort | while read TEMP_LOG; do
 				XML_TARGET=$(cat $(dirname $TEMP_LOG)/XML_TARGET)
 				XML_FILE=${XML_TARGET/$LANG_DIR\/$LANG_TARGET\//}
-				LINE_NR=$(wc -l $XML_LOG_NH | cut -d' ' -f1)
-				echo -e '<br>\n<span class="black">• '$XML_FILE'</span>' >>$XML_LOG_NH
+				if [ "$ERROR_FOUND" == "0" ]; then
+					ERROR_FOUND=1
+					echo -e '<br>\n<span class="black title">• '$XML_FILE'</span>\n<div class="error">' >>$XML_LOG_NH
+				else
+					echo -e '</div>\n<br>\n<span class="black title">• '$XML_FILE'</span>\n<div class="error">' >>$XML_LOG_NH
+				fi
 				cat $TEMP_LOG >>$XML_LOG_NH
 			done
 
 			LINE_NR=$(wc -l $XML_LOG_NH | cut -d' ' -f1)
 			if [ "$(sed -n "$LINE_NR"p $XML_LOG_NH)" == '<div id="Log">' ]; then
-				echo -e '<br>\n<span class="green">• No errors found in this repository</span>' >>$XML_LOG_NH
+				echo -e '<br>\n<div id="OK">\n<span class="green title">• No errors found in this repository</span>' >>$XML_LOG_NH
 			fi
 		fi
 
@@ -49,8 +54,8 @@ make_logs() {
 			else
 				MIUI_VERSION_INDEX="MIUI$LANG_VERSION"
 			fi
-			if [ $(grep 'No errors found in this repository' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
-				add_to_index "No errors found" "" "" "" "" "" "" ""
+			if [ $(grep '<div id="OK">' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
+				add_to_index "No errors found" "" "" "" "" "" "" "" ""
 			else
 				INDEX_RED=""
 				INDEX_ORANGE=""
@@ -61,28 +66,56 @@ make_logs() {
 				INDEX_GREY=""
 				INDEX_GOLD=""
 				if [ $(grep 'class="red"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
-					INDEX_RED="Has parser error(s) | "
+					INDEX_RED="Has parser error(s)"
 				fi
 				if [ $(grep 'class="orange"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
-					INDEX_ORANGE="Has doubles | "
+					if [ -n "$INDEX_RED" ]; then
+						INDEX_ORANGE=" | Has doubles"
+					else
+						INDEX_ORANGE="Has doubles"
+					fi
 				fi
 				if [ $(grep 'class="brown"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
-					INDEX_BROWN="Has apostrophe error(s) | "
+					if [ -n "$INDEX_RED" ] || [ -n "$INDEX_ORANGE" ]; then
+						INDEX_BROWN=" | Has apostrophe error(s)"
+					else
+						INDEX_BROWN="Has apostrophe error(s)"
+					fi
 				fi
 				if [ $(grep 'class="pink"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
-					INDEX_PINK="Has untranslateable(s) | "
+					if [ -n "$INDEX_RED" ] || [ -n "$INDEX_ORANGE" ] || [ -n "$INDEX_BROWN" ]; then
+						INDEX_PINK=" | Has untranslateable(s)"
+					else
+						INDEX_PINK="Has untranslateable(s)"
+					fi
 				fi
 				if [ $(grep 'class="cyan"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
-					INDEX_CYAN="Has wrong value folder(s) | "
+					if [ -n "$INDEX_RED" ] || [ -n "$INDEX_ORANGE" ] || [ -n "$INDEX_BROWN" ] || [ -n "$INDEX_PINK" ]; then
+						INDEX_CYAN=" | Has wrong value folder(s)"
+					else
+						INDEX_CYAN="Has wrong value folder(s)"
+					fi
 				fi
 				if [ $(grep 'class="blue"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
-					INDEX_BLUE="Has + error(s) | "
+					if [ -n "$INDEX_RED" ] || [ -n "$INDEX_ORANGE" ] || [ -n "$INDEX_BROWN" ] || [ -n "$INDEX_PINK" ] || [ -n "$INDEX_CYAN" ]; then
+						INDEX_BLUE=" | Has + error(s)"
+					else
+						INDEX_BLUE="Has + error(s)"
+					fi
 				fi
 				if [ $(grep 'class="grey"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
-					INDEX_GREY="Has variable error(s)"
+					if [ -n "$INDEX_RED" ] || [ -n "$INDEX_ORANGE" ] || [ -n "$INDEX_BROWN" ] || [ -n "$INDEX_PINK" ] || [ -n "$INDEX_CYAN" ] || [ -n "$INDEX_BLUE" ]; then
+						INDEX_GREY=" | Has variable error(s)"
+					else
+						INDEX_GREY="Has variable error(s)"
+					fi
 				fi
 				if [ $(grep 'class="gold"><script' $INDEX_LOG_TARGET | wc -l) -gt 0 ]; then
-					INDEX_GOLD="Has formatted=false"
+					if [ -n "$INDEX_RED" ] || [ -n "$INDEX_ORANGE" ] || [ -n "$INDEX_BROWN" ] || [ -n "$INDEX_PINK" ] || [ -n "$INDEX_CYAN" ] || [ -n "$INDEX_BLUE" ] || [ -n "$INDEX_GREY" ]; then
+						INDEX_GOLD=" | Has formatted=false"
+					else
+						INDEX_GOLD="Has formatted=false"
+					fi
 				fi
 				add_to_index "" "$INDEX_RED" "$INDEX_ORANGE" "$INDEX_BROWN" "$INDEX_PINK" "$INDEX_CYAN" "$INDEX_BLUE" "$INDEX_GREY" "$INDEX_GOLD"
 			fi
@@ -91,7 +124,7 @@ make_logs() {
 	done
 
 	if [ $INDEX_LOGS == "true" ]; then
-		echo -e '</table>\n</body>\n</html>' >>$LOG_DIR/index.html.bak
+		echo -e '</table>\n<br>\n</body>\n</html>' >>$LOG_DIR/index.html.bak
 		mv $LOG_DIR/index.html.bak $LOG_DIR/index.html
 	fi
 }
@@ -113,6 +146,8 @@ write_final_log() {
 	create_log "$LOG_NEW"
 	cat $LOG_NH >>$LOG_NEW
 	cat >>$LOG_NEW <<EOF
+</div>
+<br>
 </div>
 </body>
 </html>
@@ -136,7 +171,7 @@ body {
   margin: 0px 35px;
 }
 script {
-  display: block;
+  display: inline;
 }
 .header {
   font-weight: bold;
@@ -170,7 +205,7 @@ script {
   color: #464646;
 }
 .gold {
-  color: #B88A00
+  color: #B88A00;
 }
 a, a:active, a:visited {
   color: #000000;
@@ -180,21 +215,25 @@ a:hover {
   color: #ec6e00;
   text-decoration: underline;
 }
+.title {
+  font-size: 17px;
+}
 .error {
   white-space: pre;
+  margin-top: -10px;
 }
-#Table {
+table {
   text-align: left;
 }
 td {
-  padding: 0 15px;
+  padding: 0 10px;
 }
 </style>
 </head>
 <body>
 <a href="https://translators.xiaomi.eu" title="xiaomi.eu Translators home"><img alt="xiaomi.eu logo" class="fix" src="https://translators.xiaomi.eu/xiaomi_europe.png"></a>
 <br><br>
-<table id="Table">
+<table>
 	<tr>
 		<td><span class="green">Green text</span></td>
 		<td><span class="black">No errors found</span><td>
@@ -279,7 +318,7 @@ body {
   color: #464646;
 }
 .gold {
-  color: #B88A00
+  color: #B88A00;
 }
 a, a:active, a:visited {
   color: #000000;
@@ -289,11 +328,11 @@ a:hover {
   color: #ec6e00;
   text-decoration: underline;
 }
-#Table {
+table {
   text-align: left;
 }
 td {
-  padding: 0 15px;
+  padding: 0 5px;
 }
 </style>
 </head>
@@ -301,7 +340,7 @@ td {
 <a href="https://xiaomi.eu" title="xiaomi.eu Forums - Unofficial International MIUI / Xiaomi Support"><img alt="xiaomi.eu logo" class="fix" src="https://translators.xiaomi.eu/xiaomi_europe.png"></a>
 <br><br>
 <span class="header">LOGS</span><br><br>
-<table id="Table">
+<table>
 	<tr>
 		<td><span class="black"><b>Version</b></span></td>
 		<td><span class="black"><b>Language repository</b></span></td>

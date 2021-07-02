@@ -75,7 +75,7 @@ DEBUG_FIX=false
 #########################################################################################################
 # VARIABLES / CACHE
 #########################################################################################################
-VERSION=24
+VERSION=25
 DATE=$(date +"%m-%d-%Y-%H-%M-%S")
 CACHE="$MAIN_DIR/.cache-$DATE"
 
@@ -118,7 +118,7 @@ show_argument_help() {
 	echo "								If a specific language is specified, [miuiversion] must be defined and that language will be checked"
 	echo "								If 'autofix' is specified as last argument, allow pushing an auto-fix commit to language(s) repo(s)"
 	echo
-	echo "		--clear [cache|logs|data|language|all]		Remove '.cache*' folder(s), logs, 'data' folder, a specified language, or all"
+	echo "		--clear [logs|cache|data|language|all]		Remove log files, '.cache*' folders, 'data' folder, a specific language folder, or all"
 	echo
 	exit
 }
@@ -233,26 +233,30 @@ if [ $# -gt 0 ]; then
 			case "$2" in
 			logs)
 				rm -f $LOG_DIR/XML_*.html
-				echo -e "${txtblu}\nInfo: All log files removed\n${txtrst}"
+				echo -e "${txtblu}\nInfo: Log files removed\n${txtrst}"
 				;;
 
 			cache)
 				ls -a | grep ".cache" | while read found_cache; do
 					rm -rf $found_cache
 				done
-				echo -e "${txtblu}\nInfo: All '.cache*' folders removed\n${txtrst}"
-				;;
-
-			all)
-				rm -rf $MAIN_DIR/languages
-				mkdir -p $MAIN_DIR/languages
-				rm -rf $DATA_DIR
-				echo -e "${txtblu}\nInfo: 'data' folder & all languages removed\n${txtrst}"
+				echo -e "${txtblu}\nInfo: '.cache*' folders removed\n${txtrst}"
 				;;
 
 			data)
 				rm -rf $DATA_DIR
 				echo -e "${txtblu}\nInfo: 'data' folder removed\n${txtrst}"
+				;;
+
+			all)
+				rm -f $LOG_DIR/XML_*.html
+				ls -a | grep ".cache" | while read found_cache; do
+					rm -rf $found_cache
+				done
+				rm -rf $DATA_DIR
+				rm -rf $MAIN_DIR/languages
+				mkdir -p $MAIN_DIR/languages
+				echo -e "${txtblu}\nInfo: Removed all\n${txtrst}"
 				;;
 
 			*)
@@ -268,10 +272,11 @@ if [ $# -gt 0 ]; then
 				fi
 				if [ "$(cat $LANGS_ALL | grep ''$3' '$2'' | wc -l)" -gt 0 ]; then
 					init_lang $(cat $LANGS_ALL | grep ''$3' '$2'')
-					rm -rf $MAIN_DIR/languages/$LANG_TARGET
+					CLEAR_LANG=$MAIN_DIR/languages/$LANG_TARGET
+					rm -rf $CLEAR_LANG
+					echo -e "${txtblu}\nInfo: \"$CLEAR_LANG\" folder removed\n${txtrst}"
 				else
 					echo -e "${txtred}\nError: Not supported language with this MIUI version or unknown language specified\n${txtrst}"
-					exit
 				fi
 				;;
 			esac
