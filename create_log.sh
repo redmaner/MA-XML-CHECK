@@ -39,7 +39,7 @@ make_logs() {
 
 			LINE_NR=$(wc -l $XML_LOG_NH | cut -d' ' -f1)
 			if [ "$(sed -n "$LINE_NR"p $XML_LOG_NH)" == '<div id="Log">' ]; then
-				echo -e '<br>\n<div id="OK">\n<span class="green title">• No errors found in this repository</span>' >>$XML_LOG_NH
+				echo -e '<br>\n<div id="OK">\n<span class="green title">OK</span>' >>$XML_LOG_NH
 			fi
 		fi
 
@@ -164,7 +164,7 @@ create_log() {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO</title>
+<title>$LANG_NAME MIUI$LANG_VERSION</title>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
 <style>
 body {
@@ -184,10 +184,10 @@ script {
   color: #006633;
 }
 .red {
-  color: #ff0000;
+  color: #FF0000;
 }
 .blue {
-  color: #0000ff;
+  color: #0000FF;
 }
 .orange {
   color: #FF6633;
@@ -212,7 +212,7 @@ a, a:active, a:visited {
   text-decoration: none;
 }
 a:hover {
-  color: #ec6e00;
+  color: #EC6E00;
   text-decoration: underline;
 }
 .title {
@@ -235,40 +235,40 @@ td {
 <br><br>
 <table>
 	<tr>
-		<td><span class="green">Green text</span></td>
+		<td><span class="green">Green OK</span></td>
 		<td><span class="black">No errors found</span><td>
 	</tr>
 	<tr>
 		<td><span class="red">Red text</span></td>
-		<td><span class="black">Parser error [Found in $COUNT_RED file(s)]</span></td><td>
+		<td><span class="black">Parser error [Found in <b>$COUNT_RED</b> file(s)]</span></td><td>
 	</td></tr>
 	<tr>
 		<td><span class="orange">Orange text</span></td>
-		<td><span class="black">Double strings [Found in $COUNT_ORANGE file(s)]</span></td><td>
+		<td><span class="black">Double strings [Found in <b>$COUNT_ORANGE</b> file(s)]</span></td><td>
 	</td></tr>
 	<tr>
 		<td><span class="brown">Brown text</span></td>
-		<td><span class="black">Apostrophe syntax error  [Found in $COUNT_BROWN file(s)]</span></td><td>
+		<td><span class="black">Apostrophe syntax error  [Found in <b>$COUNT_BROWN</b> file(s)]</span></td><td>
 	</td></tr>
 	<tr>
 		<td><span class="pink">Pink text</span></td>
-		<td><span class="black">Untranslateable string, array or plural - Has to be removed from xml!  [Found in $COUNT_PINK file(s)]</span></td><td>
+		<td><span class="black">Untranslateable string, array or plural - Has to be removed from xml!  [Found in <b>$COUNT_PINK</b> file(s)]</span></td><td>
 	</td></tr>
 	<tr>
 		<td><span class="cyan">Cyan text</span></td>
-		<td><span class="black">Wrong values folder  [Found in $COUNT_CYAN file(s)]</span></td><td>
+		<td><span class="black">Wrong values folder  [Found in <b>$COUNT_CYAN</b> file(s)]</span></td><td>
 	</td></tr>
 	<tr>
 		<td><span class="blue">Blue text</span></td>
-		<td><span class="black">'+' outside of tags  [Found in $COUNT_BLUE file(s)]</span></td><td>
+		<td><span class="black">'+' outside of tags  [Found in <b>$COUNT_BLUE</b> file(s)]</span></td><td>
 	</td></tr>
 	<tr>
 		<td><span class="grey">Grey text</span></td>
-		<td><span class="black">Invalid variable formatting  [Found in $COUNT_GREY file(s)]</span></td><td>
+		<td><span class="black">Invalid variable formatting  [Found in <b>$COUNT_GREY</b> file(s)]</span></td><td>
 	</td></tr>
 	<tr>
 		<td><span class="gold">Gold text</span></td>
-		<td><span class="black">Requires formatted=false  [Found in $COUNT_GOLD file(s)]</span></td><td>
+		<td><span class="black">Requires formatted=false  [Found in <b>$COUNT_GOLD</b> file(s)]</span></td><td>
 	</td></tr>
 </table>
 EOF
@@ -288,7 +288,7 @@ body {
 .header {
   font-weight: bold;
   font-size: 150%;
-  color: #ec6e00;
+  color: #EC6E00;
 }
 .black {
   color: #000000;
@@ -297,10 +297,10 @@ body {
   color: #006633;
 }
 .red {
-  color: #ff0000;
+  color: #FF0000;
 }
 .blue {
-  color: #0000ff;
+  color: #0000FF;
 }
 .orange {
   color: #FF6633;
@@ -325,7 +325,7 @@ a, a:active, a:visited {
   text-decoration: none;
 }
 a:hover {
-  color: #ec6e00;
+  color: #EC6E00;
   text-decoration: underline;
 }
 table {
