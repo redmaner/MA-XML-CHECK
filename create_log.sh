@@ -49,7 +49,7 @@ make_logs() {
 
 		if [ $INDEX_LOGS == "true" ]; then
 			INDEX_LOG_TARGET=$CACHE/XML_MIUI$LANG_VERSION-$LANG_NAME-$LANG_ISO.html
-			if [ "$LANG_VERSION" == "11" ]; then
+			if [ "$LANG_VERSION" == "13" ]; then
 				MIUI_VERSION_INDEX='<span class="orange">MIUI'$LANG_VERSION'</span>'
 			else
 				MIUI_VERSION_INDEX="MIUI$LANG_VERSION"
